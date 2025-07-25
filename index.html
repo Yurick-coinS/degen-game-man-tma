@@ -98,8 +98,6 @@
       to   { opacity: 0.97; transform: translateX(-50%) translateY(0);}
     }
     /* End Updated FOMO Popup Styles */
-
-
     .game-board-wrapper {
       width: 100vw;
       max-width: var(--max-board);
@@ -314,21 +312,45 @@
       font-family: inherit;
     }
     .lottery-modal-actions button:hover { background: #00e676; }
-    /* FOMO Timer Styles - Под игровым полем */
+
+    /* Updated FOMO Timer Styles - Inside game board */
     .fomo-timer {
-      position: relative;
-      margin: 18px auto 0 auto;
-      display: block;
-      max-width: 340px;
-      text-align: center;
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      z-index: 50;
+      color: #fff;
+      font-size: 1.18em;
       font-family: 'Share Tech Mono', monospace;
-      z-index: 100;
-      background: #222;
-      color: #FFD700;
-      padding: 8px 18px;
-      border-radius: 8px;
-      font-size: 1.2em;
+      font-weight: bold;
+      text-shadow:
+        0 0 2px #fff,
+        0 0 6px #fff,
+        0 0 0 #fff,
+        1px 1px 0 #ff9800,
+        -1px -1px 0 #ff4500,
+        2px 2px 2px #ff9800,
+        -2px -2px 2px #ff4500;
+      background: none !important;
+      border: none !important;
+      padding: 0;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      opacity: 1;
     }
+    .fomo-timer.fomo-blink {
+      animation: fomo-blink 0.5s steps(1) infinite;
+    }
+    @keyframes fomo-blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    /* End Updated FOMO Timer Styles */
+
     @media (max-width: 500px) {
       .abtns { width: 100px; height: 100px; margin-right: 0.5cm; }
       .abtn { width: 48px; height: 48px; font-size: 1.3rem; }
@@ -359,6 +381,8 @@
   <div class="game-board-wrapper">
     <div class="game-board" id="game-board">
       <div class="level-indicator" id="level-indicator">LEVEL 1</div>
+      <!-- FOMO Timer now inside game board -->
+      <div id="fomo-timer" class="fomo-timer" style="display:none;"></div>
       <div class="start-screen" id="start-screen">
         <h2 style="color:#9945FF;text-shadow:0 0 8px #9945FF;">DEGEN-MAN</h2>
         <div class="game-description" id="game-description">
@@ -402,8 +426,6 @@
       </div>
     </div>
   </div>
-  <!-- FOMO Timer remains under the game board -->
-  <div id="fomo-timer" class="fomo-timer" style="display:none;"></div>
   <div class="controls-row">
     <div class="joystick-outer" id="joystick-outer">
       <div class="joystick-base"></div>
@@ -845,27 +867,38 @@
         // popup.innerHTML = iconHTML; 
       }, 4000);
     }
-    // --- Таймер на экране ---
+    // --- Updated FOMO Timer ---
     function showFomoTimer(seconds) {
       let timerDiv = document.getElementById('fomo-timer');
-      // Убедимся, что элемент существует
-       if (!timerDiv) {
-          timerDiv = document.createElement('div');
-          timerDiv.id = 'fomo-timer';
-          timerDiv.className = 'fomo-timer';
-          timerDiv.style.display = 'none';
-          document.body.appendChild(timerDiv); // Добавляем в body
+      // ВСТАВЛЯЕМ ВНУТРЬ game-board!
+      if (!timerDiv) {
+        timerDiv = document.createElement('div');
+        timerDiv.id = 'fomo-timer';
+        timerDiv.className = 'fomo-timer';
+        timerDiv.style.display = 'none';
+        gameBoard.appendChild(timerDiv);
       }
       timerDiv.textContent = `Time left: ${seconds} sec.`;
       timerDiv.style.display = 'block';
+      timerDiv.classList.remove('fomo-blink');
+      if (seconds <= 3) timerDiv.classList.add('fomo-blink');
     }
+
     function updateFomoTimer(seconds) {
       const timerDiv = document.getElementById('fomo-timer');
-      if (timerDiv) timerDiv.textContent = `Time left: ${seconds} sec.`;
+      if (timerDiv) {
+        timerDiv.textContent = `Time left: ${seconds} sec.`;
+        if (seconds <= 3) timerDiv.classList.add('fomo-blink');
+        else timerDiv.classList.remove('fomo-blink');
+      }
     }
+
     function hideFomoTimer() {
       const timerDiv = document.getElementById('fomo-timer');
-      if (timerDiv) timerDiv.style.display = 'none';
+      if (timerDiv) {
+        timerDiv.style.display = 'none';
+        timerDiv.classList.remove('fomo-blink');
+      }
     }
     // --- Новый createGhosts: спавн по ghostStarts ---
     function createGhosts() {
