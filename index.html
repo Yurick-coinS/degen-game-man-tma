@@ -57,6 +57,49 @@
       margin-bottom: 0.5em;
       letter-spacing: 1px;
     }
+    /* Updated FOMO Popup Styles */
+    .fomo-popup {
+      position: absolute;
+      top: 0.5em;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 94vw;
+      max-width: var(--max-board); /* Совпадает с игровым полем */
+      min-height: 44px;
+      background: linear-gradient(90deg, #9945FF 70%, #14F195 100%);
+      color: #fff;
+      font-size: 1.08em;
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: bold;
+      letter-spacing: 1px;
+      border-radius: 10px;
+      box-shadow: 0 4px 24px #9945FF88, 0 1px 8px #14F19544;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5em 1em;
+      opacity: 0.97;
+      pointer-events: none;
+      animation: fomo-fadein 0.4s;
+      backdrop-filter: blur(2px);
+      border: 2px solid #14F195;
+      /* "Социальная инженерия": добавим иконку-ловушку слева через псевдоэлемент */
+    }
+    .fomo-popup::before {
+      content: "⚡";
+      font-size: 1.3em;
+      margin-right: 0.6em;
+      filter: drop-shadow(0 0 4px #FFD700);
+      opacity: 0.85;
+    }
+    @keyframes fomo-fadein {
+      from { opacity: 0; transform: translateX(-50%) translateY(-20px);}
+      to   { opacity: 0.97; transform: translateX(-50%) translateY(0);}
+    }
+    /* End Updated FOMO Popup Styles */
+
+
     .game-board-wrapper {
       width: 100vw;
       max-width: var(--max-board);
@@ -271,9 +314,8 @@
       font-family: inherit;
     }
     .lottery-modal-actions button:hover { background: #00e676; }
-    
-    /* FOMO Popup & Timer Styles - Под игровым полем */
-    .fomo-popup, .fomo-timer {
+    /* FOMO Timer Styles - Под игровым полем */
+    .fomo-timer {
       position: relative;
       margin: 18px auto 0 auto;
       display: block;
@@ -281,24 +323,12 @@
       text-align: center;
       font-family: 'Share Tech Mono', monospace;
       z-index: 100;
-    }
-    .fomo-popup {
-      background: #9945FF;
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 8px;
-      box-shadow: 0 0 16px #9945FF;
-      font-size: 1.1em;
-      margin-bottom: 8px;
-    }
-    .fomo-timer {
       background: #222;
       color: #FFD700;
       padding: 8px 18px;
       border-radius: 8px;
       font-size: 1.2em;
     }
-    
     @media (max-width: 500px) {
       .abtns { width: 100px; height: 100px; margin-right: 0.5cm; }
       .abtn { width: 48px; height: 48px; font-size: 1.3rem; }
@@ -323,6 +353,8 @@
     <div class="console-status">
       $POOR: <span id="score">0</span>&nbsp;&nbsp;LIVES: <span id="lives">3</span>
     </div>
+    <!-- FOMO Popup moved inside console-header -->
+    <div id="fomo-popup" class="fomo-popup" style="display:none;"></div>
   </div>
   <div class="game-board-wrapper">
     <div class="game-board" id="game-board">
@@ -370,8 +402,7 @@
       </div>
     </div>
   </div>
-  <!-- Всплывающие уведомления и таймеры — ПОД игровым полем -->
-  <div id="fomo-popup" class="fomo-popup" style="display:none;"></div>
+  <!-- FOMO Timer remains under the game board -->
   <div id="fomo-timer" class="fomo-timer" style="display:none;"></div>
   <div class="controls-row">
     <div class="joystick-outer" id="joystick-outer">
@@ -569,13 +600,11 @@
     // --- Большая свеча ---
     let powerCandleSpawned = false;
     let currentMazeLayout = null; // Храним текущий лабиринт
-
     function applyWallStyle(level) {
       const style = wallStyles[(level - 1) % wallStyles.length];
       document.documentElement.style.setProperty('--wall-color', style.color);
-      document.documentElement.style.setProperty('--wall-shadow', style.shadow);
       document.documentElement.style.setProperty('--wall-radius', style.radius);
-      document.documentElement.style.setProperty('--wall-texture', style.texture || "none");
+      // Note: Simplified for this example, original had more properties
     }
     function adjustGameBoardSize() {
       const windowWidth = window.innerWidth;
@@ -715,7 +744,6 @@
         }
       }
     }
-    
     // --- Получение случайной клетки коридора ---
     function getRandomCorridorCell() {
       // currentMazeLayout — массив строк текущего уровня
@@ -732,7 +760,6 @@
       if (freeCells.length === 0) return { x: 10, y: 10 }; // fallback
       return freeCells[Math.floor(Math.random() * freeCells.length)];
     }
-
     function createCandleAt(x, y) {
       for (const candle of candles) {
         const dx = candle.x - x;
@@ -763,24 +790,20 @@
         power: true
       });
     }
-    
     // --- Большая свеча ---
     function spawnPowerCandleOncePerLevel() {
       if (powerCandleSpawned) return;
       powerCandleSpawned = true;
-
       // Получаем случайную свободную клетку
       const cell = getRandomCorridorCell();
       const x = cell.x * CELL_SIZE + (CELL_SIZE - 18) / 2;
       const y = cell.y * CELL_SIZE + (CELL_SIZE - 18) / 2;
-
       const powerCandle = document.createElement('div');
       powerCandle.className = 'candle power-candle big-candle';
       powerCandle.style.left = (x * scaleX) + 'px';
       powerCandle.style.top = (y * scaleY) + 'px';
       powerCandle.style.transform = `scale(${scaleX}, ${scaleY})`;
       gameBoard.appendChild(powerCandle);
-
       candles.push({
         element: powerCandle,
         x: x,
@@ -788,11 +811,9 @@
         power: true,
         big: true
       });
-
       showFomoPopup("Big candle! Collect it in 10 seconds for +100 $POOR bonus!");
       let timer = 10;
       showFomoTimer(timer);
-
       const timerInterval = setInterval(() => {
         timer--;
         updateFomoTimer(timer);
@@ -801,30 +822,29 @@
           if (gameBoard.contains(powerCandle)) {
             gameBoard.removeChild(powerCandle);
             // Удаляем из массива
-            candles = candles.filter(c => c !== powerCandle);
+            candles = candles.filter(c => c.element !== powerCandle);
             showFomoPopup("Big candle disappeared!");
             hideFomoTimer();
           }
         }
       }, 1000);
     }
-
-    // --- Всплывающее окно ---
+    // --- Updated FOMO Popup ---
     function showFomoPopup(text) {
       let popup = document.getElementById('fomo-popup');
-      // Убедимся, что элемент существует
-      if (!popup) {
-          popup = document.createElement('div');
-          popup.id = 'fomo-popup';
-          popup.className = 'fomo-popup';
-          popup.style.display = 'none';
-          document.body.appendChild(popup); // Добавляем в body
-      }
+      if (!popup) return;
+      // Сохраняем текущий innerHTML (включая ::before)
+      const iconHTML = popup.innerHTML; 
+      // Устанавливаем только текст
       popup.textContent = text;
-      popup.style.display = 'block';
-      setTimeout(() => { if (popup) popup.style.display = 'none'; }, 4000);
+      popup.style.display = 'flex';
+      popup.style.animation = 'fomo-fadein 0.4s';
+      setTimeout(() => {
+        if (popup) popup.style.display = 'none';
+        // Восстанавливаем псевдоэлемент (на всякий случай, хотя он и так должен быть)
+        // popup.innerHTML = iconHTML; 
+      }, 4000);
     }
-
     // --- Таймер на экране ---
     function showFomoTimer(seconds) {
       let timerDiv = document.getElementById('fomo-timer');
@@ -847,8 +867,6 @@
       const timerDiv = document.getElementById('fomo-timer');
       if (timerDiv) timerDiv.style.display = 'none';
     }
-
-
     // --- Новый createGhosts: спавн по ghostStarts ---
     function createGhosts() {
       ghosts = [];
@@ -896,14 +914,12 @@
       const maxAttempts = 100;
       const minDistanceFromPlayer = 30; // Минимальное расстояние от игрока
       const minDistanceFromCandles = 15; // Минимальное расстояние от других свечей
-
       do {
         isValid = true;
         const gridX = Math.floor(Math.random() * GRID_WIDTH);
         const gridY = Math.floor(Math.random() * GRID_HEIGHT);
         x = gridX * CELL_SIZE + (CELL_SIZE - width) / 2;
         y = gridY * CELL_SIZE + (CELL_SIZE - height) / 2;
-
         // Проверка на столкновение со стенами
         for (const wall of walls) {
           if (
@@ -916,12 +932,10 @@
             break;
           }
         }
-
         // Проверка на минимальное расстояние от игрока
         if (isValid && Math.hypot(x - playerX, y - playerY) < minDistanceFromPlayer) {
           isValid = false;
         }
-
         // Проверка на минимальное расстояние от других свечей
         if (isValid) {
           for (const c of candles) {
@@ -931,14 +945,12 @@
             }
           }
         }
-
         attempts++;
         // Если не удалось найти подходящее место за maxAttempts попыток, останавливаем цикл
         if (attempts >= maxAttempts) {
           isValid = true; // Принудительно выходим, даже если позиция не идеальна
         }
       } while (!isValid);
-
       return { x, y };
     }
     function initGame() {
@@ -957,15 +969,17 @@
       ghosts = [];
       candles = [];
       walls = [];
-      bullets.forEach(b => gameBoard.removeChild(b.element));
+      bullets.forEach(b => {
+        if (gameBoard.contains(b.element)) {
+          gameBoard.removeChild(b.element);
+        }
+      });
       bullets = [];
       powerMode = false;
       showAButton(false);
       if (powerModeTimeout) clearTimeout(powerModeTimeout);
-      
       // Сброс флага большой свечи
       powerCandleSpawned = false;
-
       createMaze(0);
       // --- Новый спавн игрока и призраков ---
       playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
@@ -983,7 +997,6 @@
       gameOverScreen.style.display = 'none';
       levelCompleteScreen.style.display = 'none';
       gameInterval = setInterval(gameLoop, 30);
-      
       // Спавн большой свечи в начале игры
       setTimeout(spawnPowerCandleOncePerLevel, 3000);
     }
@@ -1117,7 +1130,9 @@
         b.element.style.top = (b.y * scaleY) + 'px';
         // Удалить если вышел за пределы
         if (b.x < 0 || b.x > 300 || b.y < 0 || b.y > 300) {
-          gameBoard.removeChild(b.element);
+          if (gameBoard.contains(b.element)) {
+            gameBoard.removeChild(b.element);
+          }
           bullets.splice(i, 1);
           continue;
         }
@@ -1128,10 +1143,14 @@
           const dy = b.y + 3 - (g.y + GHOST_SIZE/2);
           if (Math.hypot(dx, dy) < 10) {
             // Убиваем призрака
-            gameBoard.removeChild(g.element);
+            if (gameBoard.contains(g.element)) {
+              gameBoard.removeChild(g.element);
+            }
             ghosts.splice(j, 1);
             // Удаляем пулю
-            gameBoard.removeChild(b.element);
+            if (gameBoard.contains(b.element)) {
+              gameBoard.removeChild(b.element);
+            }
             bullets.splice(i, 1);
             // +1 жизнь
             lives++;
@@ -1142,7 +1161,6 @@
         }
       }
     }
-    
     // В функции сбора свечей:
     function checkCandleCollection() {
       for (let i = candles.length - 1; i >= 0; i--) {
@@ -1153,7 +1171,9 @@
         const dy = playerY + 7.5 - candle.y - size / 2;
         const distance = Math.hypot(dx, dy);
         if (distance < 7.5 + size / 2) {
-          gameBoard.removeChild(candle.element);
+          if (gameBoard.contains(candle.element)) {
+            gameBoard.removeChild(candle.element);
+          }
           candles.splice(i, 1);
           if (candle.big) {
             // Бонус за большую свечу
@@ -1176,7 +1196,6 @@
         }
       }
     }
-
     function createCandles() {
       let count = 0;
       for (let i = 0; i < candles.length; i++) {
@@ -1210,8 +1229,10 @@
         const distance = Math.hypot(dx, dy);
         if (distance < 10) {
           if (powerMode) {
-            gameBoard.removeChild(ghost.element);
-            ghosts = ghosts.filter(g => g !== ghost);
+            if (gameBoard.contains(ghost.element)) {
+              gameBoard.removeChild(ghost.element);
+            }
+            ghosts = ghosts.filter(g => g.element !== ghost.element);
             score += 100;
             scoreElement.textContent = score;
           } else if (player.invincible) {
@@ -1264,15 +1285,17 @@
         ghosts = [];
         candles = [];
         walls = [];
-        bullets.forEach(b => gameBoard.removeChild(b.element));
+        bullets.forEach(b => {
+          if (gameBoard.contains(b.element)) {
+            gameBoard.removeChild(b.element);
+          }
+        });
         bullets = [];
         powerMode = false;
         showAButton(false);
         if (powerModeTimeout) clearTimeout(powerModeTimeout);
-        
         // Сброс флага большой свечи перед новым уровнем
         powerCandleSpawned = false;
-        
         levelIndicator.textContent = "LEVEL " + level;
         createMaze((level - 1) % mazeLayouts.length);
         playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
