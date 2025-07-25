@@ -131,14 +131,22 @@
     .ghost { width: 15px; height: 15px; z-index: 5; }
     .candle { width: 4px; height: 4px; z-index: 3; border-radius: 50%; background-color: #FFD700; box-shadow: 0 0 6px #FFD700; }
     .candle.power-candle { width: 10px; height: 10px; background-color: #00FFFA; box-shadow: 0 0 12px #00FFFA, 0 0 4px #00FFFA; border: 2px solid #fff; }
+    /* Updated Big Candle Styles */
     .candle.big-candle {
-      width: 18px;
-      height: 18px;
+      width: 10px !important;
+      height: 10px !important;
       background: #FFD700;
-      border: 3px solid #FF4500;
-      box-shadow: 0 0 24px #FFD700, 0 0 12px #FF4500;
+      border: 2px solid #FF4500;
+      box-shadow: 0 0 14px #FFD700, 0 0 6px #FF4500;
       z-index: 12;
+      animation: big-candle-blink 0.5s steps(1) infinite;
     }
+    @keyframes big-candle-blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+    /* End Updated Big Candle Styles */
     .wall { background-color: #14F195; z-index: 2; border-radius: 2px; box-shadow: 0 0 10px #14F195, 0 0 2px #14F195; }
     .bullet { width: 6px; height: 6px; border-radius: 50%; background: #00FFFA; box-shadow: 0 0 8px #00FFFA; z-index: 20; pointer-events: none; }
     .game-over, .level-complete, .start-screen {
@@ -818,10 +826,10 @@
       powerCandleSpawned = true;
       // Получаем случайную свободную клетку
       const cell = getRandomCorridorCell();
-      const x = cell.x * CELL_SIZE + (CELL_SIZE - 18) / 2;
-      const y = cell.y * CELL_SIZE + (CELL_SIZE - 18) / 2;
+      const x = cell.x * CELL_SIZE + (CELL_SIZE - 10) / 2; // Updated size to 10px
+      const y = cell.y * CELL_SIZE + (CELL_SIZE - 10) / 2; // Updated size to 10px
       const powerCandle = document.createElement('div');
-      powerCandle.className = 'candle power-candle big-candle';
+      powerCandle.className = 'candle power-candle big-candle'; // Apply updated class
       powerCandle.style.left = (x * scaleX) + 'px';
       powerCandle.style.top = (y * scaleY) + 'px';
       powerCandle.style.transform = `scale(${scaleX}, ${scaleY})`;
@@ -1199,7 +1207,7 @@
       for (let i = candles.length - 1; i >= 0; i--) {
         const candle = candles[i];
         // Используем флаги для определения размера
-        const size = candle.power ? (candle.big ? 18 : 10) : 4;
+        const size = candle.power ? (candle.big ? 10 : 10) : 4; // Updated big candle size to 10px
         const dx = playerX + 7.5 - candle.x - size / 2;
         const dy = playerY + 7.5 - candle.y - size / 2;
         const distance = Math.hypot(dx, dy);
