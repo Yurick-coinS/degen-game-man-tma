@@ -44,12 +44,56 @@
       margin-bottom: 0.2em;
       letter-spacing: 2px;
     }
-    .console-subtitle {
-      color: var(--neon-green);
-      font-size: 1.1rem;
-      text-shadow: var(--neon-green-glow);
-      margin-bottom: 0.2em;
+    /* Updated Collection Profile Styles */
+    .collection-profile {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 7px;
+      background: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0 0 2px 0;
+      margin: 0 auto 0 auto;
+      min-height: 28px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.08em;
+      color: #FFD700;
+      letter-spacing: 1px;
+      user-select: none;
     }
+    .collection-profile .candle-icon {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      margin: 0 2px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      vertical-align: middle;
+      opacity: 0.4;
+      filter: grayscale(1);
+      transition: opacity 0.2s, filter 0.2s, border 0.2s;
+      box-shadow: 0 0 6px #222;
+    }
+    .collection-profile .candle-icon.collected {
+      opacity: 1;
+      filter: none;
+      border: 2px solid #14F195;
+      box-shadow: 0 0 12px #14F195, 0 0 4px #FFD700;
+    }
+    .collection-profile .collection-label {
+      margin-right: 8px;
+      color: #FFD700;
+      font-weight: bold;
+      font-size: 1em;
+      text-shadow: 0 0 6px #9945FF, 0 0 2px #fff;
+      letter-spacing: 1px;
+    }
+    @media (max-width: 500px) {
+      .collection-profile .candle-icon { width: 13px; height: 13px; }
+      .collection-profile { font-size: 0.98em; min-height: 20px; }
+    }
+    /* End Updated Collection Profile Styles */
     .console-status {
       color: var(--neon-green);
       font-size: 1.1rem;
@@ -57,6 +101,37 @@
       margin-bottom: 0.5em;
       letter-spacing: 1px;
     }
+    /* Progress Bar */
+    .mega-progress-bar {
+      width: 94vw;
+      max-width: 420px;
+      height: 13px;
+      margin: 0 auto 0.5em auto;
+      background: #222;
+      border-radius: 7px;
+      box-shadow: 0 0 8px #9945FF44;
+      overflow: hidden;
+      position: relative;
+      display: none;
+    }
+    .mega-progress-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700 60%, #14F195 100%);
+      border-radius: 7px;
+      transition: width 0.3s;
+      box-shadow: 0 0 12px #FFD70088;
+    }
+    .mega-progress-bar-label {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 0.95em;
+      font-family: 'Share Tech Mono', monospace;
+      text-shadow: 0 0 4px #9945FF, 0 0 2px #fff;
+      pointer-events: none;
+    }
+    /* End Progress Bar */
     /* Updated FOMO Popup Styles */
     .fomo-popup {
       position: absolute;
@@ -147,6 +222,44 @@
       100% { opacity: 1; }
     }
     /* End Updated Big Candle Styles */
+    /* Candle Collection Styles */
+    .candle.candle-pulse {
+      animation: candle-pulse 1s infinite;
+    }
+    @keyframes candle-pulse {
+      0% { box-shadow: 0 0 6px #14F195; }
+      50% { box-shadow: 0 0 18px #14F195; }
+      100% { box-shadow: 0 0 6px #14F195; }
+    }
+    .candle.candle-spin {
+      animation: candle-spin 1.2s linear infinite;
+    }
+    @keyframes candle-spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    .candle.candle-shake {
+      animation: candle-shake 0.4s infinite;
+    }
+    @keyframes candle-shake {
+      0% { transform: translateX(0);}
+      25% { transform: translateX(-2px);}
+      50% { transform: translateX(2px);}
+      75% { transform: translateX(-2px);}
+      100% { transform: translateX(0);}
+    }
+    .candle.candle-blink {
+      animation: candle-blink 0.7s steps(1) infinite;
+    }
+    @keyframes candle-blink {
+      0% { opacity: 1;}
+      50% { opacity: 0.3;}
+      100% { opacity: 1;}
+    }
+    .candle.candle-glow {
+      box-shadow: 0 0 18px #FFD700, 0 0 8px #fff;
+    }
+    /* End Candle Collection Styles */
     .wall { background-color: #14F195; z-index: 2; border-radius: 2px; box-shadow: 0 0 10px #14F195, 0 0 2px #14F195; }
     .bullet { width: 6px; height: 6px; border-radius: 50%; background: #00FFFA; box-shadow: 0 0 8px #00FFFA; z-index: 20; pointer-events: none; }
     .game-over, .level-complete, .start-screen {
@@ -358,6 +471,24 @@
       100% { opacity: 1; }
     }
     /* End Updated FOMO Timer Styles */
+    
+    /* Hypnotic Flash */
+    @keyframes hypnotic-flash {
+      0% { background: rgba(255,255,0,0.7); }
+      20% { background: rgba(153,69,255,0.7);}
+      40% { background: rgba(20,241,149,0.7);}
+      60% { background: rgba(255,69,0,0.7);}
+      80% { background: rgba(0,191,255,0.7);}
+      100% { background: transparent; }
+    }
+    .hypnotic-flash {
+      animation: hypnotic-flash 0.7s linear 1;
+      pointer-events: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+    }
+    /* End Hypnotic Flash */
 
     @media (max-width: 500px) {
       .abtns { width: 100px; height: 100px; margin-right: 0.5cm; }
@@ -379,10 +510,13 @@
 <body>
   <div class="console-header">
     <div class="console-title">DEGEN-MAN</div>
-    <div class="console-subtitle">THE MAZE OF F.U.D.</div>
+    <!-- Replaced subtitle with collection profile -->
+    <div id="collection-profile" class="collection-profile"></div>
     <div class="console-status">
       $POOR: <span id="score">0</span>&nbsp;&nbsp;LIVES: <span id="lives">3</span>
     </div>
+    <!-- Progress Bar -->
+    <div id="mega-progress-bar" class="mega-progress-bar"></div>
     <!-- FOMO Popup moved inside console-header -->
     <div id="fomo-popup" class="fomo-popup" style="display:none;"></div>
   </div>
@@ -578,6 +712,23 @@
          "####################"
       ]
     ];
+    // --- Candle Collection ---
+    const COLLECTION_CANDLES = [
+      { name: "Emerald", color: "#14F195", border: "#fff", effect: "pulse" },
+      { name: "Sapphire", color: "#00BFFF", border: "#fff", effect: "spin" },
+      { name: "Ruby", color: "#FF4500", border: "#fff", effect: "shake" },
+      { name: "Amethyst", color: "#9945FF", border: "#fff", effect: "blink" },
+      { name: "Topaz", color: "#FFD700", border: "#fff", effect: "glow" }
+      // Можно добавить больше!
+    ];
+    let playerCollection = [];
+    // --- End Candle Collection ---
+    
+    // --- Mega Bonus ---
+    let megaBonusEvery = 10; // Каждые 10 свечей — бонус
+    let megaBonusProgress = 0;
+    // --- End Mega Bonus ---
+    
     const gameBoard = document.getElementById('game-board');
     const scoreElement = document.getElementById('score');
     const livesElement = document.getElementById('lives');
@@ -820,28 +971,52 @@
         power: true
       });
     }
-    // --- Большая свеча ---
+    // --- Большая свеча (коллекционная или обычная) ---
     function spawnPowerCandleOncePerLevel() {
       if (powerCandleSpawned) return;
       powerCandleSpawned = true;
-      // Получаем случайную свободную клетку
+
+      // 50% шанс коллекционной свечи, иначе обычная большая свеча
+      let isCollection = Math.random() < 0.5;
+      let candleData = null;
+      if (isCollection) {
+        // Выбираем случайную не собранную, если все собраны — любую
+        let notCollected = COLLECTION_CANDLES.filter(c => !playerCollection.includes(c.name));
+        if (notCollected.length === 0) notCollected = COLLECTION_CANDLES;
+        candleData = notCollected[Math.floor(Math.random() * notCollected.length)];
+      }
+
       const cell = getRandomCorridorCell();
-      const x = cell.x * CELL_SIZE + (CELL_SIZE - 10) / 2; // Updated size to 10px
-      const y = cell.y * CELL_SIZE + (CELL_SIZE - 10) / 2; // Updated size to 10px
-      const powerCandle = document.createElement('div');
-      powerCandle.className = 'candle power-candle big-candle'; // Apply updated class
-      powerCandle.style.left = (x * scaleX) + 'px';
-      powerCandle.style.top = (y * scaleY) + 'px';
-      powerCandle.style.transform = `scale(${scaleX}, ${scaleY})`;
-      gameBoard.appendChild(powerCandle);
+      const x = cell.x * CELL_SIZE + (CELL_SIZE - 10) / 2;
+      const y = cell.y * CELL_SIZE + (CELL_SIZE - 10) / 2;
+      const candle = document.createElement('div');
+      candle.className = 'candle power-candle big-candle';
+      candle.style.left = (x * scaleX) + 'px';
+      candle.style.top = (y * scaleY) + 'px';
+      candle.style.width = '10px';
+      candle.style.height = '10px';
+      candle.style.transform = `scale(${scaleX}, ${scaleY})`;
+
+      if (isCollection && candleData) {
+        candle.classList.add('candle-' + candleData.effect);
+        candle.style.background = candleData.color;
+        candle.style.border = `2px solid ${candleData.border}`;
+        candle.dataset.collection = candleData.name;
+      }
+
+      gameBoard.appendChild(candle);
       candles.push({
-        element: powerCandle,
+        element: candle,
         x: x,
         y: y,
         power: true,
-        big: true
+        big: true,
+        collection: isCollection ? candleData.name : null
       });
-      showFomoPopup("Big candle! Collect it in 10 seconds for +100 $POOR bonus!");
+
+      showFomoPopup(isCollection && candleData
+        ? `Collection Candle! (${candleData.name})<br>Collect it in 10 seconds!`
+        : "Big candle! Collect it in 10 seconds for +100 $POOR bonus!");
       let timer = 10;
       showFomoTimer(timer);
       const timerInterval = setInterval(() => {
@@ -849,11 +1024,12 @@
         updateFomoTimer(timer);
         if (timer <= 0) {
           clearInterval(timerInterval);
-          if (gameBoard.contains(powerCandle)) {
-            gameBoard.removeChild(powerCandle);
-            // Удаляем из массива
-            candles = candles.filter(c => c.element !== powerCandle);
-            showFomoPopup("Big candle disappeared!");
+          if (gameBoard.contains(candle)) {
+            gameBoard.removeChild(candle);
+            candles = candles.filter(c => c.element !== candle);
+            showFomoPopup(isCollection && candleData
+              ? "You missed the Collection Candle!"
+              : "Big candle disappeared!");
             hideFomoTimer();
           }
         }
@@ -866,7 +1042,7 @@
       // Сохраняем текущий innerHTML (включая ::before)
       const iconHTML = popup.innerHTML; 
       // Устанавливаем только текст
-      popup.textContent = text;
+      popup.innerHTML = text;
       popup.style.display = 'flex';
       popup.style.animation = 'fomo-fadein 0.4s';
       setTimeout(() => {
@@ -994,6 +1170,63 @@
       } while (!isValid);
       return { x, y };
     }
+    // --- Candle Collection Profile ---
+    function updateCollectionProfile() {
+      const profile = document.getElementById('collection-profile');
+      if (!profile) return;
+      let html = `<span class="collection-label">Collection:</span>`;
+      COLLECTION_CANDLES.forEach(c => {
+        const collected = playerCollection.includes(c.name);
+        html += `<span class="candle-icon${collected ? ' collected' : ''}" 
+          style="background:${c.color};${c.effect === 'glow' ? 'box-shadow:0 0 12px #FFD700;' : ''}"
+          title="${c.name}"></span>`;
+      });
+      if (playerCollection.length === COLLECTION_CANDLES.length) {
+        html += `<span style="margin-left:8px;color:#14F195;font-weight:bold;">✔</span>`;
+      }
+      profile.innerHTML = html;
+    }
+    // --- End Candle Collection Profile ---
+    
+    // --- Progress Bar ---
+    function updateMegaProgressBar() {
+      const bar = document.getElementById('mega-progress-bar');
+      if (!bar) return;
+      if (megaBonusProgress === 0) {
+        bar.style.display = 'none';
+        bar.innerHTML = '';
+        return;
+      }
+      bar.style.display = 'block';
+      let percent = Math.min(megaBonusProgress / megaBonusEvery, 1) * 100;
+      let left = megaBonusEvery - megaBonusProgress;
+      let label = left === 1
+        ? "Only 1 more candle for a MEGA BONUS!"
+        : `Only ${left} more candles for a MEGA BONUS!`;
+      bar.innerHTML = `
+        <div class="mega-progress-bar-inner" style="width:${percent}%;"></div>
+        <div class="mega-progress-bar-label">${label}</div>
+      `;
+    }
+    // --- End Progress Bar ---
+    
+    // --- Hypnotic Flash ---
+    function triggerHypnoticFlash() {
+      let flash = document.createElement('div');
+      flash.className = 'hypnotic-flash';
+      document.body.appendChild(flash);
+      setTimeout(() => {
+        if (flash.parentNode) flash.parentNode.removeChild(flash);
+      }, 700);
+      // Вибрация на мобиле
+      if (window.navigator.vibrate) window.navigator.vibrate([80, 40, 80]);
+      // Гипнотический звук
+      playTone(880, 0.18, "triangle", 0.22);
+      setTimeout(() => playTone(440, 0.12, "sine", 0.18), 120);
+      setTimeout(() => playTone(1320, 0.09, "square", 0.18), 240);
+    }
+    // --- End Hypnotic Flash ---
+    
     function initGame() {
       applyWallStyle(1);
       const elementsToKeep = [startScreen, gameOverScreen, levelCompleteScreen, levelIndicator];
@@ -1021,6 +1254,12 @@
       if (powerModeTimeout) clearTimeout(powerModeTimeout);
       // Сброс флага большой свечи
       powerCandleSpawned = false;
+      // Сброс коллекции
+      playerCollection = [];
+      // Сброс прогресс-бара
+      megaBonusProgress = 0;
+      updateCollectionProfile(); // Инициализировать профиль
+      updateMegaProgressBar(); // Скрыть прогресс-бар
       createMaze(0);
       // --- Новый спавн игрока и призраков ---
       playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
@@ -1217,12 +1456,27 @@
           }
           candles.splice(i, 1);
           if (candle.big) {
-            // Бонус за большую свечу
-            score += 100;
-            scoreElement.textContent = score;
-            playBigCandleSound();
-            showFomoPopup("+100 $POOR for big candle!");
-            hideFomoTimer();
+            if (candle.collection) {
+                // Коллекционная свеча
+                if (!playerCollection.includes(candle.collection)) {
+                  playerCollection.push(candle.collection);
+                  showFomoPopup("New Candle Collected! Complete the set for a secret reward!");
+                  updateCollectionProfile();
+                  // --- Hypnotic Flash Trigger ---
+                  triggerHypnoticFlash();
+                } else {
+                  showFomoPopup("Collection Candle collected again!");
+                }
+                playBigCandleSound();
+                hideFomoTimer();
+              } else {
+                // Обычная большая свеча
+                score += 100;
+                scoreElement.textContent = score;
+                playBigCandleSound();
+                showFomoPopup("+100 $POOR for big candle!");
+                hideFomoTimer();
+              }
           } else if (candle.power) {
             // Обычная power-candle логика
             playPowerCandleSound();
@@ -1232,6 +1486,29 @@
             playCandleSound();
             score += 10;
             scoreElement.textContent = score;
+            
+            // --- Mega Bonus Progress ---
+            megaBonusProgress++;
+            if (megaBonusProgress < megaBonusEvery) {
+              updateMegaProgressBar();
+              if (megaBonusEvery - megaBonusProgress <= 3) {
+                showFomoPopup(
+                  megaBonusEvery - megaBonusProgress === 1
+                    ? "Only 1 more candle for a MEGA BONUS!"
+                    : `Only ${megaBonusEvery - megaBonusProgress} more candles for a MEGA BONUS!`
+                );
+              }
+            } else {
+              // Дать мегабонус!
+              score += 300;
+              scoreElement.textContent = score;
+              showFomoPopup("MEGA BONUS! +300 $POOR!");
+              playTone(1500, 0.2, "square", 0.25);
+              triggerHypnoticFlash();
+              megaBonusProgress = 0;
+              updateMegaProgressBar();
+            }
+            // --- End Mega Bonus Progress ---
           }
           if (candles.filter(c => !c.big && !c.power).length === 0) levelComplete();
         }
@@ -1337,6 +1614,9 @@
         if (powerModeTimeout) clearTimeout(powerModeTimeout);
         // Сброс флага большой свечи перед новым уровнем
         powerCandleSpawned = false;
+        // Сброс прогресс-бара перед новым уровнем
+        megaBonusProgress = 0;
+        updateMegaProgressBar();
         levelIndicator.textContent = "LEVEL " + level;
         createMaze((level - 1) % mazeLayouts.length);
         playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
@@ -1442,6 +1722,8 @@
         startGame();
       });
       adjustGameBoardSize();
+      // Инициализировать коллекцию при загрузке страницы
+      updateCollectionProfile();
     });
     document.addEventListener('keydown', e => {
       if (!gameRunning) return;
