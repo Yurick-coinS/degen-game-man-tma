@@ -101,37 +101,6 @@
       margin-bottom: 0.5em;
       letter-spacing: 1px;
     }
-    /* Progress Bar */
-    .mega-progress-bar {
-      width: 94vw;
-      max-width: 420px;
-      height: 13px;
-      margin: 0 auto 0.5em auto;
-      background: #222;
-      border-radius: 7px;
-      box-shadow: 0 0 8px #9945FF44;
-      overflow: hidden;
-      position: relative;
-      display: none;
-    }
-    .mega-progress-bar-inner {
-      height: 100%;
-      background: linear-gradient(90deg, #FFD700 60%, #14F195 100%);
-      border-radius: 7px;
-      transition: width 0.3s;
-      box-shadow: 0 0 12px #FFD70088;
-    }
-    .mega-progress-bar-label {
-      position: absolute;
-      left: 50%; top: 50%;
-      transform: translate(-50%, -50%);
-      color: #fff;
-      font-size: 0.95em;
-      font-family: 'Share Tech Mono', monospace;
-      text-shadow: 0 0 4px #9945FF, 0 0 2px #fff;
-      pointer-events: none;
-    }
-    /* End Progress Bar */
     /* Updated FOMO Popup Styles */
     .fomo-popup {
       position: absolute;
@@ -471,24 +440,6 @@
       100% { opacity: 1; }
     }
     /* End Updated FOMO Timer Styles */
-    
-    /* Hypnotic Flash */
-    @keyframes hypnotic-flash {
-      0% { background: rgba(255,255,0,0.7); }
-      20% { background: rgba(153,69,255,0.7);}
-      40% { background: rgba(20,241,149,0.7);}
-      60% { background: rgba(255,69,0,0.7);}
-      80% { background: rgba(0,191,255,0.7);}
-      100% { background: transparent; }
-    }
-    .hypnotic-flash {
-      animation: hypnotic-flash 0.7s linear 1;
-      pointer-events: none;
-      position: fixed;
-      z-index: 9999;
-      left: 0; top: 0; width: 100vw; height: 100vh;
-    }
-    /* End Hypnotic Flash */
 
     @media (max-width: 500px) {
       .abtns { width: 100px; height: 100px; margin-right: 0.5cm; }
@@ -515,8 +466,6 @@
     <div class="console-status">
       $POOR: <span id="score">0</span>&nbsp;&nbsp;LIVES: <span id="lives">3</span>
     </div>
-    <!-- Progress Bar -->
-    <div id="mega-progress-bar" class="mega-progress-bar"></div>
     <!-- FOMO Popup moved inside console-header -->
     <div id="fomo-popup" class="fomo-popup" style="display:none;"></div>
   </div>
@@ -723,12 +672,6 @@
     ];
     let playerCollection = [];
     // --- End Candle Collection ---
-    
-    // --- Mega Bonus ---
-    let megaBonusEvery = 10; // Каждые 10 свечей — бонус
-    let megaBonusProgress = 0;
-    // --- End Mega Bonus ---
-    
     const gameBoard = document.getElementById('game-board');
     const scoreElement = document.getElementById('score');
     const livesElement = document.getElementById('lives');
@@ -1187,46 +1130,6 @@
       profile.innerHTML = html;
     }
     // --- End Candle Collection Profile ---
-    
-    // --- Progress Bar ---
-    function updateMegaProgressBar() {
-      const bar = document.getElementById('mega-progress-bar');
-      if (!bar) return;
-      if (megaBonusProgress === 0) {
-        bar.style.display = 'none';
-        bar.innerHTML = '';
-        return;
-      }
-      bar.style.display = 'block';
-      let percent = Math.min(megaBonusProgress / megaBonusEvery, 1) * 100;
-      let left = megaBonusEvery - megaBonusProgress;
-      let label = left === 1
-        ? "Only 1 more candle for a MEGA BONUS!"
-        : `Only ${left} more candles for a MEGA BONUS!`;
-      bar.innerHTML = `
-        <div class="mega-progress-bar-inner" style="width:${percent}%;"></div>
-        <div class="mega-progress-bar-label">${label}</div>
-      `;
-    }
-    // --- End Progress Bar ---
-    
-    // --- Hypnotic Flash ---
-    function triggerHypnoticFlash() {
-      let flash = document.createElement('div');
-      flash.className = 'hypnotic-flash';
-      document.body.appendChild(flash);
-      setTimeout(() => {
-        if (flash.parentNode) flash.parentNode.removeChild(flash);
-      }, 700);
-      // Вибрация на мобиле
-      if (window.navigator.vibrate) window.navigator.vibrate([80, 40, 80]);
-      // Гипнотический звук
-      playTone(880, 0.18, "triangle", 0.22);
-      setTimeout(() => playTone(440, 0.12, "sine", 0.18), 120);
-      setTimeout(() => playTone(1320, 0.09, "square", 0.18), 240);
-    }
-    // --- End Hypnotic Flash ---
-    
     function initGame() {
       applyWallStyle(1);
       const elementsToKeep = [startScreen, gameOverScreen, levelCompleteScreen, levelIndicator];
@@ -1256,10 +1159,7 @@
       powerCandleSpawned = false;
       // Сброс коллекции
       playerCollection = [];
-      // Сброс прогресс-бара
-      megaBonusProgress = 0;
       updateCollectionProfile(); // Инициализировать профиль
-      updateMegaProgressBar(); // Скрыть прогресс-бар
       createMaze(0);
       // --- Новый спавн игрока и призраков ---
       playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
@@ -1462,8 +1362,6 @@
                   playerCollection.push(candle.collection);
                   showFomoPopup("New Candle Collected! Complete the set for a secret reward!");
                   updateCollectionProfile();
-                  // --- Hypnotic Flash Trigger ---
-                  triggerHypnoticFlash();
                 } else {
                   showFomoPopup("Collection Candle collected again!");
                 }
@@ -1486,29 +1384,6 @@
             playCandleSound();
             score += 10;
             scoreElement.textContent = score;
-            
-            // --- Mega Bonus Progress ---
-            megaBonusProgress++;
-            if (megaBonusProgress < megaBonusEvery) {
-              updateMegaProgressBar();
-              if (megaBonusEvery - megaBonusProgress <= 3) {
-                showFomoPopup(
-                  megaBonusEvery - megaBonusProgress === 1
-                    ? "Only 1 more candle for a MEGA BONUS!"
-                    : `Only ${megaBonusEvery - megaBonusProgress} more candles for a MEGA BONUS!`
-                );
-              }
-            } else {
-              // Дать мегабонус!
-              score += 300;
-              scoreElement.textContent = score;
-              showFomoPopup("MEGA BONUS! +300 $POOR!");
-              playTone(1500, 0.2, "square", 0.25);
-              triggerHypnoticFlash();
-              megaBonusProgress = 0;
-              updateMegaProgressBar();
-            }
-            // --- End Mega Bonus Progress ---
           }
           if (candles.filter(c => !c.big && !c.power).length === 0) levelComplete();
         }
@@ -1614,9 +1489,6 @@
         if (powerModeTimeout) clearTimeout(powerModeTimeout);
         // Сброс флага большой свечи перед новым уровнем
         powerCandleSpawned = false;
-        // Сброс прогресс-бара перед новым уровнем
-        megaBonusProgress = 0;
-        updateMegaProgressBar();
         levelIndicator.textContent = "LEVEL " + level;
         createMaze((level - 1) % mazeLayouts.length);
         playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
