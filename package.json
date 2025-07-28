@@ -2,6 +2,8 @@
   "name": "degen-man-protocol",
   "version": "1.0.0",
   "dependencies": {
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "dotenv": "^16.4.5",
+    "pg": "^8.12.0"
   }
 }
