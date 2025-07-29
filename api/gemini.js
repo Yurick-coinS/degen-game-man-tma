@@ -2,8 +2,7 @@ const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -15,8 +14,7 @@ module.exports = async (req, res) => {
     }
     prompt = req.body.prompt;
   } catch (e) {
-    res.status(400).json({ error: "Invalid JSON" });
-    return;
+    return res.status(400).json({ error: "Invalid JSON" });
   }
 
   const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
