@@ -54,7 +54,6 @@
       letter-spacing: 2px;
     }
 
-    /* Updated Collection Profile Styles */
     .collection-profile {
       display: flex;
       justify-content: center;
@@ -115,7 +114,6 @@
       }
     }
 
-    /* End Updated Collection Profile Styles */
     .console-status {
       color: var(--neon-green);
       font-size: 1.1rem;
@@ -124,7 +122,6 @@
       letter-spacing: 1px;
     }
 
-    /* New Quest Styles */
     .console-quest {
       margin: 8px 0;
       color: #FFD700;
@@ -149,8 +146,6 @@
       cursor: not-allowed;
     }
 
-    /* End Quest Styles */
-    /* Updated FOMO Popup Styles */
     .fomo-popup {
       position: absolute;
       top: 0.5em;
@@ -158,7 +153,6 @@
       transform: translateX(-50%);
       width: 94vw;
       max-width: var(--max-board);
-      /* Совпадает с игровым полем */
       min-height: 44px;
       background: linear-gradient(90deg, #9945FF 70%, #14F195 100%);
       color: #fff;
@@ -178,7 +172,6 @@
       animation: fomo-fadein 0.4s;
       backdrop-filter: blur(2px);
       border: 2px solid #14F195;
-      /* "Социальная инженерия": добавим иконку-ловушку слева через псевдоэлемент */
     }
 
     .fomo-popup::before {
@@ -201,7 +194,6 @@
       }
     }
 
-    /* End Updated FOMO Popup Styles */
     .game-board-wrapper {
       width: 100vw;
       max-width: var(--max-board);
@@ -276,7 +268,6 @@
       border: 2px solid #fff;
     }
 
-    /* Updated Big Candle Styles */
     .candle.big-candle {
       width: 10px !important;
       height: 10px !important;
@@ -301,8 +292,6 @@
       }
     }
 
-    /* End Updated Big Candle Styles */
-    /* Candle Collection Styles */
     .candle.candle-pulse {
       animation: candle-pulse 1s infinite;
     }
@@ -383,7 +372,6 @@
       box-shadow: 0 0 18px #FFD700, 0 0 8px #fff;
     }
 
-    /* End Candle Collection Styles */
     .wall {
       background-color: #14F195;
       z-index: 2;
@@ -427,7 +415,6 @@
       max-width: var(--max-board);
       margin: 0 auto;
       margin-top: 1.5em;
-      /* Подняли выше */
       margin-bottom: 1em;
       display: flex;
       justify-content: space-between;
@@ -438,7 +425,6 @@
       height: 140px;
     }
 
-    /* Джойстик */
     .joystick-outer {
       position: relative;
       left: 0;
@@ -525,7 +511,6 @@
       transform: scale(0.95);
     }
 
-    /* Game description */
     .game-description {
       color: #fff;
       font-size: 1.08em;
@@ -536,7 +521,6 @@
       font-family: 'Share Tech Mono', monospace;
     }
 
-    /* Lottery styles */
     .lottery-intro {
       background: #181828;
       color: #fff;
@@ -582,7 +566,6 @@
       display: none;
     }
 
-    /* Lottery modal */
     .lottery-modal {
       position: fixed;
       top: 0;
@@ -633,7 +616,6 @@
       background: #00e676;
     }
 
-    /* Updated FOMO Timer Styles - Inside game board */
     .fomo-timer {
       position: absolute;
       top: 8px;
@@ -680,7 +662,6 @@
       }
     }
 
-    /* End Updated FOMO Timer Styles */
     @media (max-width: 500px) {
       .abtns {
         width: 100px;
@@ -752,34 +733,11 @@
 
 <body>
   <!-- Language Switcher -->
-  <div id="lang-switcher" style="
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    z-index: 9999;
-    background: rgba(20,20,40,0.92);
-    border-radius: 6px;
-    box-shadow: 0 2px 8px #9945FF33;
-    padding: 2px 7px;
-    display: flex;
-    align-items: center;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.92em;
-  ">
+  <div id="lang-switcher"
+    style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: rgba(20,20,40,0.92); border-radius: 6px; box-shadow: 0 2px 8px #9945FF33; padding: 2px 7px; display: flex; align-items: center; font-family: 'Share Tech Mono', monospace; font-size: 0.92em;">
     <span id="lang-icon" style="color:#FFD700; font-size:1em; margin-right:4px; cursor:pointer;">🌐</span>
-    <select id="lang-select" style="
-      background: #181828;
-      color: #FFD700;
-      border: 1px solid #9945FF;
-      border-radius: 4px;
-      font-size: 0.92em;
-      padding: 1.5px 5px;
-      outline: none;
-      font-family: inherit;
-      cursor: pointer;
-      transition: border 0.2s;
-      display: none; /* Initially hidden */
-    ">
+    <select id="lang-select"
+      style="background: #181828; color: #FFD700; border: 1px solid #9945FF; border-radius: 4px; font-size: 0.92em; padding: 1.5px 5px; outline: none; font-family: inherit; cursor: pointer; transition: border 0.2s; display: none;">
       <option value="ru">Русский</option>
       <option value="en">English</option>
       <option value="es">Español</option>
@@ -792,23 +750,18 @@
   </div>
   <div class="console-header">
     <div class="console-title">DEGEN-MAN</div>
-    <!-- Replaced subtitle with collection profile -->
     <div id="collection-profile" class="collection-profile"></div>
     <div class="console-status">
       <span data-translate-key="poorLabel">$POOR:</span> <span id="score">0</span>  <span
         data-translate-key="livesLabel">LIVES:</span> <span id="lives">3</span>
     </div>
-    <!-- New Quest Block -->
     <div class="console-quest" id="console-quest">
     </div>
-
-    <!-- FOMO Popup moved inside console-header -->
     <div id="fomo-popup" class="fomo-popup" style="display:none;"></div>
   </div>
   <div class="game-board-wrapper">
     <div class="game-board" id="game-board">
       <div class="level-indicator" id="level-indicator"><span data-translate-key="levelLabel">LEVEL</span> 1</div>
-      <!-- FOMO Timer now inside game board -->
       <div id="fomo-timer" class="fomo-timer" style="display:none;"></div>
       <div class="start-screen" id="start-screen">
         <h2 style="color:#9945FF;text-shadow:0 0 8px #9945FF;">DEGEN-MAN</h2>
@@ -816,7 +769,6 @@
         </div>
         <button class="btn" id="start-btn" style="margin:18px 0 0 0;" data-translate-key="startGameBtn">START
           GAME</button>
-        <!-- Lottery block and modal as before -->
         <div id="lottery-intro" class="lottery-intro" style="margin-top:18px;">
           <div class="lottery-brief">
             <b data-translate-key="lotteryTitle">Weekly Lottery!</b><br>
@@ -863,7 +815,15 @@
       <div class="abtn" id="abtn-a"><span>A</span></div>
     </div>
   </div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
+    // --- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP ---
+    // Эта строка важна для корректной работы в Telegram
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+    }
+
     // --- Web Audio API: простые звуки ---
     let audioCtx;
 
@@ -1199,26 +1159,20 @@
     };
     let currentLang = 'ru';
 
-    // STEP 2: Main function to apply all translations
     function translateUI() {
-      // Find all elements that have a translation key
       document.querySelectorAll('[data-translate-key]').forEach(el => {
         const key = el.dataset.translateKey;
-        // IMPORTANT: Fallback to English if a key is missing in the current language
         const translation = translations[currentLang]?.[key] || translations['en']?.[key] || key;
         if (translation) {
           el.innerHTML = translation;
         }
       });
-
-      // Also update elements that are built dynamically
-      updateCollectionProfile(); // This now gets its label from the dictionary
+      updateCollectionProfile();
       if (currentQuest) {
-        showQuest(currentQuest); // Re-render quest with the new language's label
+        showQuest(currentQuest);
       }
     }
 
-    // Helper function to get a translated string and replace placeholders
     function getTranslation(key, params = {}) {
       let str = translations[currentLang]?.[key] || translations['en']?.[key] || key;
       for (const [param, value] of Object.entries(params)) {
@@ -1227,8 +1181,6 @@
       return str;
     }
 
-
-    // --- остальной код ---
     const wallStyles = [
       { color: "#27ae60", shadow: "#145a32", radius: "8px", texture: "none" },
       { color: "#39ff14", shadow: "#0f3d0f", radius: "12px", texture: "none" },
@@ -1248,7 +1200,6 @@
       { color: "#e91e63", shadow: "#880e4f", radius: "10px", texture: "repeating-linear-gradient(135deg, #e91e63, #f8bbd0 10px)" },
       { color: "#00bfae", shadow: "#00695c", radius: "50%", texture: "repeating-radial-gradient(circle, #00bfae, #1de9b6 8px)" },
     ];
-    // --- Символы: P - игрок, F - fomo, R - rug, V - volatility, A - paper ---
     const mazeLayouts = [
       [
         "#.################.#",
@@ -1339,17 +1290,14 @@
         "####################"
       ]
     ];
-    // --- Candle Collection ---
     const COLLECTION_CANDLES = [
       { name: "Emerald", color: "#14F195", border: "#fff", effect: "pulse" },
       { name: "Sapphire", color: "#00BFFF", border: "#fff", effect: "spin" },
       { name: "Ruby", color: "#FF4500", border: "#fff", effect: "shake" },
       { name: "Amethyst", color: "#9945FF", border: "#fff", effect: "blink" },
       { name: "Topaz", color: "#FFD700", border: "#fff", effect: "glow" }
-      // Можно добавить больше!
     ];
     let playerCollection = [];
-    // --- End Candle Collection ---
     const gameBoard = document.getElementById('game-board');
     const scoreElement = document.getElementById('score');
     const livesElement = document.getElementById('lives');
@@ -1363,7 +1311,6 @@
     const levelScoreElement = document.getElementById('level-score');
     const levelIndicator = document.getElementById('level-indicator');
     const restartBtn = document.getElementById('restart-btn');
-    // Геймпад
     const abtnA = document.getElementById('abtn-a');
     let player;
     let ghosts = [];
@@ -1388,26 +1335,23 @@
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     let powerMode = false;
     let powerModeTimeout = null;
-    // Для анимации рта игрока
     let playerMouthOpen = false;
     let playerMouthAnimTimer = 0;
-    // --- Движение игрока ---
     let playerDirection = { x: 0, y: 0 };
     let playerNextDirection = { x: 0, y: 0 };
     let playerX = 0;
     let playerY = 0;
-    // --- Новое: стартовые позиции ---
     let playerStart = null;
     let ghostStarts = [];
-    // --- Большая свеча ---
     let powerCandleSpawned = false;
-    let currentMazeLayout = null; // Храним текущий лабиринт
+    let currentMazeLayout = null;
+
     function applyWallStyle(level) {
       const style = wallStyles[(level - 1) % wallStyles.length];
       document.documentElement.style.setProperty('--wall-color', style.color);
       document.documentElement.style.setProperty('--wall-radius', style.radius);
-      // Note: Simplified for this example, original had more properties
     }
+
     function adjustGameBoardSize() {
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
@@ -1424,6 +1368,7 @@
       scaleY = maxBoardSize / 300;
       if (gameRunning && player) updateAllElementPositions();
     }
+
     function updateAllElementPositions() {
       player.style.left = (playerX * scaleX) + 'px';
       player.style.top = (playerY * scaleY) + 'px';
@@ -1449,6 +1394,7 @@
         b.element.style.top = (b.y * scaleY) + 'px';
       });
     }
+
     function getPlayerRotation() {
       if (playerDirection.x === 1) return 0;
       else if (playerDirection.x === -1) return 180;
@@ -1456,6 +1402,7 @@
       else if (playerDirection.y === 1) return 90;
       return 0;
     }
+
     function createPlayerSvg(mouthOpen = false) {
       return `
       <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
@@ -1470,6 +1417,7 @@
         }
       </svg>`;
     }
+
     function createGhostSvg(type) {
       let color, eyeColor, mouthPath;
       switch (type) {
@@ -1497,11 +1445,10 @@
         <path d="${mouthPath}" stroke="#000" fill="none" stroke-width="0.4" />
       </svg>`;
     }
-    // --- Новый createMaze с поддержкой стартовых позиций ---
+
     function createMaze(levelIndex) {
       playerStart = null;
       ghostStarts = [];
-      // Сохраняем текущий лабиринт
       currentMazeLayout = mazeLayouts[levelIndex] || mazeLayouts[0];
       const layout = currentMazeLayout;
       for (let y = 0; y < layout.length; y++) {
@@ -1545,10 +1492,8 @@
         }
       }
     }
-    // --- Получение случайной клетки коридора ---
+
     function getRandomCorridorCell() {
-      // currentMazeLayout — массив строк текущего уровня
-      // Символы: '#' — стена, '.' — коридор, '*' — power-candle, ' ' — коридор
       const freeCells = [];
       for (let y = 0; y < currentMazeLayout.length; y++) {
         for (let x = 0; x < currentMazeLayout[y].length; x++) {
@@ -1558,9 +1503,10 @@
           }
         }
       }
-      if (freeCells.length === 0) return { x: 10, y: 10 }; // fallback
+      if (freeCells.length === 0) return { x: 10, y: 10 };
       return freeCells[Math.floor(Math.random() * freeCells.length)];
     }
+
     function createCandleAt(x, y, color = null) {
       for (const candle of candles) {
         const dx = candle.x - x;
@@ -1570,7 +1516,6 @@
       const candle = document.createElement('div');
       candle.className = 'candle';
       if (color) {
-        // Пример: синие свечи
         if (color === "blue") candle.style.background = "#00BFFF";
         if (color === "green") candle.style.background = "#14F195";
         if (color === "red") candle.style.background = "#FF4500";
@@ -1587,6 +1532,7 @@
         y: y
       });
     }
+
     function createPowerCandleAt(x, y) {
       const candle = document.createElement('div');
       candle.className = 'candle power-candle';
@@ -1600,15 +1546,13 @@
         power: true
       });
     }
-    // --- Большая свеча (коллекционная или обычная) ---
+
     function spawnPowerCandleOncePerLevel() {
       if (powerCandleSpawned) return;
       powerCandleSpawned = true;
-      // 50% шанс коллекционной свечи, иначе обычная большая свеча
       let isCollection = Math.random() < 0.5;
       let candleData = null;
       if (isCollection) {
-        // Выбираем случайную не собранную, если все собраны — любую
         let notCollected = COLLECTION_CANDLES.filter(c => !playerCollection.includes(c.name));
         if (notCollected.length === 0) notCollected = COLLECTION_CANDLES;
         candleData = notCollected[Math.floor(Math.random() * notCollected.length)];
@@ -1638,7 +1582,6 @@
         big: true,
         collection: isCollection ? candleData.name : null
       });
-      // STEP 3: Use the new translation system for dynamic text
       const popupText = isCollection && candleData ?
         getTranslation('fomoPopupCollect', { name: candleData.name }) :
         getTranslation('fomoPopupBigCandle');
@@ -1663,18 +1606,18 @@
         }
       }, 1000);
     }
-    // --- Updated FOMO Popup ---
+
     function showFomoPopup(text) {
       let popup = document.getElementById('fomo-popup');
       if (!popup) return;
-      popup.innerHTML = text; // Now we pass the already translated text
+      popup.innerHTML = text;
       popup.style.display = 'flex';
       popup.style.animation = 'fomo-fadein 0.4s';
       setTimeout(() => {
         if (popup) popup.style.display = 'none';
       }, 4000);
     }
-    // --- Updated FOMO Timer ---
+
     function showFomoTimer(seconds) {
       let timerDiv = document.getElementById('fomo-timer');
       if (!timerDiv) {
@@ -1698,6 +1641,7 @@
         else timerDiv.classList.remove('fomo-blink');
       }
     }
+
     function hideFomoTimer() {
       const timerDiv = document.getElementById('fomo-timer');
       if (timerDiv) {
@@ -1705,7 +1649,7 @@
         timerDiv.classList.remove('fomo-blink');
       }
     }
-    // --- Новый createGhosts: спавн по ghostStarts ---
+
     function createGhosts() {
       ghosts = [];
       ghostStarts.forEach(ghostData => {
@@ -1734,6 +1678,7 @@
         });
       });
     }
+
     function createPlayer() {
       player = document.createElement('div');
       player.className = 'player';
@@ -1746,19 +1691,19 @@
       player.lastShot = 0;
       gameBoard.appendChild(player);
     }
+
     function findValidPosition(width, height) {
       let x, y, isValid;
       let attempts = 0;
       const maxAttempts = 100;
-      const minDistanceFromPlayer = 30; // Минимальное расстояние от игрока
-      const minDistanceFromCandles = 15; // Минимальное расстояние от других свечей
+      const minDistanceFromPlayer = 30;
+      const minDistanceFromCandles = 15;
       do {
         isValid = true;
         const gridX = Math.floor(Math.random() * GRID_WIDTH);
         const gridY = Math.floor(Math.random() * GRID_HEIGHT);
         x = gridX * CELL_SIZE + (CELL_SIZE - width) / 2;
         y = gridY * CELL_SIZE + (CELL_SIZE - height) / 2;
-        // Проверка на столкновение со стенами
         for (const wall of walls) {
           if (
             x < wall.x + wall.width &&
@@ -1770,11 +1715,9 @@
             break;
           }
         }
-        // Проверка на минимальное расстояние от игрока
         if (isValid && Math.hypot(x - playerX, y - playerY) < minDistanceFromPlayer) {
           isValid = false;
         }
-        // Проверка на минимальное расстояние от других свечей
         if (isValid) {
           for (const c of candles) {
             if (Math.hypot(x - c.x, y - c.y) < minDistanceFromCandles) {
@@ -1784,14 +1727,13 @@
           }
         }
         attempts++;
-        // Если не удалось найти подходящее место за maxAttempts попыток, останавливаем цикл
         if (attempts >= maxAttempts) {
-          isValid = true; // Принудительно выходим, даже если позиция не идеальна
+          isValid = true;
         }
       } while (!isValid);
       return { x, y };
     }
-    // --- Candle Collection Profile ---
+
     function updateCollectionProfile() {
       const profile = document.getElementById('collection-profile');
       if (!profile) return;
@@ -1807,7 +1749,7 @@
       }
       profile.innerHTML = html;
     }
-    // --- End Candle Collection Profile ---
+
     function initGame() {
       applyWallStyle(1);
       const elementsToKeep = [startScreen, gameOverScreen, levelCompleteScreen, levelIndicator];
@@ -1833,13 +1775,10 @@
       powerMode = false;
       showAButton(false);
       if (powerModeTimeout) clearTimeout(powerModeTimeout);
-      // Сброс флага большой свечи
       powerCandleSpawned = false;
-      // Сброс коллекции
       playerCollection = [];
-      updateCollectionProfile(); // Инициализировать профиль
+      updateCollectionProfile();
       createMaze(0);
-      // --- Новый спавн игрока и призраков ---
       playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
       playerY = playerStart ? playerStart.y : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
       playerDirection = { x: 0, y: 0 };
@@ -1847,9 +1786,9 @@
       createPlayer();
       createGhosts();
       createCandles();
-      // --- Generate Quest on Level Start ---
       generateAndShowQuest();
     }
+
     function startGame() {
       if (gameRunning) return;
       gameRunning = true;
@@ -1857,11 +1796,10 @@
       gameOverScreen.style.display = 'none';
       levelCompleteScreen.style.display = 'none';
       gameInterval = setInterval(gameLoop, 30);
-      // Спавн большой свечи в начале игры
       setTimeout(spawnPowerCandleOncePerLevel, 3000);
     }
+
     function gameLoop() {
-      // Анимация рта игрока
       playerMouthAnimTimer++;
       if (playerMouthAnimTimer > 6) {
         playerMouthOpen = !playerMouthOpen;
@@ -1891,6 +1829,7 @@
       checkCandleCollection();
       checkGhostCollision();
     }
+
     function handleTunnels() {
       if (playerX < -PLAYER_SIZE) playerX = 300;
       else if (playerX > 300) playerX = -PLAYER_SIZE;
@@ -1905,6 +1844,7 @@
         ghost.element.style.top = (ghost.y * scaleY) + 'px';
       });
     }
+
     function canMove(x, y, dir, size) {
       const nextX = x + dir.x * 1;
       const nextY = y + dir.y * 1;
@@ -1921,6 +1861,7 @@
       }
       return true;
     }
+
     function moveGhosts() {
       ghosts.forEach(ghost => {
         if (Math.random() < 0.05) {
@@ -1960,7 +1901,7 @@
         ghost.element.style.top = (ghost.y * scaleY) + 'px';
       });
     }
-    // --- СТРЕЛЬБА ---
+
     function shootBullet() {
       if (!powerMode) return;
       if (player.lastShot && Date.now() - player.lastShot < 300) return;
@@ -1981,6 +1922,7 @@
       });
       playTone(1000, 0.05, "square", 0.12);
     }
+
     function moveBullets() {
       for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
@@ -1988,7 +1930,6 @@
         b.y += b.dir.y * b.speed;
         b.element.style.left = (b.x * scaleX) + 'px';
         b.element.style.top = (b.y * scaleY) + 'px';
-        // Удалить если вышел за пределы
         if (b.x < 0 || b.x > 300 || b.y < 0 || b.y > 300) {
           if (gameBoard.contains(b.element)) {
             gameBoard.removeChild(b.element);
@@ -1996,23 +1937,19 @@
           bullets.splice(i, 1);
           continue;
         }
-        // Проверка столкновения с призраками
         for (let j = ghosts.length - 1; j >= 0; j--) {
           const g = ghosts[j];
           const dx = b.x + 3 - (g.x + GHOST_SIZE / 2);
           const dy = b.y + 3 - (g.y + GHOST_SIZE / 2);
           if (Math.hypot(dx, dy) < 10) {
-            // Убиваем призрака
             if (gameBoard.contains(g.element)) {
               gameBoard.removeChild(g.element);
             }
             ghosts.splice(j, 1);
-            // Удаляем пулю
             if (gameBoard.contains(b.element)) {
               gameBoard.removeChild(b.element);
             }
             bullets.splice(i, 1);
-            // +1 жизнь
             lives++;
             livesElement.textContent = lives;
             playTone(1200, 0.1, "square", 0.2);
@@ -2021,12 +1958,11 @@
         }
       }
     }
-    // В функции сбора свечей:
+
     function checkCandleCollection() {
       for (let i = candles.length - 1; i >= 0; i--) {
         const candle = candles[i];
-        // Используем флаги для определения размера
-        const size = candle.power ? (candle.big ? 10 : 10) : 4; // Updated big candle size to 10px
+        const size = candle.power ? (candle.big ? 10 : 10) : 4;
         const dx = playerX + 7.5 - candle.x - size / 2;
         const dy = playerY + 7.5 - candle.y - size / 2;
         const distance = Math.hypot(dx, dy);
@@ -2037,7 +1973,6 @@
           candles.splice(i, 1);
           if (candle.big) {
             if (candle.collection) {
-              // Коллекционная свеча
               if (!playerCollection.includes(candle.collection)) {
                 playerCollection.push(candle.collection);
                 showFomoPopup(getTranslation('collectedNew'));
@@ -2048,7 +1983,6 @@
               playBigCandleSound();
               hideFomoTimer();
             } else {
-              // Обычная большая свеча
               score += 100;
               scoreElement.textContent = score;
               playBigCandleSound();
@@ -2056,11 +1990,9 @@
               hideFomoTimer();
             }
           } else if (candle.power) {
-            // Обычная power-candle логика
             playPowerCandleSound();
             activatePowerMode();
           } else {
-            // Обычная свеча
             playCandleSound();
             score += 10;
             scoreElement.textContent = score;
@@ -2069,12 +2001,12 @@
         }
       }
     }
+
     function createCandles() {
       let count = 0;
       for (let i = 0; i < candles.length; i++) {
         if (!candles[i].power && !candles[i].big) count++;
       }
-      // Используем параметры из квеста, если они есть
       let minCandles = 10 + 5 * level;
       let candleColor = null;
       if (questParams && questParams.count && questParams.color) {
@@ -2086,6 +2018,7 @@
         createCandleAt(validPos.x, validPos.y, candleColor);
       }
     }
+
     function activatePowerMode() {
       if (powerModeTimeout) clearTimeout(powerModeTimeout);
       powerMode = true;
@@ -2101,6 +2034,7 @@
         showAButton(false);
       }, 5000);
     }
+
     function checkGhostCollision() {
       for (const ghost of ghosts) {
         const dx = playerX + PLAYER_SIZE / 2 - ghost.x - GHOST_SIZE / 2;
@@ -2114,14 +2048,13 @@
             ghosts = ghosts.filter(g => g.element !== ghost.element);
             score += 100;
             scoreElement.textContent = score;
-          } else if (player.invincible) {
-            // Неуязвимость: ничего не происходит
-          } else {
+          } else if (player.invincible) { } else {
             playerDies();
           }
         }
       }
     }
+
     function playerDies() {
       lives--;
       livesElement.textContent = lives;
@@ -2143,6 +2076,7 @@
         }
       }, 800);
     }
+
     function levelComplete() {
       clearInterval(gameInterval);
       gameRunning = false;
@@ -2173,7 +2107,6 @@
         powerMode = false;
         showAButton(false);
         if (powerModeTimeout) clearTimeout(powerModeTimeout);
-        // Сброс флага большой свечи перед новым уровнем
         powerCandleSpawned = false;
         levelIndicator.innerHTML = `<span data-translate-key="levelLabel">${getTranslation('levelLabel')}</span> ${level}`;
         createMaze((level - 1) % mazeLayouts.length);
@@ -2194,6 +2127,7 @@
         startGame();
       }, 1200);
     }
+
     function gameOver() {
       clearInterval(gameInterval);
       gameRunning = false;
@@ -2201,13 +2135,13 @@
       finalLevelElement.textContent = level;
       gameOverScreen.style.display = 'flex';
     }
-    // --- Геймпад управление ---
+
     function showAButton(active) {
       if (active) abtnA.classList.add('active');
       else abtnA.classList.remove('active');
     }
+
     // --- Lottery Logic ---
-    // Анимация роста призового пула (пример)
     setInterval(() => {
       let prizeElem = document.getElementById('prize-amount');
       if (!prizeElem) return;
@@ -2216,12 +2150,10 @@
       prizeElem.textContent = '$' + next.toLocaleString();
     }, 3000);
 
-    // Open modal with rules
     document.getElementById('show-rules-btn').onclick = function () {
       document.getElementById('lottery-modal-text').innerHTML = getTranslation('lotteryRules');
       document.getElementById('lottery-modal').style.display = 'flex';
     };
-    // Buy Ticket from modal
     document.getElementById('modal-buy-ticket-btn').onclick = function () {
       document.getElementById('lottery-modal-text').innerHTML = getTranslation('ticketPurchased');
       setTimeout(() => {
@@ -2229,12 +2161,10 @@
         document.getElementById('lottery-intro').style.display = 'none';
       }, 1800);
     };
-    // Skip from modal
     document.getElementById('modal-skip-btn').onclick = function () {
       document.getElementById('lottery-modal').style.display = 'none';
       document.getElementById('lottery-intro').style.display = 'none';
     };
-    // Buy Ticket from main block
     document.getElementById('buy-ticket-btn').onclick = function () {
       document.getElementById('lottery-details').style.display = 'block';
       document.getElementById('lottery-details').innerHTML = getTranslation('ticketPurchased');
@@ -2242,7 +2172,6 @@
         document.getElementById('lottery-intro').style.display = 'none';
       }, 1800);
     };
-    // Skip from main block
     document.getElementById('skip-lottery-btn').onclick = function () {
       document.getElementById('lottery-intro').style.display = 'none';
     };
@@ -2267,7 +2196,7 @@
 
     // --- Gemini Quest Generation ---
     async function fetchQuestFromGemini() {
-      const prompt = getTranslation('questPrompt'); // Use the new helper
+      const prompt = getTranslation('questPrompt');
       try {
         const response = await fetch("https://vercel-gemini-proxy-yuricks-projects.vercel.app/api/gemini", {
           method: "POST",
@@ -2286,7 +2215,6 @@
       }
     }
     function parseQuest(quest) {
-      // Пример квеста: "Собери 10 синих свечей, не попавшись призраку."
       const result = { count: null, color: null };
       const countMatch = quest.match(/(\d+)\s/);
       if (countMatch) result.count = parseInt(countMatch[1]);
@@ -2325,6 +2253,38 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       startBtn.addEventListener('click', () => {
+
+        // --- Морфеус: Протокол "Первый Контакт" ---
+        const userData = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (userData) {
+          console.log('Морфеус: Обнаружен пользователь. ID:', userData.id, 'Имя:', userData.first_name, '. Отправка сигнала...');
+          fetch('/api/user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: userData.id,
+              first_name: userData.first_name,
+            }),
+          })
+            .then(response => response.json())
+            .then(data => console.log('Морфеус: Ответ от врат:', data.message))
+            .catch(error => console.error('Морфеус: Ошибка сигнала!', error));
+        } else {
+          console.log('Морфеус: Среда Telegram не обнаружена. Использую тестового призрака.');
+          fetch('/api/user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: 987654321,
+              first_name: 'BrowserGhost',
+            }),
+          })
+            .then(response => response.json())
+            .then(data => console.log('Морфеус: Ответ от врат:', data.message))
+            .catch(error => console.error('Морфеус: Ошибка сигнала!', error));
+        }
+        // --- Конец протокола ---
+
         initGame();
         startGame();
       });
@@ -2378,7 +2338,6 @@
       }
       joystickStick.style.left = (joystickOuter.offsetWidth / 2 - joystickStick.offsetWidth / 2 + x) + 'px';
       joystickStick.style.top = (joystickOuter.offsetHeight / 2 - joystickStick.offsetHeight / 2 + y) + 'px';
-      // Нормализуем направление
       if (dist > 10) {
         let nx = x / dist, ny = y / dist;
         if (Math.abs(nx) > Math.abs(ny)) {
