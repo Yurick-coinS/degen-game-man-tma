@@ -819,7 +819,6 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     // --- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP ---
-    // Эта строка важна для корректной работы в Telegram
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
     }
@@ -2254,10 +2253,16 @@
     document.addEventListener('DOMContentLoaded', () => {
       startBtn.addEventListener('click', () => {
 
-        // --- Морфеус: Протокол "Первый Контакт" ---
+        // --- Морфеус: Протокол "Первый Контакт" v2.0 с диагностикой ---
+        debugLog('Кнопка СТАРТ нажата. Начинаю сканирование...');
         const userData = window.Telegram?.WebApp?.initDataUnsafe?.user;
+
         if (userData) {
-          console.log('Морфеус: Обнаружен пользователь. ID:', userData.id, 'Имя:', userData.first_name, '. Отправка сигнала...');
+          debugLog('Среда Telegram обнаружена.');
+          // Мы выводим на экран ВСЕ данные, что получили, чтобы ничего не упустить
+          debugLog('Полученные данные: ' + JSON.stringify(userData));
+
+          debugLog('Отправляю сигнал на /api/user...');
           fetch('/api/user', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2266,11 +2271,20 @@
               first_name: userData.first_name,
             }),
           })
-            .then(response => response.json())
-            .then(data => console.log('Морфеус: Ответ от врат:', data.message))
-            .catch(error => console.error('Морфеус: Ошибка сигнала!', error));
+            .then(response => {
+              debugLog('Получен ответ от сервера. Статус: ' + response.status);
+              return response.json();
+            })
+            .then(data => {
+              debugLog('Данные ответа: ' + JSON.stringify(data));
+            })
+            .catch(error => {
+              // Это самая важная часть. Мы увидим ошибку, если она есть.
+              debugLog('КРИТИЧЕСКАЯ ОШИБКА СИГНАЛА: ' + error.toString());
+            });
+
         } else {
-          console.log('Морфеус: Среда Telegram не обнаружена. Использую тестового призрака.');
+          debugLog('Среда Telegram НЕ обнаружена. Использую тестового призрака...');
           fetch('/api/user', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2279,15 +2293,15 @@
               first_name: 'BrowserGhost',
             }),
           })
-            .then(response => response.json())
-            .then(data => console.log('Морфеус: Ответ от врат:', data.message))
-            .catch(error => console.error('Морфеус: Ошибка сигнала!', error));
+            .then(res => res.json())
+            .then(data => debugLog('Ответ от врат (тест): ' + data.message));
         }
         // --- Конец протокола ---
 
         initGame();
         startGame();
       });
+
       restartBtn.addEventListener('click', () => {
         initGame();
         startGame();
