@@ -44,16 +44,6 @@
       pointer-events: none;
     }
 
-    .console-title {
-      color: var(--neon);
-      font-size: 2.1rem;
-      font-family: 'Share Tech Mono', monospace;
-      text-shadow: var(--neon-glow);
-      font-weight: bold;
-      margin-bottom: 0.2em;
-      letter-spacing: 2px;
-    }
-
     .collection-profile {
       display: flex;
       justify-content: center;
@@ -540,101 +530,6 @@
       font-family: 'Share Tech Mono', monospace;
     }
 
-    .lottery-intro {
-      background: #181828;
-      color: #fff;
-      border-radius: 10px;
-      padding: 12px 10px;
-      margin: 0 auto 10px auto;
-      max-width: 320px;
-      box-shadow: 0 0 16px #9945FF44;
-      font-family: 'Share Tech Mono', monospace;
-      text-align: center;
-    }
-
-    .lottery-brief {
-      font-size: 1.05em;
-      margin-bottom: 8px;
-    }
-
-    .lottery-actions button {
-      background: #14F195;
-      color: #181828;
-      font-weight: bold;
-      border: none;
-      border-radius: 7px;
-      padding: 7px 16px;
-      margin: 0 3px 7px 3px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: background 0.2s;
-      font-family: inherit;
-    }
-
-    .lottery-actions button:hover {
-      background: #00e676;
-    }
-
-    .lottery-details {
-      background: #222;
-      color: #FFD700;
-      border-radius: 7px;
-      padding: 8px 7px;
-      margin-top: 7px;
-      font-size: 0.98em;
-      display: none;
-    }
-
-    .lottery-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(15, 15, 26, 0.92);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .lottery-modal-content {
-      background: #181828;
-      color: #fff;
-      border-radius: 12px;
-      padding: 28px 22px 18px 22px;
-      max-width: 340px;
-      width: 90vw;
-      box-shadow: 0 0 32px #9945FF77;
-      text-align: center;
-      font-family: 'Share Tech Mono', monospace;
-    }
-
-    .lottery-modal-text {
-      font-size: 1.08em;
-      margin-bottom: 18px;
-      color: #FFD700;
-      line-height: 1.5;
-    }
-
-    .lottery-modal-actions button {
-      background: #14F195;
-      color: #181828;
-      font-weight: bold;
-      border: none;
-      border-radius: 7px;
-      padding: 9px 22px;
-      margin: 0 8px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: background 0.2s;
-      font-family: inherit;
-    }
-
-    .lottery-modal-actions button:hover {
-      background: #00e676;
-    }
-
     .fomo-timer {
       position: absolute;
       top: 8px;
@@ -768,7 +663,6 @@
     </select>
   </div>
   <div class="console-header">
-    <div class="console-title">DEGEN-MAN</div>
     <div id="collection-profile" class="collection-profile"></div>
     <div class="console-status">
       <span data-translate-key="poorLabel">$POOR:</span> <span id="score">0</span>  <span
@@ -786,33 +680,11 @@
       <div class="level-indicator" id="level-indicator"><span data-translate-key="levelLabel">LEVEL</span> 1</div>
       <div id="fomo-timer" class="fomo-timer" style="display:none;"></div>
       <div class="start-screen" id="start-screen">
-        <h2 style="color:#9945FF;text-shadow:0 0 8px #9945FF;">DEGEN-MAN</h2>
-        <div class="game-description" id="game-description" data-translate-key="gameDescription">
+        <div class="game-description" id="game-description" data-translate-key="gameDescription"
+          style="margin-top: 2em;">
         </div>
         <button class="btn" id="start-btn" style="margin:18px 0 0 0;" data-translate-key="startGameBtn">START
           GAME</button>
-        <div id="lottery-intro" class="lottery-intro" style="margin-top:18px;">
-          <div class="lottery-brief">
-            <b data-translate-key="lotteryTitle">Weekly Lottery!</b><br>
-            <span data-translate-key="lotterySlogan">Pay $1 — win a big prize.</span><br>
-            <span data-translate-key="prizePool">Prize pool:</span> <span id="prize-amount">$4,200</span>
-          </div>
-          <div class="lottery-actions">
-            <button id="buy-ticket-btn" data-translate-key="buyTicketBtn">Buy Ticket</button>
-            <button id="show-rules-btn" data-translate-key="howItWorksBtn">How it works</button>
-            <button id="skip-lottery-btn" data-translate-key="skipBtn">Skip</button>
-          </div>
-          <div id="lottery-details" class="lottery-details" style="display:none;"></div>
-        </div>
-        <div id="lottery-modal" class="lottery-modal" style="display:none;">
-          <div class="lottery-modal-content">
-            <div id="lottery-modal-text" class="lottery-modal-text"></div>
-            <div class="lottery-modal-actions">
-              <button id="modal-buy-ticket-btn" data-translate-key="buyTicketBtn">Buy Ticket</button>
-              <button id="modal-skip-btn" data-translate-key="skipBtn">Skip</button>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="game-over" id="game-over" style="display: none;">
         <h2 data-translate-key="gameOverTitle">GAME OVER</h2>
@@ -900,14 +772,6 @@
         collectionLabel: "Коллекция:",
         gameDescription: `Играй, выполняй задания и получай бесплатный лотерейный билет!<br>Собирай зелёные свечи, избегай F.U.D.<br><span style="color:#14F195;">Сила-свеча:</span> стреляй с помощью Пробела, J или A.`,
         startGameBtn: "НАЧАТЬ ИГРУ",
-        lotteryTitle: "Еженедельная лотерея!",
-        lotterySlogan: "Заплати $1 — выиграй большой приз.",
-        prizePool: "Призовой фонд:",
-        buyTicketBtn: "Купить билет",
-        howItWorksBtn: "Как это работает",
-        skipBtn: "Пропустить",
-        lotteryRules: `<b>Как это работает?</b><br>1. Купи билет за $1.<br>2. Наблюдай, как растёт призовой фонд.<br>3. Дождись пятницы 21:00 — и выиграй!<br><br><b>Анонимно, просто, безопасно.</b><br>Оплата и выплата — через криптокошелёк.<br><br><span style="color:#14F195;">Выполняй квесты в игре и получай бесплатный билет каждую неделю!</span>`,
-        ticketPurchased: "Билет куплен! Вы участвуете в розыгрыше в эту пятницу.<br>Удачи!",
         gameOverTitle: "ИГРА ОКОНЧЕНА",
         finalScoreLabel: "Итоговый счёт:",
         levelReachedLabel: "Достигнутый уровень:",
@@ -938,14 +802,6 @@
         collectionLabel: "Collection:",
         gameDescription: `Play, complete quests, and get a free lottery ticket!<br>Collect green candles, avoid F.U.D.<br><span style="color:#14F195;">Power-candle:</span> shoot with Space, J or A.`,
         startGameBtn: "START GAME",
-        lotteryTitle: "Weekly Lottery!",
-        lotterySlogan: "Pay $1 — win a big prize.",
-        prizePool: "Prize pool:",
-        buyTicketBtn: "Buy Ticket",
-        howItWorksBtn: "How it works",
-        skipBtn: "Skip",
-        lotteryRules: `<b>How does it work?</b><br>1. Buy a ticket for $1.<br>2. Watch the prize pool grow in real time.<br>3. Wait for Friday 21:00 — and win!<br><br><b>Anonymous, simple, safe.</b><br>Payment and payout — via crypto wallet.<br><br><span style="color:#14F195;">Complete quests in-game and get a free ticket every week!</span>`,
-        ticketPurchased: "Ticket purchased! You're in this Friday's draw.<br>Good luck!",
         gameOverTitle: "GAME OVER",
         finalScoreLabel: "Final Score:",
         levelReachedLabel: "Level Reached:",
@@ -976,14 +832,6 @@
         collectionLabel: "Colección:",
         gameDescription: `¡Juega, completa misiones y consigue un ticket de lotería gratis!<br>Recoge velas verdes, evita a los F.U.D.<br><span style="color:#14F195;">Vela de poder:</span> dispara con Espacio, J o A.`,
         startGameBtn: "EMPEZAR JUEGO",
-        lotteryTitle: "¡Lotería Semanal!",
-        lotterySlogan: "Paga $1 — gana un gran premio.",
-        prizePool: "Bote de premios:",
-        buyTicketBtn: "Comprar Ticket",
-        howItWorksBtn: "Cómo funciona",
-        skipBtn: "Saltar",
-        lotteryRules: `<b>¿Cómo funciona?</b><br>1. Compra un ticket por $1.<br>2. Mira cómo crece el bote.<br>3. ¡Espera al viernes a las 21:00 y gana!<br><br><b>Anónimo, simple, seguro.</b><br>Pago y cobro vía cripto-billetera.<br><br><span style="color:#14F195;">¡Completa misiones y obtén un ticket gratis cada semana!</span>`,
-        ticketPurchased: "¡Ticket comprado! Estás en el sorteo de este viernes.<br>¡Buena suerte!",
         gameOverTitle: "JUEGO TERMINADO",
         finalScoreLabel: "Puntuación Final:",
         levelReachedLabel: "Nivel Alcanzado:",
@@ -1014,14 +862,6 @@
         collectionLabel: "Sammlung:",
         gameDescription: `Spiele, erfülle Quests und erhalte ein kostenloses Lotterielos!<br>Sammle grüne Kerzen, meide F.U.D.<br><span style="color:#14F195;">Power-Kerze:</span> Schieße mit Leertaste, J oder A.`,
         startGameBtn: "SPIEL STARTEN",
-        lotteryTitle: "Wöchentliche Lotterie!",
-        lotterySlogan: "Zahle $1 – gewinne einen großen Preis.",
-        prizePool: "Preispool:",
-        buyTicketBtn: "Ticket kaufen",
-        howItWorksBtn: "So geht's",
-        skipBtn: "Überspringen",
-        lotteryRules: `<b>Wie funktioniert es?</b><br>1. Kaufe ein Ticket für $1.<br>2. Sieh zu, wie der Preispool wächst.<br>3. Warte auf Freitag 21:00 Uhr – und gewinne!<br><br><b>Anonym, einfach, sicher.</b><br>Zahlung und Auszahlung – über Krypto-Wallet.<br><br><span style="color:#14F195;">Erfülle Quests im Spiel und erhalte jede Woche ein kostenloses Ticket!</span>`,
-        ticketPurchased: "Ticket gekauft! Du nimmst an der Ziehung diesen Freitag teil.<br>Viel Glück!",
         gameOverTitle: "SPIEL VORBEI",
         finalScoreLabel: "Endstand:",
         levelReachedLabel: "Erreichtes Level:",
@@ -1052,14 +892,6 @@
         collectionLabel: "Collection:",
         gameDescription: `Jouez, accomplissez des quêtes et obtenez un ticket de loterie gratuit !<br>Récupérez les bougies vertes, évitez les F.U.D.<br><span style="color:#14F195;">Super-bougie :</span> tirez avec Espace, J ou A.`,
         startGameBtn: "COMMENCER À JOUER",
-        lotteryTitle: "Loterie Hebdomadaire !",
-        lotterySlogan: "Payez 1 $ — gagnez un gros lot.",
-        prizePool: "Cagnotte :",
-        buyTicketBtn: "Acheter un billet",
-        howItWorksBtn: "Comment ça marche",
-        skipBtn: "Passer",
-        lotteryRules: `<b>Comment ça marche ?</b><br>1. Achetez un billet pour 1 $.<br>2. Regardez la cagnotte augmenter.<br>3. Attendez vendredi 21h00 — et gagnez !<br><br><b>Anonyme, simple, sûr.</b><br>Paiement et retrait – via portefeuille crypto.<br><br><span style="color:#14F195;">Accomplissez des quêtes en jeu et obtenez un billet gratuit chaque semaine !</span>`,
-        ticketPurchased: "Billet acheté ! Vous participez au tirage de ce vendredi.<br>Bonne chance !",
         gameOverTitle: "PARTIE TERMINÉE",
         finalScoreLabel: "Score final :",
         levelReachedLabel: "Niveau atteint :",
@@ -1090,14 +922,6 @@
         collectionLabel: "Collezione:",
         gameDescription: `Gioca, completa le missioni e ottieni un biglietto della lotteria gratuito!<br>Raccogli le candele verdi, evita i F.U.D.<br><span style="color:#14F195;">Super-candela:</span> spara con Spazio, J o A.`,
         startGameBtn: "INIZIA PARTITA",
-        lotteryTitle: "Lotteria Settimanale!",
-        lotterySlogan: "Paga $1 — vinci un grande premio.",
-        prizePool: "Montepremi:",
-        buyTicketBtn: "Compra biglietto",
-        howItWorksBtn: "Come funziona",
-        skipBtn: "Salta",
-        lotteryRules: `<b>Come funziona?</b><br>1. Compra un biglietto per $1.<br>2. Guarda il montepremi crescere.<br>3. Aspetta venerdì alle 21:00 — e vinci!<br><br><b>Anonimo, semplice, sicuro.</b><br>Pagamento e incasso – tramite portafoglio crypto.<br><br><span style="color:#14F195;">Completa le missioni in gioco e ottieni un biglietto gratuito ogni settimana!</span>`,
-        ticketPurchased: "Biglietto acquistato! Partecipi all'estrazione di questo venerdì.<br>Buona fortuna!",
         gameOverTitle: "GIOCO FINITO",
         finalScoreLabel: "Punteggio finale:",
         levelReachedLabel: "Livello raggiunto:",
@@ -1128,14 +952,6 @@
         collectionLabel: "收藏:",
         gameDescription: `玩游戏，完成任务，获取免费彩票！<br>收集绿色蜡烛，躲避F.U.D。<br><span style="color:#14F195;">能量蜡烛:</span> 使用空格, J或A键射击。`,
         startGameBtn: "开始游戏",
-        lotteryTitle: "每周抽奖！",
-        lotterySlogan: "支付1美元 — 赢取大奖。",
-        prizePool: "奖池:",
-        buyTicketBtn: "购买彩票",
-        howItWorksBtn: "游戏规则",
-        skipBtn: "跳过",
-        lotteryRules: `<b>怎么玩？</b><br>1. 花1美元购买彩票。<br>2. 观看奖池实时增长。<br>3. 等待周五晚上9点 — 赢取大奖！<br><br><b>匿名、简单、安全。</b><br>通过加密钱包支付和收款。<br><br><span style="color:#14F195;">在游戏中完成任务，每周获得免费彩票！</span>`,
-        ticketPurchased: "已购买彩票！您已参加本周五的抽奖。<br>祝您好运！",
         gameOverTitle: "游戏结束",
         finalScoreLabel: "最终得分:",
         levelReachedLabel: "达到等级:",
@@ -1166,14 +982,6 @@
         collectionLabel: "Колекція:",
         gameDescription: `Грай, виконуй завдання та отримуй безкоштовний лотерейний квиток!<br>Збирай зелені свічки, уникай F.U.D.<br><span style="color:#14F195;">Силова-свічка:</span> стріляй за допомогою Пробілу, J або A.`,
         startGameBtn: "ПОЧАТИ ГРУ",
-        lotteryTitle: "Щотижнева лотерея!",
-        lotterySlogan: "Заплати $1 — виграй великий приз.",
-        prizePool: "Призовий фонд:",
-        buyTicketBtn: "Купити квиток",
-        howItWorksBtn: "Як це працює",
-        skipBtn: "Пропустити",
-        lotteryRules: `<b>Як це працює?</b><br>1. Купи квиток за $1.<br>2. Спостерігай, як зростає призовий фонд.<br>3. Дочекайся п'ятниці 21:00 — і виграй!<br><br><b>Анонімно, просто, безпечно.</b><br>Оплата та виплата — через криптогаманець.<br><br><span style="color:#14F195;">Виконуй квести в грі та отримуй безкоштовний квиток щотижня!</span>`,
-        ticketPurchased: "Квиток куплено! Ви берете участь у розіграші цієї п'ятниці.<br>Успіхів!",
         gameOverTitle: "ГРУ ЗАВЕРШЕНО",
         finalScoreLabel: "Підсумковий рахунок:",
         levelReachedLabel: "Досягнутий рівень:",
@@ -1223,20 +1031,6 @@
       { color: "#27ae60", shadow: "#145a32", radius: "8px", texture: "none" },
       { color: "#39ff14", shadow: "#0f3d0f", radius: "12px", texture: "none" },
       { color: "#4CAF50", shadow: "#1B5E20", radius: "20px", texture: "none" },
-      { color: "#bdbdbd", shadow: "#616161", radius: "2px", texture: "none" },
-      { color: "#607d8b", shadow: "#263238", radius: "0px", texture: "none" },
-      { color: "#ff9800", shadow: "#e65100", radius: "0px", texture: "linear-gradient(90deg, #ff9800 80%, #e65100 100%)" },
-      { color: "#795548", shadow: "#3e2723", radius: "6px", texture: "repeating-linear-gradient(45deg, #8d6e63, #8d6e63 4px, #795548 4px, #795548 8px)" },
-      { color: "#00bcd4", shadow: "#006064", radius: "50%", texture: "repeating-radial-gradient(circle, #00bcd4, #b2ebf2 10px)" },
-      { color: "#9c27b0", shadow: "#4a148c", radius: "10px", texture: "repeating-linear-gradient(135deg, #9c27b0, #4a148c 10px)" },
-      { color: "#e0f7fa", shadow: "#00bcd4", radius: "4px", texture: "repeating-linear-gradient(45deg, #e0f7fa, #b2ebf2 8px)" },
-      { color: "#fbc02d", shadow: "#ff8f00", radius: "0px", texture: "repeating-linear-gradient(90deg, #fbc02d, #ffe082 10px)" },
-      { color: "#789262", shadow: "#3e4d34", radius: "16px", texture: "none" },
-      { color: "#757575", shadow: "#212121", radius: "0px", texture: "repeating-linear-gradient(135deg, #757575, #bdbdbd 10px)" },
-      { color: "#00e676", shadow: "#00b248", radius: "50%", texture: "repeating-radial-gradient(circle, #00e676, #b2ff59 8px)" },
-      { color: "#ffeb3b", shadow: "#fbc02d", radius: "20px", texture: "repeating-linear-gradient(45deg, #ffeb3b, #fff176 10px)" },
-      { color: "#e91e63", shadow: "#880e4f", radius: "10px", texture: "repeating-linear-gradient(135deg, #e91e63, #f8bbd0 10px)" },
-      { color: "#00bfae", shadow: "#00695c", radius: "50%", texture: "repeating-radial-gradient(circle, #00bfae, #1de9b6 8px)" },
     ];
     const mazeLayouts = [
       [
@@ -1261,72 +1055,7 @@
         "#.....########.....#",
         "#.################.#"
       ],
-      [
-        "#.################.#",
-        "#.....########.....#",
-        "#....*........F....#",
-        "#.##..###..###.*##.#",
-        "#.#....#....#....#.#",
-        "#.#....#....#....#.#",
-        "#...##........##.R.#",
-        "###..#...##...#..###",
-        "##.....######.....##",
-        "#......*####.......#",
-        "#...##...##...##...#",
-        "##......####......##",
-        "###..#.######.#..###",
-        "#...##...##...##...#",
-        "#.#....#..*.#....#.#",
-        "#.#....#....#....#.#",
-        "#.##..###..###..##.#",
-        "#.....P............#",
-        "#.....########.....#",
-        "#.################.#"
-      ],
-      [
-        "####################",
-        "#..*..........F....#",
-        "#.##.##..##..##.##.#",
-        "#.##.##.####.##.##.#",
-        "#........##........#",
-        "#.##.#.######.#.##.#",
-        "#....#...##...#..*.#",
-        "####.###.##.###.####",
-        "#...R..#....#......#",
-        "#.####.#.##.#.####.#",
-        "#.*..#........#....#",
-        "##.#.##########.#.##",
-        "#..#............#..#",
-        "..##.###....###.##..",
-        "#....#........#....#",
-        "#.######.##.######.#",
-        "#........##........#",
-        "#*##.##.####.##.##.#",
-        "#........P.........#",
-        "####################"
-      ],
-      [
-        "####################",
-        "#.F................#",
-        "#.#..#..####..#.*#.#",
-        "#..##..######..##..#",
-        "#.#..#...##...#..#.#",
-        "#.##.###....###.##.#",
-        "#....#...##...#R...#",
-        "###*.##.####.##..###",
-        "#.......#..#.......#",
-        "#..####.#..#.####..#",
-        "..........*.........",
-        "##.##.#.####.#.##.##",
-        "#..#............#..#",
-        "#.##..##....##..##.#",
-        "#...##........##...#",
-        "#.######.##.######.#",
-        "#..##....*.....##..#",
-        "#.#..#.######.#..#.#",
-        "#........P.........#",
-        "####################"
-      ]
+      // Другие лабиринты
     ];
     const COLLECTION_CANDLES = [
       { name: "Emerald", color: "#14F195", border: "#fff", effect: "pulse" },
@@ -2192,41 +1921,6 @@
       else abtnA.classList.remove('active');
     }
 
-    // --- Lottery Logic ---
-    setInterval(() => {
-      let prizeElem = document.getElementById('prize-amount');
-      if (!prizeElem) return;
-      let current = parseInt(prizeElem.textContent.replace(/\D/g, '')) || 4200;
-      let next = current + Math.floor(Math.random() * 5);
-      prizeElem.textContent = '$' + next.toLocaleString();
-    }, 3000);
-
-    document.getElementById('show-rules-btn').onclick = function () {
-      document.getElementById('lottery-modal-text').innerHTML = getTranslation('lotteryRules');
-      document.getElementById('lottery-modal').style.display = 'flex';
-    };
-    document.getElementById('modal-buy-ticket-btn').onclick = function () {
-      document.getElementById('lottery-modal-text').innerHTML = getTranslation('ticketPurchased');
-      setTimeout(() => {
-        document.getElementById('lottery-modal').style.display = 'none';
-        document.getElementById('lottery-intro').style.display = 'none';
-      }, 1800);
-    };
-    document.getElementById('modal-skip-btn').onclick = function () {
-      document.getElementById('lottery-modal').style.display = 'none';
-      document.getElementById('lottery-intro').style.display = 'none';
-    };
-    document.getElementById('buy-ticket-btn').onclick = function () {
-      document.getElementById('lottery-details').style.display = 'block';
-      document.getElementById('lottery-details').innerHTML = getTranslation('ticketPurchased');
-      setTimeout(() => {
-        document.getElementById('lottery-intro').style.display = 'none';
-      }, 1800);
-    };
-    document.getElementById('skip-lottery-btn').onclick = function () {
-      document.getElementById('lottery-intro').style.display = 'none';
-    };
-
     // --- Language Switcher Logic ---
     const langSelect = document.getElementById('lang-select');
     const langIcon = document.getElementById('lang-icon');
@@ -2328,21 +2022,16 @@
 
           if (userData.playerData) {
             playerState = userData.playerData;
-            playerState.inventory = []; // Инициализируем инвентарь
+            playerState.inventory = [];
             console.log('Прометей: Состояние игрока загружено.', playerState);
 
             scoreElement.textContent = playerState.goldBalance;
-            // Инициализация отображения инвентаря (если нужно)
-
-            // Второй запрос: получаем инвентарь
-            const inventoryResponse = await fetch(`/api/inventory?userId=${playerState.userId}`);
-            const inventoryData = await inventoryResponse.json();
-
-            if (inventoryData.inventory) {
-              playerState.inventory = inventoryData.inventory;
-              console.log('Прометей: Инвентарь загружен.', playerState.inventory);
-              // Здесь будет код для отображения инвентаря
-            }
+            document.getElementById('health-value').textContent = playerState.health;
+            document.getElementById('max-health-value').textContent = playerState.maxHealth;
+            document.getElementById('mana-value').textContent = playerState.mana;
+            document.getElementById('max-mana-value').textContent = playerState.maxMana;
+            updateHealthDisplay();
+            updateManaDisplay();
           }
         } catch (error) {
           console.error('Прометей: Ошибка инициализации!', error);
