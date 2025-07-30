@@ -846,10 +846,12 @@
     }
 
     // --- ПРОМЕТЕЙ: ХРАНИЛИЩЕ СОСТОЯНИЯ ИГРОКА ---
-    let playerState = null;
+    let playerState = {
+      inventory: []
+    };
     // ---------------------------------------------
 
-    // --- Web Audio API: простые звуки ---
+    // --- Web Audio API ---
     let audioCtx;
 
     function playTone(freq, duration = 0.1, type = "sine", volume = 0.2) {
@@ -868,23 +870,10 @@
       };
     }
 
-    function playCandleSound() {
-      playTone(880, 0.07, "triangle", 0.15);
-    }
-
-    function playPowerCandleSound() {
-      playTone(440, 0.18, "square", 0.18);
-    }
-
-    function playBigCandleSound() {
-      playTone(523, 0.25, "sine", 0.2);
-      playTone(659, 0.25, "sine", 0.2);
-    }
-
-    function playDeathSound() {
-      playTone(110, 0.25, "sawtooth", 0.22);
-    }
-
+    function playCandleSound() { playTone(880, 0.07, "triangle", 0.15); }
+    function playPowerCandleSound() { playTone(440, 0.18, "square", 0.18); }
+    function playBigCandleSound() { playTone(523, 0.25, "sine", 0.2); playTone(659, 0.25, "sine", 0.2); }
+    function playDeathSound() { playTone(110, 0.25, "sawtooth", 0.22); }
     function playLevelSound() {
       playTone(523, 0.08, "triangle", 0.18);
       setTimeout(() => playTone(659, 0.08, "triangle", 0.18), 90);
@@ -892,13 +881,11 @@
     }
 
     function updateHealthDisplay() {
-      // Эта функция будет обновлять отображение здоровья в будущем,
-      // когда переменная здоровья будет изменяться в игровом цикле.
+      // Эта функция будет обновлять отображение здоровья в будущем
     }
 
     function updateManaDisplay() {
-      // Эта функция будет обновлять отображение маны в будущем,
-      // когда переменная маны будет изменяться в игровом цикле.
+      // Эта функция будет обновлять отображение маны в будущем
     }
 
     // --- Translation System ---
@@ -1738,9 +1725,6 @@
       }
       player = document.createElement('div');
       player.className = 'player';
-      player.style.left = (playerX * scaleX) + 'px';
-      player.style.top = (playerY * scaleY) + 'px';
-      player.style.transform = `scale(${scaleX}, ${scaleY})`;
       player.innerHTML = createPlayerSvg();
       player.speed = 1.5;
       player.invincible = false;
@@ -1771,7 +1755,7 @@
             break;
           }
         }
-        if (isValid && Math.hypot(x - playerX, y - playerY) < minDistanceFromPlayer) {
+        if (isValid && playerX !== undefined && Math.hypot(x - playerX, y - playerY) < minDistanceFromPlayer) {
           isValid = false;
         }
         if (isValid) {
@@ -1860,7 +1844,8 @@
       playerY = playerStart.y;
       playerDirection = { x: 0, y: 0 };
       playerNextDirection = { x: 0, y: 0 };
-      player.style.opacity = '1';
+      if (player) player.style.opacity = '1';
+
       createGhosts();
 
       player.invincible = true;
@@ -1873,6 +1858,7 @@
       gameRunning = true;
       gameInterval = setInterval(gameLoop, 30);
     }
+
 
     function startGame() {
       if (gameRunning) return;
@@ -1887,22 +1873,19 @@
     function gameLoop() {
       if (!gameRunning) return;
 
-      // Анимация рта
       playerMouthAnimTimer++;
       if (playerMouthAnimTimer > 6) {
         playerMouthOpen = !playerMouthOpen;
         if (player) player.innerHTML = createPlayerSvg(playerMouthOpen);
-        playerMouthAnimTimer = 0; // Сброс таймера
+        playerMouthAnimTimer = 0;
       }
 
-      // Обработка ввода и определение направления
       if (playerNextDirection.x !== 0 || playerNextDirection.y !== 0) {
         if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) {
           playerDirection = { ...playerNextDirection };
         }
       }
 
-      // Логика движения игрока
       if (playerDirection.x !== 0 || playerDirection.y !== 0) {
         const speed = player.speed || 1.5;
         const nextX = playerX + playerDirection.x * speed;
@@ -1914,15 +1897,12 @@
         }
       }
 
-      // Логика движения других объектов
       moveGhosts();
       moveBullets();
 
-      // Проверки столкновений и событий
       checkCandleCollection();
       checkGhostCollision();
 
-      // **КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ:** Безусловное обновление всех позиций в конце каждого кадра
       updateAllElementPositions();
     }
 
@@ -2017,7 +1997,7 @@
         b.x += b.dir.x * b.speed;
         b.y += b.dir.y * b.speed;
         if (b.x < 0 || b.x > 300 || b.y < 0 || b.y > 300) {
-          gameBoard.removeChild(b.element);
+          if (gameBoard.contains(b.element)) gameBoard.removeChild(b.element);
           bullets.splice(i, 1);
           continue;
         }
@@ -2026,9 +2006,9 @@
           const dx = b.x + 3 - (g.x + GHOST_SIZE / 2);
           const dy = b.y + 3 - (g.y + GHOST_SIZE / 2);
           if (Math.hypot(dx, dy) < 10) {
-            gameBoard.removeChild(g.element);
+            if (gameBoard.contains(g.element)) gameBoard.removeChild(g.element);
             ghosts.splice(j, 1);
-            gameBoard.removeChild(b.element);
+            if (gameBoard.contains(b.element)) gameBoard.removeChild(b.element);
             bullets.splice(i, 1);
             lives++;
             livesElement.textContent = lives;
@@ -2047,7 +2027,7 @@
         const dy = playerY + 7.5 - candle.y - size / 2;
         const distance = Math.hypot(dx, dy);
         if (distance < 7.5 + size / 2) {
-          gameBoard.removeChild(candle.element);
+          if (gameBoard.contains(candle.element)) gameBoard.removeChild(candle.element);
           candles.splice(i, 1);
           if (candle.big) {
             if (candle.collection) {
@@ -2142,7 +2122,7 @@
       clearInterval(gameInterval);
       gameRunning = false;
 
-      player.style.opacity = '0';
+      if (player) player.style.opacity = '0';
 
       setTimeout(() => {
         if (lives <= 0) {
@@ -2205,6 +2185,7 @@
         })
         .catch(error => console.error('Прометей: Ошибка сохранения счета!', error));
     }
+
 
     function showAButton(active) {
       if (active) abtnA.classList.add('active');
@@ -2333,27 +2314,38 @@
           userPayload = { id: userData.id, first_name: userData.first_name };
         } else {
           console.log('Прометей: Среда Telegram не обнаружена. Использую тестового призрака.');
-          userPayload = { id: 987654321, first_name: 'BrowserGhost' };
+          userPayload = { id: 123456789, first_name: 'BrowserGhost' };
         }
 
         try {
-          const response = await fetch('/api/user', {
+          const userResponse = await fetch('/api/user', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userPayload),
           });
-          const data = await response.json();
-          console.log('Прометей: Ответ от шлюза:', data.message);
-          if (data.playerData) {
-            playerState = data.playerData;
+          const userData = await userResponse.json();
+          console.log('Прометей: Ответ от шлюза:', userData.message);
+
+          if (userData.playerData) {
+            playerState = userData.playerData;
+            playerState.inventory = []; // Инициализируем инвентарь
             console.log('Прометей: Состояние игрока загружено.', playerState);
-            document.getElementById('health-value').textContent = playerState.health;
-            document.getElementById('max-health-value').textContent = playerState.maxHealth;
-            document.getElementById('mana-value').textContent = playerState.mana;
-            document.getElementById('max-mana-value').textContent = playerState.maxMana;
+
+            scoreElement.textContent = playerState.goldBalance;
+            // Инициализация отображения инвентаря (если нужно)
+
+            // Второй запрос: получаем инвентарь
+            const inventoryResponse = await fetch(`/api/inventory?userId=${playerState.userId}`);
+            const inventoryData = await inventoryResponse.json();
+
+            if (inventoryData.inventory) {
+              playerState.inventory = inventoryData.inventory;
+              console.log('Прометей: Инвентарь загружен.', playerState.inventory);
+              // Здесь будет код для отображения инвентаря
+            }
           }
         } catch (error) {
-          console.error('Прометей: Ошибка сигнала! Не удалось связаться с сервером.', error);
+          console.error('Прометей: Ошибка инициализации!', error);
         }
 
         initGame();
@@ -2366,7 +2358,6 @@
         startGame();
       });
 
-      // --- Initialize Language and UI ---
       const browserLang = navigator.language.slice(0, 2);
       if (Object.keys(translations).includes(browserLang)) {
         currentLang = browserLang;
@@ -2375,7 +2366,7 @@
       langSelect.style.display = 'inline-block';
       langIcon.style.display = 'none';
 
-      translateUI(); // Initial translation on page load
+      translateUI();
       adjustGameBoardSize();
     });
 
