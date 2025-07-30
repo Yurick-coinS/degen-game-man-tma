@@ -772,7 +772,10 @@
     <div id="collection-profile" class="collection-profile"></div>
     <div class="console-status">
       <span data-translate-key="poorLabel">$POOR:</span> <span id="score">0</span>  <span
-        data-translate-key="livesLabel">LIVES:</span> <span id="lives">3</span>
+        data-translate-key="livesLabel">LIVES:</span> <span id="lives">3</span>  <span
+        data-translate-key="healthLabel">HP:</span> <span id="health-value">100</span>/<span
+        id="max-health-value">100</span>  <span data-translate-key="manaLabel">MP:</span> <span
+        id="mana-value">50</span>/<span id="max-mana-value">50</span>
     </div>
     <div class="console-quest" id="console-quest">
     </div>
@@ -888,12 +891,24 @@
       setTimeout(() => playTone(784, 0.12, "triangle", 0.18), 180);
     }
 
+    function updateHealthDisplay() {
+      // Эта функция будет обновлять отображение здоровья в будущем,
+      // когда переменная здоровья будет изменяться в игровом цикле.
+    }
+
+    function updateManaDisplay() {
+      // Эта функция будет обновлять отображение маны в будущем,
+      // когда переменная маны будет изменяться в игровом цикле.
+    }
+
     // --- Translation System ---
     const translations = {
       ru: {
         questPrompt: `Придумай короткое уникальное задание для аркадной игры в стиле Pac-Man. Используй только такие игровые объекты: свечи (зелёные, синие, красные, жёлтые, фиолетовые, золотые), коллекционные свечи, призраки. Не придумывай новые предметы, которых нет в этом списке. Формат задания: одна строка, без приветствий и пояснений.`,
         poorLabel: "$POOR:",
         livesLabel: "ЖИЗНИ:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
         levelLabel: "УРОВЕНЬ",
         collectionLabel: "Коллекция:",
         gameDescription: `Играй, выполняй задания и получай бесплатный лотерейный билет!<br>Собирай зелёные свечи, избегай F.U.D.<br><span style="color:#14F195;">Сила-свеча:</span> стреляй с помощью Пробела, J или A.`,
@@ -930,6 +945,8 @@
         questPrompt: `Come up with a short unique quest for an arcade game in the style of Pac-Man. Use only these game objects: candles (green, blue, red, yellow, purple, gold), collectible candles, ghosts. Do not invent new items not in this list. The quest should be one line, no greetings or explanations.`,
         poorLabel: "$POOR:",
         livesLabel: "LIVES:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
         levelLabel: "LEVEL",
         collectionLabel: "Collection:",
         gameDescription: `Play, complete quests, and get a free lottery ticket!<br>Collect green candles, avoid F.U.D.<br><span style="color:#14F195;">Power-candle:</span> shoot with Space, J or A.`,
@@ -966,6 +983,8 @@
         questPrompt: `Crea una misión corta y única para un juego tipo Pac-Man. Usa solo estos objetos: velas (verde, azul, roja, amarilla, púrpura, dorada), velas coleccionables, fantasmas. No inventes objetos nuevos. La misión debe ser una línea, sin saludos.`,
         poorLabel: "$POOR:",
         livesLabel: "VIDAS:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
         levelLabel: "NIVEL",
         collectionLabel: "Colección:",
         gameDescription: `¡Juega, completa misiones y consigue un ticket de lotería gratis!<br>Recoge velas verdes, evita a los F.U.D.<br><span style="color:#14F195;">Vela de poder:</span> dispara con Espacio, J o A.`,
@@ -1002,6 +1021,8 @@
         questPrompt: `Erfinde eine kurze, einzigartige Aufgabe für ein Arcade-Spiel im Pac-Man-Stil. Verwende nur diese Spielobjekte: Kerzen (grün, blau, rot, gelb, lila, gold), Sammelkerzen, Geister. Erfinde keine neuen Gegenstände. Die Aufgabe sollte eine Zeile sein.`,
         poorLabel: "$POOR:",
         livesLabel: "LEBEN:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
         levelLabel: "LEVEL",
         collectionLabel: "Sammlung:",
         gameDescription: `Spiele, erfülle Quests und erhalte ein kostenloses Lotterielos!<br>Sammle grüne Kerzen, meide F.U.D.<br><span style="color:#14F195;">Power-Kerze:</span> Schieße mit Leertaste, J oder A.`,
@@ -1038,6 +1059,8 @@
         questPrompt: `Invente une quête courte et unique pour un jeu d'arcade de style Pac-Man. Utilise uniquement ces objets de jeu : bougies (vert, bleu, rouge, jaune, violet, or), bougies de collection, fantômes. N'invente pas de nouveaux objets. La quête doit être une seule ligne.`,
         poorLabel: "$POOR:",
         livesLabel: "VIES:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
         levelLabel: "NIVEAU",
         collectionLabel: "Collection:",
         gameDescription: `Jouez, accomplissez des quêtes et obtenez un ticket de loterie gratuit !<br>Récupérez les bougies vertes, évitez les F.U.D.<br><span style="color:#14F195;">Super-bougie :</span> tirez avec Espace, J ou A.`,
@@ -1074,6 +1097,8 @@
         questPrompt: `Inventa una missione breve e unica per un gioco arcade in stile Pac-Man. Usa solo questi oggetti di gioco: candele (verdi, blu, rosse, gialle, viola, oro), candele da collezione, fantasmi. Non inventare nuovi oggetti. La missione deve essere una sola riga.`,
         poorLabel: "$POOR:",
         livesLabel: "VITE:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
         levelLabel: "LIVELLO",
         collectionLabel: "Collezione:",
         gameDescription: `Gioca, completa le missioni e ottieni un biglietto della lotteria gratuito!<br>Raccogli le candele verdi, evita i F.U.D.<br><span style="color:#14F195;">Super-candela:</span> spara con Spazio, J o A.`,
@@ -1110,6 +1135,8 @@
         questPrompt: `为一款吃豆人风格的街机游戏设计一个简短而独特的任务。只使用这些游戏对象：蜡烛（绿色、蓝色、红色、黄色、紫色、金色）、收藏蜡烛、鬼魂。不要发明新物品。任务应该只有一行。`,
         poorLabel: "$POOR:",
         livesLabel: "生命:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
         levelLabel: "等级",
         collectionLabel: "收藏:",
         gameDescription: `玩游戏，完成任务，获取免费彩票！<br>收集绿色蜡烛，躲避F.U.D。<br><span style="color:#14F195;">能量蜡烛:</span> 使用空格, J或A键射击。`,
@@ -1146,6 +1173,8 @@
         questPrompt: `Придумай коротке унікальне завдання для аркадної гри в стилі Pac-Man. Використовуй тільки такі ігрові об'єкти: свічки (зелені, сині, червоні, жовті, фіолетові, золоті), колекційні свічки, привиди. Не вигадуй нових предметів. Завдання має бути одним рядком.`,
         poorLabel: "$POOR:",
         livesLabel: "ЖИТТЯ:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
         levelLabel: "РІВЕНЬ",
         collectionLabel: "Колекція:",
         gameDescription: `Грай, виконуй завдання та отримуй безкоштовний лотерейний квиток!<br>Збирай зелені свічки, уникай F.U.D.<br><span style="color:#14F195;">Силова-свічка:</span> стріляй за допомогою Пробілу, J або A.`,
@@ -2318,6 +2347,10 @@
           if (data.playerData) {
             playerState = data.playerData;
             console.log('Прометей: Состояние игрока загружено.', playerState);
+            document.getElementById('health-value').textContent = playerState.health;
+            document.getElementById('max-health-value').textContent = playerState.maxHealth;
+            document.getElementById('mana-value').textContent = playerState.mana;
+            document.getElementById('max-mana-value').textContent = playerState.maxMana;
           }
         } catch (error) {
           console.error('Прометей: Ошибка сигнала! Не удалось связаться с сервером.', error);

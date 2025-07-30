@@ -1,39 +1,42 @@
 // Запрашиваем наш единый, центральный модуль подключения к базе данных
 const pool = require('../db');
 
-// Экспортируем функцию, которую будет вызывать Vercel. Это — наш шлюз.
+// Экспортируем функцию в формате CommonJS, совместимом с Vercel
 module.exports = async (req, res) => {
-  // Мы принимаем запросы только методом POST для безопасности
+  // Принимаем запросы только методом POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Метод запрещен. Только POST.' });
+    return res.status(405).json({ message: 'Прометей: Метод запрещен. Только POST.' });
   }
 
   try {
-    // Извлекаем данные, которые пришлет нам клиент (игра)
     const { id, first_name } = req.body;
 
-    // Проверка: ID пользователя является обязательным
+    // Валидация входных данных
     if (!id) {
-      return res.status(400).json({ message: 'Ошибка: ID пользователя не предоставлен.' });
+      return res.status(400).json({ message: 'Прометей: Ошибка. ID пользователя не предоставлен.' });
     }
 
     // --- Главный акт: Распознавание или Создание ---
 
-    // Сначала, пытаемся найти существующего игрока
-    let playerQuery = await pool.query('SELECT * FROM players WHERE user_id = $1', [id]);
+    // Пытаемся найти существующего игрока и получить все его данные
+    const selectQuery = 'SELECT * FROM players WHERE user_id = $1';
+    let playerResult = await pool.query(selectQuery, [id]);
 
-    let user = playerQuery.rows[0];
+    let user = playerResult.rows[0];
     let isNewUser = false;
+    let statusCode = 200; // OK (для существующего пользователя)
 
-    // Если игрок не найден (результат пуст), мы его создаем
+    // Если игрок не найден, создаем его с начальными параметрами
     if (!user) {
       isNewUser = true;
+      statusCode = 201; // Created (для нового пользователя)
+
       const insertQuery = `
-        INSERT INTO players (user_id, username)
-        VALUES ($1, $2)
+        INSERT INTO players (user_id, username, health, max_health, mana, max_mana)
+        VALUES ($1, $2, 100, 100, 50, 50)
         RETURNING *; 
       `;
-      // Выполняем запрос на вставку и немедленно получаем обратно данные нового игрока
+      // gold_balance будет установлен в 0 по умолчанию, как мы задали в базе данных
       const newUserResult = await pool.query(insertQuery, [id, first_name || 'Anonymous']);
       user = newUserResult.rows[0];
       console.log(`Прометей: Новая сущность захвачена. ID: ${id}`);
@@ -41,20 +44,23 @@ module.exports = async (req, res) => {
       console.log(`Прометей: Существующая сущность опознана. ID: ${id}`);
     }
 
-    // Отправляем финальный, полный ответ клиенту
-    res.status(isNewUser ? 201 : 200).json({
+    // Формируем финальный, консистентный ответ
+    res.status(statusCode).json({
       message: isNewUser ? 'Сущность создана и опознана.' : 'Сущность опознана.',
       playerData: {
-        id: user.id, // внутренний ID из базы
-        userId: user.user_id, // ID из Telegram
+        id: user.id,
+        userId: user.user_id,
         username: user.username,
         goldBalance: user.gold_balance,
+        health: user.health,
+        maxHealth: user.max_health,
+        mana: user.mana,
+        maxMana: user.max_mana,
         createdAt: user.created_at
       }
     });
 
   } catch (error) {
-    // Если произошла любая ошибка на уровне базы данных
     console.error('Прометей: КРИТИЧЕСКАЯ ОШИБКА ШЛЮЗА!', error);
     res.status(500).json({
       message: 'Критическая ошибка системы. Опознание не удалось.',
