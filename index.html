@@ -1875,6 +1875,7 @@
           playerX = nextX;
           playerY = nextY;
           handleTunnels();
+          // ПРОМЕТЕЙ: ВОССТАНОВЛЕНИЕ ЦИКЛА РЕНДЕРИНГА
           updateAllElementPositions();
         }
       }
@@ -2282,8 +2283,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       startBtn.addEventListener('click', async () => {
 
-        // --- ПРОМЕТЕЙ: Протокол "Обратная Связь" v3.0 ---
-        startBtn.disabled = true; // Блокируем кнопку на время загрузки
+        startBtn.disabled = true;
         const userData = window.Telegram?.WebApp?.initDataUnsafe?.user;
         let userPayload = {};
 
@@ -2313,7 +2313,7 @@
 
         initGame();
         startGame();
-        startBtn.disabled = false; // Разблокируем кнопку
+        startBtn.disabled = false;
       });
 
       restartBtn.addEventListener('click', () => {
