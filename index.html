@@ -823,6 +823,10 @@
       window.Telegram.WebApp.ready();
     }
 
+    // --- ПРОМЕТЕЙ: ХРАНИЛИЩЕ СОСТОЯНИЯ ИГРОКА ---
+    let playerState = null;
+    // ---------------------------------------------
+
     // --- Web Audio API: простые звуки ---
     let audioCtx;
 
@@ -1115,7 +1119,7 @@
         fomoPopupMissedBig: "大蜡烛消失了！",
         fomoTimer: "剩余时间: {seconds}秒",
         collectedNew: "收集到新的蜡烛！集齐所有以获得神秘奖励！",
-        collectedAgain: "再次收集到收藏蜡燭！",
+        collectedAgain: "再次收集到收藏蜡烛！",
         bigCandleBonus: "大蜡烛奖励+100 $POOR！",
         questDefaultFallback: "收集所有蜡烛！",
       },
@@ -1124,7 +1128,7 @@
         poorLabel: "$POOR:",
         livesLabel: "ЖИТТЯ:",
         levelLabel: "РІВЕНЬ",
-        collectionLabel: "Колекція:",
+        collectionLabel: "Коллекція:",
         gameDescription: `Грай, виконуй завдання та отримуй безкоштовний лотерейний квиток!<br>Збирай зелені свічки, уникай F.U.D.<br><span style="color:#14F195;">Силова-свічка:</span> стріляй за допомогою Пробілу, J або A.`,
         startGameBtn: "ПОЧАТИ ГРУ",
         lotteryTitle: "Щотижнева лотерея!",
@@ -1404,17 +1408,17 @@
 
     function createPlayerSvg(mouthOpen = false) {
       return `
-        <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="7.5" cy="7.5" r="6" fill="#FFD6A5"/>
-          <path d="M2 6C2 4 4 2.5 7.5 2.5C11 2.5 13 4 13 6H2Z" fill="#000"/>
-          <path d="M6 2L7.5 1L9 2" fill="#000"/>
-          <text x="6.5" y="6" font-size="2.5" fill="#14F195">S</text>
-          <rect x="5" y="6" width="5" height="1.5" rx="0.5" fill="#FFF"/>
-          ${mouthOpen
+      <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="7.5" cy="7.5" r="6" fill="#FFD6A5"/>
+        <path d="M2 6C2 4 4 2.5 7.5 2.5C11 2.5 13 4 13 6H2Z" fill="#000"/>
+        <path d="M6 2L7.5 1L9 2" fill="#000"/>
+        <text x="6.5" y="6" font-size="2.5" fill="#14F195">S</text>
+        <rect x="5" y="6" width="5" height="1.5" rx="0.5" fill="#FFF"/>
+        ${mouthOpen
           ? `<path d="M5 9 Q7.5 13 10 9" stroke="#000" fill="#000" stroke-width="0.4"/>`
           : `<path d="M5 9 Q7.5 8.5 10 9" stroke="#000" fill="none" stroke-width="0.4"/>`
         }
-        </svg>`;
+      </svg>`;
     }
 
     function createGhostSvg(type) {
@@ -1426,23 +1430,23 @@
         case 'paper': color = '#FFA500'; eyeColor = '#FFF'; mouthPath = 'M5 11Q7.5 10 10 11'; break;
       }
       return `
-        <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1.5 7.5 
-                   C1.5 4.5 3.5 1.5 7.5 1.5 
-                   C11.5 1.5 13.5 4.5 13.5 7.5 
-                   L13.5 12 
-                   C13.5 12 12 10.5 11 12 
-                   C10 13.5 9 12 8 12 
-                   C7 12 6 13.5 5 12 
-                   C4 10.5 3 12 3 12 
-                   L1.5 7.5Z"
-            fill="${color}" />
-          <circle cx="5" cy="6" r="1" fill="${eyeColor}" />
-          <circle cx="10" cy="6" r="1" fill="${eyeColor}" />
-          <circle cx="5" cy="6" r="0.5" fill="#000" />
-          <circle cx="10" cy="6" r="0.5" fill="#000" />
-          <path d="${mouthPath}" stroke="#000" fill="none" stroke-width="0.4" />
-        </svg>`;
+      <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.5 7.5 
+                 C1.5 4.5 3.5 1.5 7.5 1.5 
+                 C11.5 1.5 13.5 4.5 13.5 7.5 
+                 L13.5 12 
+                 C13.5 12 12 10.5 11 12 
+                 C10 13.5 9 12 8 12 
+                 C7 12 6 13.5 5 12 
+                 C4 10.5 3 12 3 12 
+                 L1.5 7.5Z"
+          fill="${color}" />
+        <circle cx="5" cy="6" r="1" fill="${eyeColor}" />
+        <circle cx="10" cy="6" r="1" fill="${eyeColor}" />
+        <circle cx="5" cy="6" r="0.5" fill="#000" />
+        <circle cx="10" cy="6" r="0.5" fill="#000" />
+        <path d="${mouthPath}" stroke="#000" fill="none" stroke-width="0.4" />
+      </svg>`;
     }
 
     function createMaze(levelIndex) {
@@ -1740,8 +1744,8 @@
       COLLECTION_CANDLES.forEach(c => {
         const collected = playerCollection.includes(c.name);
         html += `<span class="candle-icon${collected ? ' collected' : ''}" 
-            style="background:${c.color};${c.effect === 'glow' ? 'box-shadow:0 0 12px #FFD700;' : ''}"
-            title="${c.name}"></span>`;
+          style="background:${c.color};${c.effect === 'glow' ? 'box-shadow:0 0 12px #FFD700;' : ''}"
+          title="${c.name}"></span>`;
       });
       if (playerCollection.length === COLLECTION_CANDLES.length) {
         html += `<span style="margin-left:8px;color:#14F195;font-weight:bold;">✔</span>`;
@@ -2253,35 +2257,35 @@
     document.addEventListener('DOMContentLoaded', () => {
       startBtn.addEventListener('click', () => {
 
-        // --- Прометей: Протокол "Первый Контакт" ---
+        // --- ПРОМЕТЕЙ: Протокол "Обратная Связь" ---
         const userData = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        let userPayload = {};
+
         if (userData) {
-          console.log('Прометей: Обнаружен пользователь. ID:', userData.id, 'Имя:', userData.first_name, '. Отправка сигнала...');
-          fetch('/api/user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: userData.id,
-              first_name: userData.first_name,
-            }),
-          })
-            .then(response => response.json())
-            .then(data => console.log('Прометей: Ответ от врат:', data.message))
-            .catch(error => console.error('Прометей: Ошибка сигнала!', error));
+          console.log('Прометей: Обнаружен пользователь. ID:', userData.id);
+          userPayload = { id: userData.id, first_name: userData.first_name };
         } else {
           console.log('Прометей: Среда Telegram не обнаружена. Использую тестового призрака.');
-          fetch('/api/user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: 987654321,
-              first_name: 'BrowserGhost',
-            }),
-          })
-            .then(response => response.json())
-            .then(data => console.log('Прометей: Ответ от врат:', data.message))
-            .catch(error => console.error('Прометей: Ошибка сигнала!', error));
+          userPayload = { id: 987654321, first_name: 'BrowserGhost' };
         }
+
+        fetch('/api/user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userPayload),
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Прометей: Ответ от шлюза:', data.message);
+            if (data.playerData) {
+              playerState = data.playerData;
+              console.log('Прометей: Состояние игрока обновлено.', playerState);
+
+              // Визуальное подтверждение: обновляем счет на экране
+              scoreElement.textContent = playerState.goldBalance;
+            }
+          })
+          .catch(error => console.error('Прометей: Ошибка сигнала!', error));
         // --- Конец протокола ---
 
         initGame();
