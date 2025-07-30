@@ -1388,7 +1388,7 @@
       document.documentElement.style.setProperty('--board-size', `${maxBoardSize}px`);
       scaleX = maxBoardSize / 300;
       scaleY = maxBoardSize / 300;
-      if (gameRunning && player) updateAllElementPositions();
+      if (player) updateAllElementPositions();
     }
 
     function updateAllElementPositions() {
@@ -1857,16 +1857,23 @@
 
     function gameLoop() {
       if (!gameRunning) return;
+
+      // Анимация рта
       playerMouthAnimTimer++;
       if (playerMouthAnimTimer > 6) {
         playerMouthOpen = !playerMouthOpen;
         if (player) player.innerHTML = createPlayerSvg(playerMouthOpen);
+        playerMouthAnimTimer = 0; // Сброс таймера
       }
+
+      // Обработка ввода и определение направления
       if (playerNextDirection.x !== 0 || playerNextDirection.y !== 0) {
         if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) {
           playerDirection = { ...playerNextDirection };
         }
       }
+
+      // Логика движения игрока
       if (playerDirection.x !== 0 || playerDirection.y !== 0) {
         const speed = player.speed || 1.5;
         const nextX = playerX + playerDirection.x * speed;
@@ -1875,13 +1882,19 @@
           playerX = nextX;
           playerY = nextY;
           handleTunnels();
-          updateAllElementPositions();
         }
       }
+
+      // Логика движения других объектов
       moveGhosts();
       moveBullets();
+
+      // Проверки столкновений и событий
       checkCandleCollection();
       checkGhostCollision();
+
+      // **КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ:** Безусловное обновление всех позиций в конце каждого кадра
+      updateAllElementPositions();
     }
 
     function handleTunnels() {
@@ -2343,7 +2356,9 @@
         case ' ': case 'j': case 'J': shootBullet(); break;
       }
       if (playerDirection.x === 0 && playerDirection.y === 0) {
-        playerDirection = { ...playerNextDirection };
+        if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) {
+          playerDirection = { ...playerNextDirection };
+        }
       }
     });
     window.addEventListener('resize', adjustGameBoardSize);
