@@ -243,6 +243,25 @@
       width: 15px;
       height: 15px;
       z-index: 10;
+      transition: opacity 0.2s;
+    }
+
+    .player.invincible {
+      animation: player-blink 0.2s steps(1) infinite;
+    }
+
+    @keyframes player-blink {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+
+      100% {
+        opacity: 1;
+      }
     }
 
     .ghost {
@@ -1128,7 +1147,7 @@
         poorLabel: "$POOR:",
         livesLabel: "ЖИТТЯ:",
         levelLabel: "РІВЕНЬ",
-        collectionLabel: "Коллекція:",
+        collectionLabel: "Колекція:",
         gameDescription: `Грай, виконуй завдання та отримуй безкоштовний лотерейний квиток!<br>Збирай зелені свічки, уникай F.U.D.<br><span style="color:#14F195;">Силова-свічка:</span> стріляй за допомогою Пробілу, J або A.`,
         startGameBtn: "ПОЧАТИ ГРУ",
         lotteryTitle: "Щотижнева лотерея!",
@@ -1373,6 +1392,7 @@
     }
 
     function updateAllElementPositions() {
+      if (!player) return;
       player.style.left = (playerX * scaleX) + 'px';
       player.style.top = (playerY * scaleY) + 'px';
       player.style.transform = `scale(${scaleX}, ${scaleY}) rotate(${getPlayerRotation()}deg)`;
@@ -1683,6 +1703,9 @@
     }
 
     function createPlayer() {
+      if (player) {
+        gameBoard.removeChild(player);
+      }
       player = document.createElement('div');
       player.className = 'player';
       player.style.left = (playerX * scaleX) + 'px';
@@ -1803,10 +1826,10 @@
     }
 
     function gameLoop() {
+      if (!gameRunning) return;
       playerMouthAnimTimer++;
       if (playerMouthAnimTimer > 6) {
         playerMouthOpen = !playerMouthOpen;
-        playerMouthAnimTimer = 0;
         player.innerHTML = createPlayerSvg(playerMouthOpen);
       }
       if (playerNextDirection.x !== 0 || playerNextDirection.y !== 0) {
@@ -2039,6 +2062,7 @@
     }
 
     function checkGhostCollision() {
+      if (player.invincible) return;
       for (const ghost of ghosts) {
         const dx = playerX + PLAYER_SIZE / 2 - ghost.x - GHOST_SIZE / 2;
         const dy = playerY + PLAYER_SIZE / 2 - ghost.y - GHOST_SIZE / 2;
@@ -2051,7 +2075,7 @@
             ghosts = ghosts.filter(g => g.element !== ghost.element);
             score += 100;
             scoreElement.textContent = score;
-          } else if (player.invincible) { } else {
+          } else {
             playerDies();
           }
         }
@@ -2062,20 +2086,16 @@
       lives--;
       livesElement.textContent = lives;
       playDeathSound();
-      player.classList.add('death-anim');
       clearInterval(gameInterval);
+      gameRunning = false;
+      player.style.opacity = '0';
+
       setTimeout(() => {
-        player.classList.remove('death-anim');
-        if (lives <= 0) gameOver();
-        else {
-          playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
-          playerY = playerStart ? playerStart.y : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
-          playerDirection = { x: 0, y: 0 };
-          playerNextDirection = { x: 0, y: 0 };
-          player.style.left = (playerX * scaleX) + 'px';
-          player.style.top = (playerY * scaleY) + 'px';
-          player.style.transform = `scale(${scaleX}, ${scaleY})`;
-          gameInterval = setInterval(gameLoop, 30);
+        if (lives <= 0) {
+          gameOver();
+        } else {
+          initGame(true);
+          startGame();
         }
       }, 800);
     }
@@ -2083,6 +2103,7 @@
     function levelComplete() {
       clearInterval(gameInterval);
       gameRunning = false;
+      updatePlayerScore(score); // Сохраняем счет в конце уровня
       player.classList.add('win-anim');
       playLevelSound();
       completedLevelElement.textContent = level;
@@ -2090,53 +2111,46 @@
       levelCompleteScreen.style.display = 'flex';
       level++;
       setTimeout(() => {
-        player.classList.remove('win-anim');
         levelCompleteScreen.style.display = 'none';
-        applyWallStyle(level);
-        const elementsToKeep = [startScreen, gameOverScreen, levelCompleteScreen, levelIndicator];
-        const children = Array.from(gameBoard.children);
-        for (const child of children) {
-          if (!elementsToKeep.includes(child)) gameBoard.removeChild(child);
-        }
-        ghosts = [];
-        candles = [];
-        walls = [];
-        bullets.forEach(b => {
-          if (gameBoard.contains(b.element)) {
-            gameBoard.removeChild(b.element);
-          }
-        });
-        bullets = [];
-        powerMode = false;
-        showAButton(false);
-        if (powerModeTimeout) clearTimeout(powerModeTimeout);
-        powerCandleSpawned = false;
-        levelIndicator.innerHTML = `<span data-translate-key="levelLabel">${getTranslation('levelLabel')}</span> ${level}`;
-        createMaze((level - 1) % mazeLayouts.length);
-        playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
-        playerY = playerStart ? playerStart.y : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
-        player = document.createElement('div');
-        player.className = 'player';
-        player.style.left = (playerX * scaleX) + 'px';
-        player.style.top = (playerY * scaleY) + 'px';
-        player.style.transform = `scale(${scaleX}, ${scaleY})`;
-        player.innerHTML = createPlayerSvg();
-        player.speed = 1.5;
-        player.invincible = false;
-        player.lastShot = 0;
-        gameBoard.appendChild(player);
-        createGhosts();
-        createCandles();
+        initGame(); // Полный сброс для нового уровня
         startGame();
-      }, 1200);
+      }, 2000);
     }
 
     function gameOver() {
       clearInterval(gameInterval);
       gameRunning = false;
+      updatePlayerScore(score); // Сохраняем финальный счет
       finalScoreElement.textContent = score;
       finalLevelElement.textContent = level;
       gameOverScreen.style.display = 'flex';
+    }
+
+    // --- ПРОМЕТЕЙ: НОВАЯ ФУНКЦИЯ СОХРАНЕНИЯ ---
+    function updatePlayerScore(finalScore) {
+      if (!playerState) {
+        console.error('Прометей: Невозможно сохранить счет. Состояние игрока отсутствует.');
+        return;
+      }
+
+      console.log(`Прометей: Отправка финального счета ${finalScore} для пользователя ${playerState.userId}...`);
+      fetch('/api/update-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: playerState.userId,
+          newScore: finalScore,
+        }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Прометей: Ответ от сервера сохранения:', data.message);
+          if (data.playerData) {
+            // Обновляем локальное состояние, чтобы при следующем запуске был актуальный счет
+            playerState.goldBalance = data.playerData.newGoldBalance;
+          }
+        })
+        .catch(error => console.error('Прометей: Ошибка сохранения счета!', error));
     }
 
     function showAButton(active) {
@@ -2281,8 +2295,10 @@
               playerState = data.playerData;
               console.log('Прометей: Состояние игрока обновлено.', playerState);
 
-              // Визуальное подтверждение: обновляем счет на экране
-              scoreElement.textContent = playerState.goldBalance;
+              // --- ПРОМЕТЕЙ: ИЗМЕНЕНИЕ ---
+              // Устанавливаем начальный счет равным балансу из базы данных
+              score = playerState.goldBalance;
+              scoreElement.textContent = score;
             }
           })
           .catch(error => console.error('Прометей: Ошибка сигнала!', error));
