@@ -1674,6 +1674,7 @@
     }
 
     function createGhosts() {
+      ghosts.forEach(g => { if (gameBoard.contains(g.element)) gameBoard.removeChild(g.element) });
       ghosts = [];
       ghostStarts.forEach(ghostData => {
         const ghost = document.createElement('div');
@@ -1704,7 +1705,7 @@
 
     function createPlayer() {
       if (player) {
-        gameBoard.removeChild(player);
+        if (gameBoard.contains(player)) gameBoard.removeChild(player);
       }
       player = document.createElement('div');
       player.className = 'player';
@@ -1777,42 +1778,73 @@
     }
 
     function initGame() {
-      applyWallStyle(1);
-      const elementsToKeep = [startScreen, gameOverScreen, levelCompleteScreen, levelIndicator];
-      const children = Array.from(gameBoard.children);
-      for (const child of children) {
-        if (!elementsToKeep.includes(child)) gameBoard.removeChild(child);
-      }
-      score = 0;
-      lives = 3;
+      // Полный сброс для начала новой игры
       level = 1;
+      lives = 3;
+      score = 0;
+      playerCollection = [];
+
+      resetLevelLayout();
+      generateAndShowQuest();
+    }
+
+    function resetLevelLayout() {
+      // Сброс только элементов уровня, без изменения счета/жизней/уровня
+      applyWallStyle(level);
+
+      const elementsToClean = Array.from(gameBoard.children).filter(child =>
+        !child.classList.contains('start-screen') &&
+        !child.classList.contains('game-over') &&
+        !child.classList.contains('level-complete') &&
+        !child.classList.contains('level-indicator') &&
+        !child.classList.contains('fomo-timer')
+      );
+      elementsToClean.forEach(el => gameBoard.removeChild(el));
+
       scoreElement.textContent = score;
       livesElement.textContent = lives;
-      levelIndicator.innerHTML = `<span data-translate-key="levelLabel">${getTranslation('levelLabel')}</span> 1`;
+      levelIndicator.innerHTML = `<span data-translate-key="levelLabel">${getTranslation('levelLabel')}</span> ${level}`;
+
       ghosts = [];
       candles = [];
       walls = [];
-      bullets.forEach(b => {
-        if (gameBoard.contains(b.element)) {
-          gameBoard.removeChild(b.element);
-        }
-      });
       bullets = [];
+      player = null; // Важно, чтобы createPlayer создал новый
       powerMode = false;
       showAButton(false);
       if (powerModeTimeout) clearTimeout(powerModeTimeout);
       powerCandleSpawned = false;
-      playerCollection = [];
+
       updateCollectionProfile();
-      createMaze(0);
+      createMaze((level - 1) % mazeLayouts.length); // Используем текущий уровень
+
       playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
       playerY = playerStart ? playerStart.y : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
       playerDirection = { x: 0, y: 0 };
       playerNextDirection = { x: 0, y: 0 };
+
       createPlayer();
       createGhosts();
       createCandles();
-      generateAndShowQuest();
+    }
+
+    function respawn() {
+      // Сбрасываем только позиции и даем неуязвимость
+      playerX = playerStart.x;
+      playerY = playerStart.y;
+      playerDirection = { x: 0, y: 0 };
+      playerNextDirection = { x: 0, y: 0 };
+      createGhosts(); // Пересоздаем призраков на их стартовых позициях
+
+      player.invincible = true;
+      player.classList.add('invincible');
+      setTimeout(() => {
+        player.invincible = false;
+        if (player) player.classList.remove('invincible');
+      }, 2000); // 2 секунды неуязвимости
+
+      gameRunning = true;
+      gameInterval = setInterval(gameLoop, 30);
     }
 
     function startGame() {
@@ -1830,7 +1862,7 @@
       playerMouthAnimTimer++;
       if (playerMouthAnimTimer > 6) {
         playerMouthOpen = !playerMouthOpen;
-        player.innerHTML = createPlayerSvg(playerMouthOpen);
+        if (player) player.innerHTML = createPlayerSvg(playerMouthOpen);
       }
       if (playerNextDirection.x !== 0 || playerNextDirection.y !== 0) {
         if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) {
@@ -1845,9 +1877,7 @@
           playerX = nextX;
           playerY = nextY;
           handleTunnels();
-          player.style.left = (playerX * scaleX) + 'px';
-          player.style.top = (playerY * scaleY) + 'px';
-          player.style.transform = `scale(${scaleX}, ${scaleY}) rotate(${getPlayerRotation()}deg)`;
+          updateAllElementPositions();
         }
       }
       moveGhosts();
@@ -1866,8 +1896,6 @@
         else if (ghost.x > 300) ghost.x = -GHOST_SIZE;
         if (ghost.y < -GHOST_SIZE) ghost.y = 300;
         else if (ghost.y > 300) ghost.y = -GHOST_SIZE;
-        ghost.element.style.left = (ghost.x * scaleX) + 'px';
-        ghost.element.style.top = (ghost.y * scaleY) + 'px';
       });
     }
 
@@ -1923,8 +1951,6 @@
         }
         ghost.x += ghost.direction.x * ghost.speed;
         ghost.y += ghost.direction.y * ghost.speed;
-        ghost.element.style.left = (ghost.x * scaleX) + 'px';
-        ghost.element.style.top = (ghost.y * scaleY) + 'px';
       });
     }
 
@@ -1934,18 +1960,14 @@
       player.lastShot = Date.now();
       const bullet = document.createElement('div');
       bullet.className = 'bullet';
-      bullet.style.left = (playerX + PLAYER_SIZE / 2 - 3) * scaleX + 'px';
-      bullet.style.top = (playerY + PLAYER_SIZE / 2 - 3) * scaleY + 'px';
-      gameBoard.appendChild(bullet);
-      let dir = { ...playerDirection };
-      if (dir.x === 0 && dir.y === 0) dir = { x: 1, y: 0 };
       bullets.push({
         element: bullet,
         x: playerX + PLAYER_SIZE / 2 - 3,
         y: playerY + PLAYER_SIZE / 2 - 3,
-        dir: dir,
+        dir: (playerDirection.x === 0 && playerDirection.y === 0) ? { x: 1, y: 0 } : { ...playerDirection },
         speed: 5
       });
+      gameBoard.appendChild(bullet);
       playTone(1000, 0.05, "square", 0.12);
     }
 
@@ -1954,12 +1976,8 @@
         const b = bullets[i];
         b.x += b.dir.x * b.speed;
         b.y += b.dir.y * b.speed;
-        b.element.style.left = (b.x * scaleX) + 'px';
-        b.element.style.top = (b.y * scaleY) + 'px';
         if (b.x < 0 || b.x > 300 || b.y < 0 || b.y > 300) {
-          if (gameBoard.contains(b.element)) {
-            gameBoard.removeChild(b.element);
-          }
+          gameBoard.removeChild(b.element);
           bullets.splice(i, 1);
           continue;
         }
@@ -1968,13 +1986,9 @@
           const dx = b.x + 3 - (g.x + GHOST_SIZE / 2);
           const dy = b.y + 3 - (g.y + GHOST_SIZE / 2);
           if (Math.hypot(dx, dy) < 10) {
-            if (gameBoard.contains(g.element)) {
-              gameBoard.removeChild(g.element);
-            }
+            gameBoard.removeChild(g.element);
             ghosts.splice(j, 1);
-            if (gameBoard.contains(b.element)) {
-              gameBoard.removeChild(b.element);
-            }
+            gameBoard.removeChild(b.element);
             bullets.splice(i, 1);
             lives++;
             livesElement.textContent = lives;
@@ -1993,9 +2007,7 @@
         const dy = playerY + 7.5 - candle.y - size / 2;
         const distance = Math.hypot(dx, dy);
         if (distance < 7.5 + size / 2) {
-          if (gameBoard.contains(candle.element)) {
-            gameBoard.removeChild(candle.element);
-          }
+          gameBoard.removeChild(candle.element);
           candles.splice(i, 1);
           if (candle.big) {
             if (candle.collection) {
@@ -2023,7 +2035,9 @@
             score += 10;
             scoreElement.textContent = score;
           }
-          if (candles.filter(c => !c.big && !c.power).length === 0) levelComplete();
+          if (candles.filter(c => !c.big && !c.power).length === 0) {
+            levelComplete();
+          }
         }
       }
     }
@@ -2088,14 +2102,14 @@
       playDeathSound();
       clearInterval(gameInterval);
       gameRunning = false;
+
       player.style.opacity = '0';
 
       setTimeout(() => {
         if (lives <= 0) {
           gameOver();
         } else {
-          initGame(true);
-          startGame();
+          respawn();
         }
       }, 800);
     }
@@ -2103,7 +2117,7 @@
     function levelComplete() {
       clearInterval(gameInterval);
       gameRunning = false;
-      updatePlayerScore(score); // Сохраняем счет в конце уровня
+      updatePlayerScore(score);
       player.classList.add('win-anim');
       playLevelSound();
       completedLevelElement.textContent = level;
@@ -2112,7 +2126,7 @@
       level++;
       setTimeout(() => {
         levelCompleteScreen.style.display = 'none';
-        initGame(); // Полный сброс для нового уровня
+        resetLevelLayout();
         startGame();
       }, 2000);
     }
@@ -2120,13 +2134,12 @@
     function gameOver() {
       clearInterval(gameInterval);
       gameRunning = false;
-      updatePlayerScore(score); // Сохраняем финальный счет
+      updatePlayerScore(score);
       finalScoreElement.textContent = score;
       finalLevelElement.textContent = level;
       gameOverScreen.style.display = 'flex';
     }
 
-    // --- ПРОМЕТЕЙ: НОВАЯ ФУНКЦИЯ СОХРАНЕНИЯ ---
     function updatePlayerScore(finalScore) {
       if (!playerState) {
         console.error('Прометей: Невозможно сохранить счет. Состояние игрока отсутствует.');
@@ -2146,7 +2159,6 @@
         .then(data => {
           console.log('Прометей: Ответ от сервера сохранения:', data.message);
           if (data.playerData) {
-            // Обновляем локальное состояние, чтобы при следующем запуске был актуальный счет
             playerState.goldBalance = data.playerData.newGoldBalance;
           }
         })
@@ -2295,17 +2307,19 @@
               playerState = data.playerData;
               console.log('Прометей: Состояние игрока обновлено.', playerState);
 
-              // --- ПРОМЕТЕЙ: ИЗМЕНЕНИЕ ---
-              // Устанавливаем начальный счет равным балансу из базы данных
-              score = playerState.goldBalance;
+              // --- ПРОМЕТЕЙ: ИСПРАВЛЕНИЕ ТИПОВ ДАННЫХ ---
+              score = parseInt(playerState.goldBalance, 10) || 0;
               scoreElement.textContent = score;
             }
+            initGame();
+            startGame();
           })
-          .catch(error => console.error('Прометей: Ошибка сигнала!', error));
+          .catch(error => {
+            console.error('Прометей: Ошибка сигнала!', error);
+            initGame();
+            startGame();
+          });
         // --- Конец протокола ---
-
-        initGame();
-        startGame();
       });
 
       restartBtn.addEventListener('click', () => {
