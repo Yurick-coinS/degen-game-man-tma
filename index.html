@@ -1147,7 +1147,7 @@
         poorLabel: "$POOR:",
         livesLabel: "ЖИТТЯ:",
         levelLabel: "РІВЕНЬ",
-        collectionLabel: "Коллекція:",
+        collectionLabel: "Колекція:",
         gameDescription: `Грай, виконуй завдання та отримуй безкоштовний лотерейний квиток!<br>Збирай зелені свічки, уникай F.U.D.<br><span style="color:#14F195;">Силова-свічка:</span> стріляй за допомогою Пробілу, J або A.`,
         startGameBtn: "ПОЧАТИ ГРУ",
         lotteryTitle: "Щотижнева лотерея!",
@@ -1156,7 +1156,7 @@
         buyTicketBtn: "Купити квиток",
         howItWorksBtn: "Як це працює",
         skipBtn: "Пропустити",
-        lotteryRules: `<b>Як це працює?</b><br>1. Купи квиток за $1.<br>2. Спостерігай, як зростає призовий фонд.<br>3. Дочекайся п'ятниці 21:00 — і виграй!<br><br><b>Анонимно, просто, безопасно.</b><br>Оплата та виплата — через криптогаманець.<br><br><span style="color:#14F195;">Виконуй квести в грі та отримуй безкоштовний квиток щотижня!</span>`,
+        lotteryRules: `<b>Як це працює?</b><br>1. Купи квиток за $1.<br>2. Спостерігай, як зростає призовий фонд.<br>3. Дочекайся п'ятниці 21:00 — і виграй!<br><br><b>Анонімно, просто, безпечно.</b><br>Оплата та виплата — через криптогаманець.<br><br><span style="color:#14F195;">Виконуй квести в грі та отримуй безкоштовний квиток щотижня!</span>`,
         ticketPurchased: "Квиток куплено! Ви берете участь у розіграші цієї п'ятниці.<br>Успіхів!",
         gameOverTitle: "ГРУ ЗАВЕРШЕНО",
         finalScoreLabel: "Підсумковий рахунок:",
@@ -1831,6 +1831,7 @@
       playerY = playerStart.y;
       playerDirection = { x: 0, y: 0 };
       playerNextDirection = { x: 0, y: 0 };
+      player.style.opacity = '1';
       createGhosts();
 
       player.invincible = true;
@@ -2103,7 +2104,7 @@
 
       setTimeout(() => {
         if (lives <= 0) {
-          livesElement.textContent = 0; // Отображаем 0 жизней перед Game Over
+          livesElement.textContent = 0;
           gameOver();
         } else {
           livesElement.textContent = lives;
@@ -2309,7 +2310,6 @@
           console.error('Прометей: Ошибка сигнала! Не удалось связаться с сервером.', error);
         }
 
-        // Только после получения ответа от сервера мы начинаем игру
         initGame();
         startGame();
       });
