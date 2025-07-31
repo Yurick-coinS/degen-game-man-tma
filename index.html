@@ -419,6 +419,68 @@
       display: none;
     }
 
+    .hotbar-container {
+      width: 100vw;
+      max-width: var(--max-board);
+      margin: 0.5em auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      z-index: 50;
+      pointer-events: auto;
+    }
+
+    .hotbar-slot {
+      width: 48px;
+      height: 48px;
+      background: rgba(15, 15, 26, 0.7);
+      border: 2px solid #9945FF;
+      border-radius: 8px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 8px #9945FF55;
+    }
+
+    .hotbar-slot:hover {
+      border-color: #14F195;
+      box-shadow: 0 0 12px #14F19588;
+    }
+
+    .hotbar-slot.active {
+      border-color: #FFD700;
+      transform: scale(1.1);
+      box-shadow: 0 0 16px #FFD700, 0 0 24px #9945FF;
+    }
+
+    .hotbar-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    .hotbar-keybind {
+      position: absolute;
+      top: 2px;
+      left: 4px;
+      font-size: 10px;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .hotbar-quantity {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+
     .controls-row {
       width: 100vw;
       max-width: var(--max-board);
@@ -605,6 +667,11 @@
         left: 26px;
         top: 26px;
       }
+
+      .hotbar-slot {
+        width: 40px;
+        height: 40px;
+      }
     }
 
     @media (max-width: 350px) {
@@ -635,6 +702,11 @@
         height: 20px;
         left: 20px;
         top: 20px;
+      }
+
+      .hotbar-slot {
+        width: 36px;
+        height: 36px;
       }
     }
 
@@ -700,6 +772,24 @@
       </div>
     </div>
   </div>
+
+  <!-- ПРОМЕТЕЙ: ИНТЕРАКТИВНЫЙ ХОТБАР -->
+  <div class="hotbar-container" id="hotbar-container">
+    <div class="hotbar-slot" data-slot="1"><span class="hotbar-keybind">1</span><span class="hotbar-quantity"></span>
+    </div>
+    <div class="hotbar-slot" data-slot="2"><span class="hotbar-keybind">2</span><span class="hotbar-quantity"></span>
+    </div>
+    <div class="hotbar-slot" data-slot="3"><span class="hotbar-keybind">3</span><span class="hotbar-quantity"></span>
+    </div>
+    <div class="hotbar-slot" data-slot="4"><span class="hotbar-keybind">4</span><span class="hotbar-quantity"></span>
+    </div>
+    <div class="hotbar-slot" data-slot="5"><span class="hotbar-keybind">5</span><span class="hotbar-quantity"></span>
+    </div>
+    <div class="hotbar-slot" data-slot="6"><span class="hotbar-keybind">6</span><span class="hotbar-quantity"></span>
+    </div>
+  </div>
+  <!-- КОНЕЦ ИНТЕГРАЦИИ -->
+
   <div class="controls-row">
     <div class="joystick-outer" id="joystick-outer">
       <div class="joystick-base"></div>
@@ -719,7 +809,8 @@
 
     // --- ПРОМЕТЕЙ: ХРАНИЛИЩЕ СОСТОЯНИЯ ИГРОКА ---
     let playerState = {
-      inventory: []
+      inventory: [],
+      activeHotbarSlot: 1
     };
     // ---------------------------------------------
 
@@ -1996,6 +2087,65 @@
       questParams = parseQuest(quest);
     }
 
+    // --- ПРОМЕТЕЙ: ЛОГИКА ХОТБАРА ---
+    function populateHotbar() {
+      const slots = document.querySelectorAll('.hotbar-slot');
+      slots.forEach((slot, index) => {
+        const item = playerState.inventory[index];
+        slot.innerHTML = `<span class="hotbar-keybind">${index + 1}</span>`; // Очищаем и добавляем номер
+        if (item) {
+          // ПРЕДПОЛАГАЕМ, ЧТО У НАС БУДУТ ИКОНКИ. ПОКА ПРОСТО ТЕКСТ.
+          // const img = document.createElement('img');
+          // img.src = `/path/to/icons/${item.item_name.replace(' ', '_')}.png`;
+          // slot.appendChild(img);
+          slot.title = item.item_name;
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = item.item_name.substring(0, 3);
+          nameSpan.style.fontSize = '8px';
+          nameSpan.style.position = 'absolute';
+          nameSpan.style.top = '50%';
+          nameSpan.style.left = '50%';
+          nameSpan.style.transform = 'translate(-50%, -50%)';
+          slot.appendChild(nameSpan);
+        }
+      });
+      selectHotbarSlot(playerState.activeHotbarSlot);
+    }
+
+    function selectHotbarSlot(slotNumber) {
+      document.querySelectorAll('.hotbar-slot').forEach(slot => {
+        slot.classList.remove('active');
+        if (parseInt(slot.dataset.slot, 10) === slotNumber) {
+          slot.classList.add('active');
+        }
+      });
+      playerState.activeHotbarSlot = slotNumber;
+      console.log(`Прометей: Выбран слот ${slotNumber}`);
+    }
+
+    function useItemInSlot(slotNumber) {
+      const item = playerState.inventory[slotNumber - 1];
+      if (!item) {
+        console.log(`Прометей: Слот ${slotNumber} пуст.`);
+        return;
+      }
+
+      console.log(`Прометей: Используется предмет "${item.item_name}" из слота ${slotNumber}`);
+
+      // Здесь будет логика использования предмета
+      if (item.item_type === 'CONSUMABLE' && item.attributes.effect === 'heal') {
+        console.log(`Прометей: Восстановление ${item.attributes.value} здоровья.`);
+        // player.health += item.attributes.value;
+        // updateHealthDisplay();
+        playPowerCandleSound(); // Временный звук
+      } else if (item.item_type === 'WEAPON') {
+        console.log(`Прометей: Экипировано оружие ${item.item_name} с уроном ${item.attributes.damage}.`);
+        // Здесь будет логика смены оружия
+        playLevelSound(); // Временный звук
+      }
+    }
+
+
     document.addEventListener('DOMContentLoaded', () => {
       startBtn.addEventListener('click', async () => {
 
@@ -2008,7 +2158,7 @@
           userPayload = { id: userData.id, first_name: userData.first_name };
         } else {
           console.log('Прометей: Среда Telegram не обнаружена. Использую тестового призрака.');
-          userPayload = { id: 123456789, first_name: 'BrowserGhost' };
+          userPayload = { id: 2, first_name: 'BrowserGhost' }; // Используем ID=2 для теста
         }
 
         try {
@@ -2023,6 +2173,7 @@
           if (userData.playerData) {
             playerState = userData.playerData;
             playerState.inventory = [];
+            playerState.activeHotbarSlot = 1;
             console.log('Прометей: Состояние игрока загружено.', playerState);
 
             scoreElement.textContent = playerState.goldBalance;
@@ -2032,6 +2183,16 @@
             document.getElementById('max-mana-value').textContent = playerState.maxMana;
             updateHealthDisplay();
             updateManaDisplay();
+
+            // Второй запрос: получаем инвентарь
+            const inventoryResponse = await fetch(`/api/inventory?userId=${playerState.userId}`);
+            const inventoryData = await inventoryResponse.json();
+
+            if (inventoryData.inventory) {
+              playerState.inventory = inventoryData.inventory;
+              console.log('Прометей: Инвентарь загружен.', playerState.inventory);
+              populateHotbar();
+            }
           }
         } catch (error) {
           console.error('Прометей: Ошибка инициализации!', error);
@@ -2057,9 +2218,26 @@
 
       translateUI();
       adjustGameBoardSize();
+
+      // Привязка событий к хотбару
+      document.querySelectorAll('.hotbar-slot').forEach(slot => {
+        slot.addEventListener('click', () => {
+          const slotNumber = parseInt(slot.dataset.slot, 10);
+          selectHotbarSlot(slotNumber);
+          useItemInSlot(slotNumber);
+        });
+      });
     });
 
     document.addEventListener('keydown', e => {
+      // Управление хотбаром по клавишам 1-6
+      if (e.key >= '1' && e.key <= '6') {
+        const slotNumber = parseInt(e.key, 10);
+        selectHotbarSlot(slotNumber);
+        useItemInSlot(slotNumber);
+        return; // Прерываем, чтобы не двигать персонажа
+      }
+
       if (!gameRunning) return;
       switch (e.key) {
         case 'ArrowUp': case 'w': case 'W': playerNextDirection = { x: 0, y: -1 }; break;
@@ -2166,11 +2344,11 @@
     // Кнопка A (стрельба)
     abtnA.addEventListener('touchstart', e => {
       e.preventDefault();
-      if (abtnA.classList.contains('active')) shootBullet();
+      useItemInSlot(playerState.activeHotbarSlot);
     });
     abtnA.addEventListener('mousedown', e => {
       e.preventDefault();
-      if (abtnA.classList.contains('active')) shootBullet();
+      useItemInSlot(playerState.activeHotbarSlot);
     });
   </script>
 </body>
