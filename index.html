@@ -110,6 +110,85 @@
       text-shadow: var(--neon-green-glow);
       margin-bottom: 0.5em;
       letter-spacing: 1px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .status-left,
+    .status-right {
+      flex-shrink: 0;
+    }
+
+    .status-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-grow: 1;
+      margin: 0 10px;
+    }
+
+    .status-bar {
+      width: 100%;
+      height: 18px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      border: 1px solid #555;
+      position: relative;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .bar-icon {
+      position: absolute;
+      left: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      z-index: 3;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    }
+
+    .heart-icon {
+      color: #ff4757;
+    }
+
+    .mana-icon {
+      color: #5352ed;
+      font-weight: bold;
+    }
+
+    .bar-progress {
+      height: 100%;
+      border-radius: 3px 0 0 3px;
+      transition: width 0.3s ease-in-out;
+    }
+
+    .health-bar .bar-progress {
+      background: linear-gradient(90deg, #ff4757, #ff6b81);
+    }
+
+    .mana-bar .bar-progress {
+      background: linear-gradient(90deg, #5352ed, #70a1ff);
+    }
+
+    .bar-text {
+      position: absolute;
+      left: 22px;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      z-index: 2;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     }
 
     .console-quest {
@@ -117,6 +196,8 @@
       color: #FFD700;
       font-size: 1.1em;
       text-align: center;
+      /* ПРОМЕТЕЙ: Сокрытие элемента квеста */
+      display: none;
     }
 
     #new-quest-btn {
@@ -737,11 +818,24 @@
   <div class="console-header">
     <div id="collection-profile" class="collection-profile"></div>
     <div class="console-status">
-      <span data-translate-key="poorLabel">$POOR:</span> <span id="score">0</span>  <span
-        data-translate-key="livesLabel">LIVES:</span> <span id="lives">3</span>  <span
-        data-translate-key="healthLabel">HP:</span> <span id="health-value">100</span>/<span
-        id="max-health-value">100</span>  <span data-translate-key="manaLabel">MP:</span> <span
-        id="mana-value">50</span>/<span id="max-mana-value">50</span>
+      <div class="status-left">
+        <span data-translate-key="poorLabel">$POOR:</span> <span id="score">0</span>
+      </div>
+      <div class="status-bars">
+        <div class="status-bar health-bar">
+          <div class="bar-icon heart-icon">♥</div>
+          <div class="bar-progress" id="health-bar-progress"></div>
+          <div class="bar-text"><span id="health-value">100</span> / <span id="max-health-value">100</span></div>
+        </div>
+        <div class="status-bar mana-bar">
+          <div class="bar-icon mana-icon">+</div>
+          <div class="bar-progress" id="mana-bar-progress"></div>
+          <div class="bar-text"><span id="mana-value">50</span> / <span id="max-mana-value">50</span></div>
+        </div>
+      </div>
+      <div class="status-right">
+        <span data-translate-key="livesLabel">LIVES:</span> <span id="lives">3</span>
+      </div>
     </div>
     <div class="console-quest" id="console-quest">
     </div>
@@ -844,11 +938,17 @@
     }
 
     function updateHealthDisplay(current, max) {
+      if (max === 0) max = 1;
+      const percentage = Math.max(0, Math.min(100, (current / max) * 100));
+      document.getElementById('health-bar-progress').style.width = `${percentage}%`;
       document.getElementById('health-value').textContent = current;
       document.getElementById('max-health-value').textContent = max;
     }
 
     function updateManaDisplay(current, max) {
+      if (max === 0) max = 1;
+      const percentage = Math.max(0, Math.min(100, (current / max) * 100));
+      document.getElementById('mana-bar-progress').style.width = `${percentage}%`;
       document.getElementById('mana-value').textContent = current;
       document.getElementById('max-mana-value').textContent = max;
     }
@@ -858,32 +958,32 @@
       ru: {
         questPrompt: `Придумай короткое уникальное задание для аркадной игры в стиле Pac-Man. Используй только такие игровые объекты: свечи (зелёные, синие, красные, жёлтые, фиолетовые, золотые), коллекционные свечи, призраки. Не придумывай новые предметы, которых нет в этом списке. Формат задания: одна строка, без приветствий и пояснений.`,
         poorLabel: "$POOR:",
-        livesLabel: "ЖИЗНИ:",
+        livesLabel: "LIVES:",
         healthLabel: "HP:",
         manaLabel: "MP:",
-        levelLabel: "УРОВЕНЬ",
-        collectionLabel: "Коллекция:",
+        levelLabel: "LEVEL",
+        collectionLabel: "Collection:",
         gameDescription: `Играй, выполняй задания и получай бесплатный лотерейный билет!<br>Собирай зелёные свечи, избегай F.U.D.<br><span style="color:#14F195;">Сила-свеча:</span> стреляй с помощью Пробела, J или A.`,
-        startGameBtn: "НАЧАТЬ ИГРУ",
-        gameOverTitle: "ИГРА ОКОНЧЕНА",
-        finalScoreLabel: "Итоговый счёт:",
-        levelReachedLabel: "Достигнутый уровень:",
-        tryAgainBtn: "ПОПРОБОВАТЬ СНОВА",
-        completeLabel: "ПРОЙДЕН!",
-        currentScoreLabel: "Текущий счёт:",
-        nextLevelMsg: "Приготовьтесь к следующему уровню...",
-        questLabel: "Задание",
-        generatingQuest: "Генерация задания...",
-        questFetchError: "Не удалось загрузить задание.",
-        fomoPopupCollect: "Коллекционная свеча! ({name})<br>Собери её за 10 секунд!",
-        fomoPopupBigCandle: "Большая свеча! Собери её за 10 секунд и получи +100 $POOR!",
-        fomoPopupMissedCollection: "Ты упустил коллекционную свечу!",
-        fomoPopupMissedBig: "Большая свеча исчезла!",
-        fomoTimer: "Осталось: {seconds} сек.",
-        collectedNew: "Новая свеча в коллекции! Собери все для секретной награды!",
-        collectedAgain: "Коллекционная свеча собрана снова!",
-        bigCandleBonus: "+100 $POOR за большую свечу!",
-        questDefaultFallback: "Собери все свечи!",
+        startGameBtn: "START GAME",
+        gameOverTitle: "GAME OVER",
+        finalScoreLabel: "Final Score:",
+        levelReachedLabel: "Level Reached:",
+        tryAgainBtn: "TRY AGAIN",
+        completeLabel: "COMPLETE!",
+        currentScoreLabel: "Current Score:",
+        nextLevelMsg: "Get ready for the next level...",
+        questLabel: "Quest",
+        generatingQuest: "Generating quest...",
+        questFetchError: "Failed to load quest.",
+        fomoPopupCollect: "Collection Candle! ({name})<br>Collect it in 10 seconds!",
+        fomoPopupBigCandle: "Big candle! Collect it in 10 seconds for +100 $POOR!",
+        fomoPopupMissedCollection: "You missed the Collection Candle!",
+        fomoPopupMissedBig: "Big candle disappeared!",
+        fomoTimer: "Time left: {seconds} sec.",
+        collectedNew: "New Candle Collected! Complete the set for a secret reward!",
+        collectedAgain: "Collection Candle collected again!",
+        bigCandleBonus: "+100 $POOR for big candle!",
+        questDefaultFallback: "Collect all the candles!",
       },
       en: {
         questPrompt: `Come up with a short unique quest for an arcade game in the style of Pac-Man. Use only these game objects: candles (green, blue, red, yellow, purple, gold), collectible candles, ghosts. Do not invent new items not in this list. The quest should be one line, no greetings or explanations.`,
@@ -1619,7 +1719,9 @@
       playerCollection = [];
 
       resetLevelLayout();
-      generateAndShowQuest();
+      if (playerState) {
+        // generateAndShowQuest();
+      }
     }
 
     function resetLevelLayout() {
@@ -2023,7 +2125,7 @@
       langSelect.style.display = 'none';
       langIcon.style.display = 'inline-block';
       translateUI();
-      generateAndShowQuest();
+      // generateAndShowQuest();
     });
 
     langIcon.addEventListener('click', function () {
@@ -2111,7 +2213,7 @@
       }
 
       joystickStick.style.left = (joystickOuter.offsetWidth / 2 - joystickStick.offsetWidth / 2 + stickX) + 'px';
-      joystickStick.style.top = (joystickOuter.offsetHeight / 2 - joystickStick.offsetWidth / 2 + stickY) + 'px';
+      joystickStick.style.top = (joystickOuter.offsetHeight / 2 - joystickStick.offsetHeight / 2 + stickY) + 'px';
 
       if (dist > 10) {
         if (Math.abs(dx) > Math.abs(dy)) {
@@ -2317,7 +2419,7 @@
         playPowerCandleSound();
       } else if (item.item_type === 'WEAPON') {
         console.log(`Прометей: Атака оружием ${item.item_name}.`);
-        shootBullet(); // Перенаправляем на существующую функцию стрельбы
+        shootBullet();
       }
     }
   </script>
