@@ -293,13 +293,13 @@
     }
 
     .player {
-      width: 32px;
-      height: 32px;
+      width: 15px;
+      height: 15px;
       z-index: 10;
       background-image: url('./assets/sprites/player_sprites.png');
       background-repeat: no-repeat;
       image-rendering: pixelated;
-      transform-origin: center center;
+      transform-origin: top left;
       transition: opacity 0.2s;
     }
 
@@ -1315,7 +1315,7 @@
       if (!player) return;
       player.style.left = (playerX * scaleX) + 'px';
       player.style.top = (playerY * scaleY) + 'px';
-      player.style.transform = `scale(${scaleX}, ${scaleY})`;
+      player.style.transform = `scale(${scaleX * (32 / 15)}, ${scaleY * (32 / 15)})`;
       ghosts.forEach(ghost => {
         ghost.element.style.left = (ghost.x * scaleX) + 'px';
         ghost.element.style.top = (ghost.y * scaleY) + 'px';
