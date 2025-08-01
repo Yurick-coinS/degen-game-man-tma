@@ -293,13 +293,12 @@
     }
 
     .player {
-      width: 15px;
-      height: 15px;
+      width: 32px;
+      height: 32px;
       z-index: 10;
       background-image: url('./assets/sprites/player_sprites.png');
       background-repeat: no-repeat;
       image-rendering: pixelated;
-      transform-origin: top left;
       transition: opacity 0.2s;
     }
 
@@ -1264,14 +1263,16 @@
     let level = 1;
     let gameRunning = false;
     let gameInterval;
-    const CELL_SIZE = 15;
+    // --- ПРОМЕТЕЙ: Новые константы Вселенной v2.0 ---
+    const CELL_SIZE = 32; // <--- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Размер ячейки теперь 32px
     const GRID_WIDTH = 20;
     const GRID_HEIGHT = 20;
-    const PLAYER_SIZE = 32;
-    const GHOST_SIZE = 15;
-    const CANDLE_SIZE = 4;
-    let BOARD_WIDTH = 300;
-    let BOARD_HEIGHT = 300;
+    const PLAYER_SIZE = 32; // Размер игрока теперь равен размеру ячейки
+    const GHOST_SIZE = 32;  // Увеличиваем призраков для соответствия
+    const CANDLE_SIZE = 8;  // Увеличиваем свечи
+    let BOARD_WIDTH = GRID_WIDTH * CELL_SIZE;   // 640
+    let BOARD_HEIGHT = GRID_HEIGHT * CELL_SIZE; // 640
+    // ------------------------------------------------
     let scaleX = 1;
     let scaleY = 1;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -1315,7 +1316,6 @@
       if (!player) return;
       player.style.left = (playerX * scaleX) + 'px';
       player.style.top = (playerY * scaleY) + 'px';
-      player.style.transform = `scale(${scaleX * (32 / 15)}, ${scaleY * (32 / 15)})`;
       ghosts.forEach(ghost => {
         ghost.element.style.left = (ghost.x * scaleX) + 'px';
         ghost.element.style.top = (ghost.y * scaleY) + 'px';
