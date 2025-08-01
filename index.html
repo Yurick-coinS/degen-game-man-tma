@@ -2011,18 +2011,33 @@
       window.addEventListener('orientationchange', () => setTimeout(adjustGameBoardSize, 200));
 
       document.addEventListener('keydown', e => {
-        if (e.key >= '1' && e.key <= '6') { const slotNumber = parseInt(e.key, 10); selectHotbarSlot(slotNumber); return; }
+        // ПРОМЕТЕЙ: Новая логика. Обработчик только устанавливает НАМЕРЕНИЕ.
+        if (e.key >= '1' && e.key <= '6') {
+          const slotNumber = parseInt(e.key, 10);
+          selectHotbarSlot(slotNumber);
+          return; // Важно: немедленно выходим, чтобы не мешать движению
+        }
+
         if (!gameRunning) return;
+
         switch (e.key) {
-          case 'ArrowUp': case 'w': case 'W': playerNextDirection = { x: 0, y: -1 }; break;
-          case 'ArrowDown': case 's': case 'S': playerNextDirection = { x: 0, y: 1 }; break;
-          case 'ArrowLeft': case 'a': case 'A': playerNextDirection = { x: -1, y: 0 }; break;
-          case 'ArrowRight': case 'd': case 'D': playerNextDirection = { x: 1, y: 0 }; break;
-          case ' ': case 'j': case 'J': useItemInSlot(playerState.activeHotbarSlot); break;
+          case 'ArrowUp': case 'w': case 'W':
+            playerNextDirection = { x: 0, y: -1 };
+            break;
+          case 'ArrowDown': case 's': case 'S':
+            playerNextDirection = { x: 0, y: 1 };
+            break;
+          case 'ArrowLeft': case 'a': case 'A':
+            playerNextDirection = { x: -1, y: 0 };
+            break;
+          case 'ArrowRight': case 'd': case 'D':
+            playerNextDirection = { x: 1, y: 0 };
+            break;
+          case ' ': case 'j': case 'J':
+            useItemInSlot(playerState.activeHotbarSlot);
+            break;
         }
-        if (playerDirection.x === 0 && playerDirection.y === 0) {
-          if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) { playerDirection = { ...playerNextDirection }; }
-        }
+        // ДЕФЕКТНЫЙ БЛОК УДАЛЕН. Решение о смене playerDirection теперь принимает ТОЛЬКО gameLoop.
       });
 
       document.querySelectorAll('.hotbar-slot').forEach(slot => {
