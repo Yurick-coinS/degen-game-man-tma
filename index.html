@@ -894,8 +894,7 @@
     let audioCtx;
     function playTone(freq, duration = 0.1, type = "sine", volume = 0.2) {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
+      const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
       osc.type = type; osc.frequency.value = freq; gain.gain.value = volume;
       osc.connect(gain).connect(audioCtx.destination);
       osc.start(); osc.stop(audioCtx.currentTime + duration);
@@ -928,12 +927,12 @@
     }
 
     // --- Translation System ---
-    const translations = { ru: {}, en: {}, es: {}, de: {}, fr: {}, it: {}, zh: {}, ua: {} }; // Содержимое удалено для краткости, но должно быть здесь
+    const translations = { ru: {}, en: {}, es: {}, de: {}, fr: {}, it: {}, zh: {}, ua: {} };
     let currentLang = 'ru';
-    function translateUI() { /* ... */ }
-    function getTranslation(key, params = {}) { /* ... */ return key; }
+    function translateUI() { }
+    function getTranslation(key, params = {}) { return key; }
 
-    // --- ПРОМЕТЕЙ: Новые константы Вселенной v13.0 ---
+    // --- ПРОМЕТЕЙ: Новые константы Вселенной v14.0 ---
     const CELL_SIZE = 32;
     const GRID_WIDTH = 20;
     const GRID_HEIGHT = 20;
@@ -977,8 +976,7 @@
     let scaleX = 1; let scaleY = 1;
     let powerMode = false; let powerModeTimeout = null;
     let playerDirection = { x: 0, y: 0 }; let playerNextDirection = { x: 0, y: 0 };
-    let playerX = 0; let playerY = 0; let playerStart = null; let ghostStarts = [];
-    let powerCandleSpawned = false; let currentMazeLayout = null;
+    let playerX = 0; let playerY = 0; let playerStart = null;
     let animationFrame = 0; let frameCounter = 0;
 
     function applyWallStyle(level) {
@@ -993,12 +991,14 @@
       document.documentElement.style.setProperty('--board-size', `${maxBoardSize}px`);
       scaleX = maxBoardSize / BOARD_WIDTH;
       scaleY = maxBoardSize / BOARD_HEIGHT;
-      if (player) updateAllElementPositions();
+      updateAllElementPositions();
     }
 
     function updateAllElementPositions() {
-      if (!player) return;
-      player.style.left = (playerX * scaleX) + 'px'; player.style.top = (playerY * scaleY) + 'px';
+      if (player) {
+        player.style.left = (playerX * scaleX) + 'px';
+        player.style.top = (playerY * scaleY) + 'px';
+      }
       ghosts.forEach(ghost => { ghost.element.style.left = (ghost.x * scaleX) + 'px'; ghost.element.style.top = (ghost.y * scaleY) + 'px'; });
       candles.forEach(candle => { candle.element.style.left = (candle.x * scaleX) + 'px'; candle.element.style.top = (candle.y * scaleY) + 'px'; });
       walls.forEach(wall => { wall.element.style.left = (wall.x * scaleX) + 'px'; wall.element.style.top = (wall.y * scaleY) + 'px'; wall.element.style.width = (CELL_SIZE * scaleX) + 'px'; wall.element.style.height = (CELL_SIZE * scaleY) + 'px'; });
@@ -1008,23 +1008,22 @@
     function createGhosts() {
       ghosts.forEach(g => { if (gameBoard.contains(g.element)) gameBoard.removeChild(g.element); });
       ghosts = [];
-      // Placeholder for ghost creation logic
+      // Placeholder: Implement ghost spawning logic here
     }
 
     function createPlayer() {
       if (player && gameBoard.contains(player)) { gameBoard.removeChild(player); }
       player = document.createElement('div');
       player.className = 'player';
-      player.speed = 2.5; // Speed adjusted for new scale
+      player.speed = 2.5;
       player.invincible = false;
       player.lastShot = 0;
       gameBoard.appendChild(player);
     }
 
     function createMaze(levelIndex) {
-      playerStart = null; ghostStarts = []; walls = []; candles = [];
-      currentMazeLayout = mazeLayouts[levelIndex] || mazeLayouts[0];
-      const layout = currentMazeLayout;
+      playerStart = null; walls = []; candles = [];
+      const layout = mazeLayouts[levelIndex] || mazeLayouts[0];
       for (let y = 0; y < layout.length; y++) {
         for (let x = 0; x < layout[y].length; x++) {
           const cell = layout[y][x];
@@ -1073,7 +1072,7 @@
         !child.classList.contains('start-screen') && !child.classList.contains('game-over') &&
         !child.classList.contains('level-complete') && !child.classList.contains('level-indicator')
       );
-      elementsToClean.forEach(el => gameBoard.removeChild(el));
+      elementsToClean.forEach(el => el.remove());
       scoreElement.textContent = score; livesElement.textContent = lives;
       levelIndicator.innerHTML = `<span data-translate-key="levelLabel">${getTranslation('levelLabel')}</span> ${level}`;
       ghosts = []; bullets = []; player = null; powerMode = false;
@@ -1093,14 +1092,14 @@
       createGhosts();
       player.invincible = true; player.classList.add('invincible');
       setTimeout(() => { player.invincible = false; if (player) player.classList.remove('invincible'); }, 2000);
-      gameRunning = true; gameInterval = setInterval(gameLoop, 16); // 60 FPS
+      gameRunning = true; gameInterval = setInterval(gameLoop, 16);
     }
 
     function startGame() {
       if (gameRunning) return; gameRunning = true;
       startScreen.style.display = 'none'; gameOverScreen.style.display = 'none';
       levelCompleteScreen.style.display = 'none';
-      gameInterval = setInterval(gameLoop, 16); // 60 FPS
+      gameInterval = setInterval(gameLoop, 16);
     }
 
     function gameLoop() {
@@ -1109,8 +1108,7 @@
         if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) { playerDirection = { ...playerNextDirection }; }
       }
       if (playerDirection.x !== 0 || playerDirection.y !== 0) {
-        const speed = player.speed || 2.5;
-        playerX += playerDirection.x * speed; playerY += playerDirection.y * speed;
+        playerX += playerDirection.x * player.speed; playerY += playerDirection.y * player.speed;
         handleTunnels();
       }
 
@@ -1134,17 +1132,12 @@
     }
 
     function canMove(x, y, dir, size) {
-      const nextX = x + dir.x * player.speed; const nextY = y + dir.y * player.speed;
-      const corners = [
-        { x: nextX, y: nextY }, { x: nextX + size, y: nextY },
-        { x: nextX, y: nextY + size }, { x: nextX + size, y: nextY + size }
-      ];
-      for (const corner of corners) {
-        const wall = walls.find(w =>
-          corner.x > w.x && corner.x < w.x + w.width &&
-          corner.y > w.y && corner.y < w.y + w.height
-        );
-        if (wall) return false;
+      const nextX = x + dir.x; const nextY = y + dir.y;
+      for (const wall of walls) {
+        if (nextX < wall.x + wall.width && nextX + size > wall.x &&
+          nextY < wall.y + wall.height && nextY + size > wall.y) {
+          return false;
+        }
       }
       return true;
     }
@@ -1164,11 +1157,16 @@
       }, 800);
     }
 
-    function checkGhostCollision() { /* ... */ }
-    function checkCandleCollection() { /* ... */ }
-    function moveBullets() { /* ... */ }
-    function shootBullet() { /* ... */ }
-    function updatePlayerScore(score) { /* ... */ }
+    function checkGhostCollision() { /* To be implemented */ }
+    function checkCandleCollection() { /* To be implemented */ }
+    function moveBullets() { /* To be implemented */ }
+    function shootBullet() { /* To be implemented */ }
+    function updatePlayerScore(finalScore) { /* To be implemented */ }
+    function levelComplete() { /* To be implemented */ }
+    function updateCollectionProfile() { /* To be implemented */ }
+    function populateHotbar() { /* To be implemented */ }
+    function selectHotbarSlot(slotNumber) { /* To be implemented */ }
+    function useItemInSlot(slotNumber) { /* To be implemented */ }
 
     async function handleStartGame() {
       if (startBtn.disabled) return; startBtn.disabled = true;
@@ -1190,19 +1188,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const browserLang = navigator.language.slice(0, 2);
-      if (Object.keys(translations).includes(browserLang)) {
-        currentLang = browserLang; langSelect.value = browserLang;
-      }
-      translateUI(); adjustGameBoardSize();
+      adjustGameBoardSize();
+      // Event listeners will be added in a future step
       startBtn.addEventListener('click', handleStartGame);
       restartBtn.addEventListener('click', () => { initGame(); startGame(); });
       window.addEventListener('resize', adjustGameBoardSize);
     });
 
-    function populateHotbar() { /* ... */ }
-    function selectHotbarSlot(slotNumber) { /* ... */ }
-    function useItemInSlot(slotNumber) { /* ... */ }
   </script>
 </body>
 
