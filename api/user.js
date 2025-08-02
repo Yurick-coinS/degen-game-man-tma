@@ -1,42 +1,43 @@
-// Запрашиваем наш единый, центральный модуль подключения к базе данных
 const pool = require('../db');
 
-// Экспортируем функцию в формате CommonJS, совместимом с Vercel
 module.exports = async (req, res) => {
-  // Принимаем запросы только методом POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Прометей: Метод запрещен. Только POST.' });
+  // --- МАРШРУТИЗАТОР: Обработка POST и PUT запросов ---
+  if (req.method === 'POST') {
+    return handleCreateOrGetUser(req, res);
+  } else if (req.method === 'PUT') {
+    return handleUpdateUserGold(req, res);
+  } else {
+    res.setHeader('Allow', ['POST', 'PUT']);
+    return res.status(405).json({ message: `Прометей: Метод ${req.method} запрещен.` });
   }
+};
 
+// --- ЛОГИКА: Создание или получение пользователя (POST) ---
+async function handleCreateOrGetUser(req, res) {
   try {
-    const { id, first_name } = req.body;
+    // Прометей: Коррекция. Клиент отправляет { user: { id, first_name } }
+    const { user: tgUser } = req.body;
 
-    // Валидация входных данных
-    if (!id) {
-      return res.status(400).json({ message: 'Прометей: Ошибка. ID пользователя не предоставлен.' });
+    if (!tgUser || !tgUser.id) {
+      return res.status(400).json({ message: 'Прометей: Ошибка. Объект пользователя или ID не предоставлен.' });
     }
+    const { id, first_name } = tgUser;
 
-    // --- Главный акт: Распознавание или Создание ---
-
-    // Пытаемся найти существующего игрока и получить все его данные
     const selectQuery = 'SELECT * FROM players WHERE user_id = $1';
     let playerResult = await pool.query(selectQuery, [id]);
 
     let user = playerResult.rows[0];
     let isNewUser = false;
-    let statusCode = 200; // OK (для существующего пользователя)
+    let statusCode = 200; // OK
 
-    // Если игрок не найден, создаем его с начальными параметрами
     if (!user) {
       isNewUser = true;
-      statusCode = 201; // Created (для нового пользователя)
-
+      statusCode = 201; // Created
       const insertQuery = `
         INSERT INTO players (user_id, username, health, max_health, mana, max_mana)
         VALUES ($1, $2, 100, 100, 50, 50)
-        RETURNING *; 
+        RETURNING *;
       `;
-      // gold_balance будет установлен в 0 по умолчанию, как мы задали в базе данных
       const newUserResult = await pool.query(insertQuery, [id, first_name || 'Anonymous']);
       user = newUserResult.rows[0];
       console.log(`Прометей: Новая сущность захвачена. ID: ${id}`);
@@ -44,7 +45,6 @@ module.exports = async (req, res) => {
       console.log(`Прометей: Существующая сущность опознана. ID: ${id}`);
     }
 
-    // Формируем финальный, консистентный ответ
     res.status(statusCode).json({
       message: isNewUser ? 'Сущность создана и опознана.' : 'Сущность опознана.',
       playerData: {
@@ -67,4 +67,44 @@ module.exports = async (req, res) => {
       error: error.message
     });
   }
-};
+}
+
+// --- ЛОГИКА: Обновление золота пользователя (PUT) ---
+async function handleUpdateUserGold(req, res) {
+  try {
+    // Прометей: Клиент отправляет { userId, gold }
+    const { userId, gold } = req.body;
+
+    if (!userId || gold === undefined) {
+      return res.status(400).json({ message: 'Ошибка: userId или gold не предоставлены.' });
+    }
+
+    const query = `
+      UPDATE players
+      SET gold_balance = $1
+      WHERE user_id = $2
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [gold, userId]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Сущность не найдена. Обновление невозможно.' });
+    }
+
+    const updatedPlayer = result.rows[0];
+    res.status(200).json({
+      message: 'Баланс золота успешно обновлен.',
+      playerData: {
+        userId: updatedPlayer.user_id,
+        goldBalance: updatedPlayer.gold_balance
+      }
+    });
+
+  } catch (error) {
+    console.error('Прометей: КРИТИЧЕСКАЯ ОШИБКА ОБНОВЛЕНИЯ!', error);
+    res.status(500).json({
+      message: 'Критическая ошибка системы. Обновление не удалось.',
+      error: error.message
+    });
+  }
+}

@@ -1015,10 +1015,12 @@
             const response = await fetch('/api/user', {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ userId, gold: newGoldBalance }),
+              body: JSON.stringify({ userId: userId, gold: newGoldBalance }),
             });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            return await response.json();
+            const result = await response.json();
+            console.log(result.message);
+            return result;
           } catch (error) {
             console.error("Failed to update gold balance:", error);
             return null;
@@ -1361,16 +1363,18 @@
           return;
         }
 
-        const userData = await api.getUser(tgUser);
+        const responseData = await api.getUser(tgUser);
 
-        if (userData) {
-          state.userId = userData.user_id;
-          state.username = userData.username || 'degen';
-          state.gold = userData.gold_balance || 0;
-          state.health = userData.health || 100;
-          state.maxHealth = userData.max_health || 100;
-          state.mana = userData.mana || 50;
-          state.maxMana = userData.max_mana || 50;
+        // Прометей: Коррекция. Ответ сервера содержит объект playerData.
+        if (responseData && responseData.playerData) {
+          const { playerData } = responseData;
+          state.userId = playerData.userId;
+          state.username = playerData.username || 'degen';
+          state.gold = playerData.goldBalance || 0;
+          state.health = playerData.health || 100;
+          state.maxHealth = playerData.maxHealth || 100;
+          state.mana = playerData.mana || 50;
+          state.maxMana = playerData.maxMana || 50;
 
           updateUI();
           DOMElements.startScreen.querySelector('p').textContent = 'Collect candles. Avoid ghosts. Get rich or die tryin\'.';
