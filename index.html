@@ -297,6 +297,7 @@
       height: 16px;
       z-index: 10;
       background-image: url('./assets/sprites/player_sprites.png');
+      /* <<< ПРОМЕТЕЙ: ПУТЬ ИСПРАВЛЕН */
       background-repeat: no-repeat;
       image-rendering: pixelated;
       transform-origin: center center;
@@ -1285,7 +1286,6 @@
     let BOARD_HEIGHT = 300;
     let scaleX = 1;
     let scaleY = 1;
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     let powerMode = false;
     let powerModeTimeout = null;
     let playerDirection = { x: 0, y: 0 };
@@ -1347,10 +1347,6 @@
     }
 
     function updateAllElementPositions() {
-      if (!player) return;
-
-      updatePlayerVisuals();
-
       ghosts.forEach(ghost => {
         ghost.element.style.left = (ghost.x * scaleX) + 'px';
         ghost.element.style.top = (ghost.y * scaleY) + 'px';
@@ -1371,6 +1367,7 @@
         b.element.style.left = (b.x * scaleX) + 'px';
         b.element.style.top = (b.y * scaleY) + 'px';
       });
+      updatePlayerVisuals();
     }
 
     function createGhosts() {
@@ -1593,6 +1590,23 @@
       }
     }
 
+    function createGhostSvg(type) {
+      let color, eyeColor, mouthPath;
+      switch (type) {
+        case 'fomo': color = '#FF0000'; eyeColor = '#FFF'; mouthPath = 'M5 10Q7.5 12 10 10'; break;
+        case 'rug': color = '#FF69B4'; eyeColor = '#FFF'; mouthPath = 'M5 11Q7.5 9 10 11'; break;
+        case 'volatility': color = '#00BFFF'; eyeColor = '#FFF'; mouthPath = 'M5 10L10 10'; break;
+        case 'paper': color = '#FFA500'; eyeColor = '#FFF'; mouthPath = 'M5 11Q7.5 10 10 11'; break;
+      }
+      return `
+        <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.5 7.5 C1.5 4.5 3.5 1.5 7.5 1.5 C11.5 1.5 13.5 4.5 13.5 7.5 L13.5 12 C13.5 12 12 10.5 11 12 C10 13.5 9 12 8 12 C7 12 6 13.5 5 12 C4 10.5 3 12 3 12 L1.5 7.5Z" fill="${color}" />
+          <circle cx="5" cy="6" r="1" fill="${eyeColor}" /><circle cx="10" cy="6" r="1" fill="${eyeColor}" />
+          <circle cx="5" cy="6" r="0.5" fill="#000" /><circle cx="10" cy="6" r="0.5" fill="#000" />
+          <path d="${mouthPath}" stroke="#000" fill="none" stroke-width="0.4" />
+        </svg>`;
+    }
+
     function updateCollectionProfile() {
       const profile = document.getElementById('collection-profile');
       if (!profile) return;
@@ -1632,12 +1646,11 @@
       powerCandleSpawned = false;
       updateCollectionProfile();
       createMaze((level - 1) % mazeLayouts.length);
-      createPlayer(); // Player DOM element is created here
       playerX = playerStart ? playerStart.x : 150 - PLAYER_SIZE / 2;
       playerY = playerStart ? playerStart.y : 150 - PLAYER_SIZE / 2;
       playerDirection = { x: 0, y: 0 }; playerNextDirection = { x: 0, y: 0 };
-      createGhosts(); createCandles();
-      updateAllElementPositions(); // Initial positioning
+      createPlayer(); createGhosts(); createCandles();
+      updateAllElementPositions();
     }
 
     function respawnAfterDeath() {
@@ -1696,7 +1709,6 @@
 
     function canMove(x, y, dir, size) {
       const nextX = x + dir.x * 1; const nextY = y + dir.y * 1;
-      // Adjusted boundary checks to keep the entire sprite on screen
       if (nextX < 0 || nextX + size > 300 || nextY < 0 || nextY + size > 300) return false;
       for (const wall of walls) {
         if (nextX < wall.x + wall.width && nextX + size > wall.x && nextY < wall.y + wall.height && nextY + size > wall.y) {
@@ -1865,20 +1877,6 @@
       translateUI();
     });
     langIcon.addEventListener('click', function () { langSelect.style.display = 'inline-block'; langIcon.style.display = 'none'; langSelect.focus(); });
-
-    async function fetchQuestFromGemini() {
-      const prompt = getTranslation('questPrompt');
-      try {
-        const response = await fetch("/api/gemini", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: prompt })
-        });
-        const data = await response.json();
-        let quest = data.candidates?.[0]?.content?.parts?.[0]?.text || getTranslation('questDefaultFallback');
-        quest = quest.replace(/^[\s\n\r]+|[\s\n\r]+$/g, '').replace(/^["']|["']$/g, '');
-        return quest;
-      } catch (e) { console.error("Ошибка при получении квеста:", e); return getTranslation('questFetchError'); }
-    }
 
     let currentQuest = ""; let questParams = {};
     function showQuest(quest) {
