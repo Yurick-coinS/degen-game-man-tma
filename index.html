@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>DEGEN-MAN: Solana Edition</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
@@ -121,6 +122,8 @@
     .status-left,
     .status-right {
       flex-shrink: 0;
+      visibility: hidden;
+      /* Hidden until data is loaded */
     }
 
     .status-bars {
@@ -196,7 +199,23 @@
       color: #FFD700;
       font-size: 1.1em;
       text-align: center;
+    }
+
+    #new-quest-btn {
+      margin-bottom: 10px;
       display: none;
+      background: #9945FF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-family: 'Share Tech Mono', monospace;
+      cursor: pointer;
+    }
+
+    #new-quest-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
     }
 
     .fomo-popup {
@@ -293,15 +312,14 @@
     }
 
     .player {
-      width: 16px;
-      height: 16px;
+      width: 32px;
+      height: 32px;
       z-index: 10;
+      transition: opacity 0.2s;
       background-image: url('./assets/sprites/player_sprites.png');
-      /* <<< ПРОМЕТЕЙ: ПУТЬ ИСПРАВЛЕН */
       background-repeat: no-repeat;
       image-rendering: pixelated;
       transform-origin: center center;
-      transition: opacity 0.2s;
     }
 
     .player.invincible {
@@ -480,7 +498,34 @@
       justify-content: center;
       align-items: center;
       z-index: 100;
+      color: #fff;
+      text-align: center;
     }
+
+    .start-screen h1 {
+      font-size: 2.5rem;
+      color: var(--neon-green);
+      text-shadow: var(--neon-green-glow);
+    }
+
+    .start-button {
+      padding: 10px 25px;
+      font-size: 1.5rem;
+      font-family: 'Share Tech Mono', monospace;
+      color: #fff;
+      background-color: var(--neon);
+      border: 2px solid var(--neon);
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: var(--neon-glow);
+      transition: all 0.2s ease;
+    }
+
+    .start-button:hover {
+      background-color: #fff;
+      color: var(--neon);
+    }
+
 
     .score-panel,
     .controls {
@@ -783,90 +828,44 @@
 </head>
 
 <body>
-  <!-- Language Switcher -->
-  <div id="lang-switcher"
-    style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: rgba(20,20,40,0.92); border-radius: 6px; box-shadow: 0 2px 8px #9945FF33; padding: 2px 7px; display: flex; align-items: center; font-family: 'Share Tech Mono', monospace; font-size: 0.92em;">
-    <span id="lang-icon" style="color:#FFD700; font-size:1em; margin-right:4px; cursor:pointer;">🌐</span>
-    <select id="lang-select"
-      style="background: #181828; color: #FFD700; border: 1px solid #9945FF; border-radius: 4px; font-size: 0.92em; padding: 1.5px 5px; outline: none; font-family: inherit; cursor: pointer; transition: border 0.2s; display: none;">
-      <option value="ru">Русский</option>
-      <option value="en">English</option>
-      <option value="es">Español</option>
-      <option value="de">Deutsch</option>
-      <option value="fr">Français</option>
-      <option value="it">Italiano</option>
-      <option value="zh">中文</option>
-      <option value="ua">Українська</option>
-    </select>
-  </div>
+
   <div class="console-header">
-    <div id="collection-profile" class="collection-profile"></div>
+    <div class="collection-profile">
+      <span class="collection-label" id="username-display">USER-..</span>
+      <span class="collection-label">|</span>
+      <span id="gold-balance-display">GOLD: 0</span>
+    </div>
     <div class="console-status">
-      <div class="status-left">
-        <span data-translate-key="poorLabel">$POOR:</span> <span id="score">0</span>
-      </div>
+      <div class="status-left" id="player-level">LVL 1</div>
       <div class="status-bars">
         <div class="status-bar health-bar">
-          <div class="bar-icon heart-icon">♥</div>
+          <span class="bar-icon heart-icon">♥</span>
           <div class="bar-progress" id="health-bar-progress"></div>
-          <div class="bar-text"><span id="health-value">100</span> / <span id="max-health-value">100</span></div>
+          <span class="bar-text" id="health-bar-text">100 / 100</span>
         </div>
         <div class="status-bar mana-bar">
-          <div class="bar-icon mana-icon">+</div>
+          <span class="bar-icon mana-icon">M</span>
           <div class="bar-progress" id="mana-bar-progress"></div>
-          <div class="bar-text"><span id="mana-value">50</span> / <span id="max-mana-value">50</span></div>
+          <span class="bar-text" id="mana-bar-text">50 / 50</span>
         </div>
       </div>
-      <div class="status-right">
-        <span data-translate-key="livesLabel">LIVES:</span> <span id="lives">3</span>
-      </div>
+      <div class="status-right" id="player-score">SCR: 0</div>
     </div>
-    <div class="console-quest" id="console-quest">
-    </div>
-    <div id="fomo-popup" class="fomo-popup" style="display:none;"></div>
   </div>
+
   <div class="game-board-wrapper">
     <div class="game-board" id="game-board">
-      <div class="level-indicator" id="level-indicator"><span data-translate-key="levelLabel">LEVEL</span> 1</div>
-      <div id="fomo-timer" class="fomo-timer" style="display:none;"></div>
       <div class="start-screen" id="start-screen">
-        <div class="game-description" id="game-description" data-translate-key="gameDescription"
-          style="margin-top: 2em;">
-        </div>
-        <button class="btn" id="start-btn" style="margin:18px 0 0 0;" data-translate-key="startGameBtn">START
-          GAME</button>
-      </div>
-      <div class="game-over" id="game-over" style="display: none;">
-        <h2 data-translate-key="gameOverTitle">GAME OVER</h2>
-        <p><span data-translate-key="finalScoreLabel">Final Score:</span> <span id="final-score">0</span></p>
-        <p><span data-translate-key="levelReachedLabel">Level Reached:</span> <span id="final-level">1</span></p>
-        <button class="btn" id="restart-btn" data-translate-key="tryAgainBtn">TRY AGAIN</button>
-      </div>
-      <div class="level-complete" id="level-complete" style="display: none;">
-        <h2><span data-translate-key="levelLabel">LEVEL</span> <span id="completed-level">1</span> <span
-            data-translate-key="completeLabel">COMPLETE!</span></h2>
-        <p><span data-translate-key="currentScoreLabel">Current Score:</span> <span id="level-score">0</span></p>
-        <p data-translate-key="nextLevelMsg">Get ready for the next level...</p>
+        <h1>DEGEN-MAN</h1>
+        <p class="game-description">Initializing system... Awaiting user data...</p>
+        <button id="start-button" class="start-button" disabled>CONNECTING...</button>
       </div>
     </div>
   </div>
 
-  <!-- ПРОМЕТЕЙ: ИНТЕРАКТИВНЫЙ ХОТБАР -->
   <div class="hotbar-container" id="hotbar-container">
-    <div class="hotbar-slot" data-slot="1"><span class="hotbar-keybind">1</span><span class="hotbar-quantity"></span>
-    </div>
-    <div class="hotbar-slot" data-slot="2"><span class="hotbar-keybind">2</span><span class="hotbar-quantity"></span>
-    </div>
-    <div class="hotbar-slot" data-slot="3"><span class="hotbar-keybind">3</span><span class="hotbar-quantity"></span>
-    </div>
-    <div class="hotbar-slot" data-slot="4"><span class="hotbar-keybind">4</span><span class="hotbar-quantity"></span>
-    </div>
-    <div class="hotbar-slot" data-slot="5"><span class="hotbar-keybind">5</span><span class="hotbar-quantity"></span>
-    </div>
-    <div class="hotbar-slot" data-slot="6"><span class="hotbar-keybind">6</span><span class="hotbar-quantity"></span>
-    </div>
+    <!-- Slots will be generated by JavaScript -->
   </div>
-  <!-- КОНЕЦ ИНТЕГРАЦИИ -->
 
   <div class="controls-row">
     <div class="joystick-outer" id="joystick-outer">
@@ -874,1192 +873,523 @@
       <div class="joystick-stick" id="joystick-stick"></div>
     </div>
     <div class="abtns">
-      <div class="abtn" id="abtn-a"><span>A</span></div>
+      <div class="abtn" id="action-button-a">A</div>
     </div>
   </div>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    // --- ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP ---
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-    }
-
-    // --- ПРОМЕТЕЙ: ХРАНИЛИЩЕ СОСТОЯНИЯ ИГРОКА ---
-    let playerState = {
-      inventory: [],
-      activeHotbarSlot: 1,
-      animationFrame: 0,
-      frameCounter: 0
-    };
-    // ---------------------------------------------
-
-    // --- ПРОМЕТЕЙ: КОНФИГУРАЦИЯ АНИМАЦИИ ---
-    const ANIMATION_CONFIG = {
-      FRAME_WIDTH: 16,
-      FRAME_HEIGHT: 16,
-      ANIMATION_SPEED: 4, // Меньше -> быстрее
-      FRAME_COUNT: 12
-    };
-    // -----------------------------------------
-
-    // --- Web Audio API ---
-    let audioCtx;
-
-    function playTone(freq, duration = 0.1, type = "sine", volume = 0.2) {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.value = freq;
-      gain.gain.value = volume;
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-      osc.onended = () => {
-        osc.disconnect();
-        gain.disconnect();
-      };
-    }
-
-    function playCandleSound() { playTone(880, 0.07, "triangle", 0.15); }
-    function playPowerCandleSound() { playTone(440, 0.18, "square", 0.18); }
-    function playBigCandleSound() { playTone(523, 0.25, "sine", 0.2); playTone(659, 0.25, "sine", 0.2); }
-    function playDeathSound() { playTone(110, 0.25, "sawtooth", 0.22); }
-    function playLevelSound() {
-      playTone(523, 0.08, "triangle", 0.18);
-      setTimeout(() => playTone(659, 0.08, "triangle", 0.18), 90);
-      setTimeout(() => playTone(784, 0.12, "triangle", 0.18), 180);
-    }
-
-    function updateHealthDisplay(current, max) {
-      if (max === 0) max = 1;
-      const percentage = Math.max(0, Math.min(100, (current / max) * 100));
-      document.getElementById('health-bar-progress').style.width = `${percentage}%`;
-      document.getElementById('health-value').textContent = current;
-      document.getElementById('max-health-value').textContent = max;
-    }
-
-    function updateManaDisplay(current, max) {
-      if (max === 0) max = 1;
-      const percentage = Math.max(0, Math.min(100, (current / max) * 100));
-      document.getElementById('mana-bar-progress').style.width = `${percentage}%`;
-      document.getElementById('mana-value').textContent = current;
-      document.getElementById('max-mana-value').textContent = max;
-    }
-
-    // --- Translation System ---
-    const translations = {
-      ru: {
-        questPrompt: `Придумай короткое уникальное задание для аркадной игры в стиле Pac-Man. Используй только такие игровые объекты: свечи (зелёные, синие, красные, жёлтые, фиолетовые, золотые), коллекционные свечи, призраки. Не придумывай новые предметы, которых нет в этом списке. Формат задания: одна строка, без приветствий и пояснений.`,
-        poorLabel: "$POOR:",
-        livesLabel: "LIVES:",
-        healthLabel: "HP:",
-        manaLabel: "MP:",
-        levelLabel: "LEVEL",
-        collectionLabel: "Collection:",
-        gameDescription: `Играй, выполняй задания и получай бесплатный лотерейный билет!<br>Собирай зелёные свечи, избегай F.U.D.<br><span style="color:#14F195;">Сила-свеча:</span> стреляй с помощью Пробела, J или A.`,
-        startGameBtn: "START GAME",
-        gameOverTitle: "GAME OVER",
-        finalScoreLabel: "Final Score:",
-        levelReachedLabel: "Level Reached:",
-        tryAgainBtn: "TRY AGAIN",
-        completeLabel: "COMPLETE!",
-        currentScoreLabel: "Current Score:",
-        nextLevelMsg: "Get ready for the next level...",
-        questLabel: "Quest",
-        generatingQuest: "Generating quest...",
-        questFetchError: "Failed to load quest.",
-        fomoPopupCollect: "Collection Candle! ({name})<br>Collect it in 10 seconds!",
-        fomoPopupBigCandle: "Big candle! Collect it in 10 seconds for +100 $POOR!",
-        fomoPopupMissedCollection: "You missed the Collection Candle!",
-        fomoPopupMissedBig: "Big candle disappeared!",
-        fomoTimer: "Time left: {seconds} sec.",
-        collectedNew: "New Candle Collected! Complete the set for a secret reward!",
-        collectedAgain: "Collection Candle collected again!",
-        bigCandleBonus: "+100 $POOR for big candle!",
-        questDefaultFallback: "Collect all the candles!",
-      },
-      en: {
-        questPrompt: `Come up with a short unique quest for an arcade game in the style of Pac-Man. Use only these game objects: candles (green, blue, red, yellow, purple, gold), collectible candles, ghosts. Do not invent new items not in this list. The quest should be one line, no greetings or explanations.`,
-        poorLabel: "$POOR:",
-        livesLabel: "LIVES:",
-        healthLabel: "HP:",
-        manaLabel: "MP:",
-        levelLabel: "LEVEL",
-        collectionLabel: "Collection:",
-        gameDescription: `Play, complete quests, and get a free lottery ticket!<br>Collect green candles, avoid F.U.D.<br><span style="color:#14F195;">Power-candle:</span> shoot with Space, J or A.`,
-        startGameBtn: "START GAME",
-        gameOverTitle: "GAME OVER",
-        finalScoreLabel: "Final Score:",
-        levelReachedLabel: "Level Reached:",
-        tryAgainBtn: "TRY AGAIN",
-        completeLabel: "COMPLETE!",
-        currentScoreLabel: "Current Score:",
-        nextLevelMsg: "Get ready for the next level...",
-        questLabel: "Quest",
-        generatingQuest: "Generating quest...",
-        questFetchError: "Failed to load quest.",
-        fomoPopupCollect: "Collection Candle! ({name})<br>Collect it in 10 seconds!",
-        fomoPopupBigCandle: "Big candle! Collect it in 10 seconds for +100 $POOR bonus!",
-        fomoPopupMissedCollection: "You missed the Collection Candle!",
-        fomoPopupMissedBig: "Big candle disappeared!",
-        fomoTimer: "Time left: {seconds} sec.",
-        collectedNew: "New Candle Collected! Complete the set for a secret reward!",
-        collectedAgain: "Collection Candle collected again!",
-        bigCandleBonus: "+100 $POOR for big candle!",
-        questDefaultFallback: "Collect all the candles!",
-      },
-      es: {
-        questPrompt: `Crea una misión corta y única para un juego tipo Pac-Man. Usa solo estos objetos: velas (verde, azul, roja, amarilla, púrpura, dorada), velas coleccionables, fantasmas. No inventes objetos nuevos. La misión debe ser una línea, sin saludos.`,
-        poorLabel: "$POOR:",
-        livesLabel: "VIDAS:",
-        healthLabel: "HP:",
-        manaLabel: "MP:",
-        levelLabel: "NIVEL",
-        collectionLabel: "Colección:",
-        gameDescription: `¡Juega, completa misiones y consigue un ticket de lotería gratis!<br>Recoge velas verdes, evita a los F.U.D.<br><span style="color:#14F195;">Vela de poder:</span> dispara con Espacio, J o A.`,
-        startGameBtn: "EMPEZAR JUEGO",
-        gameOverTitle: "JUEGO TERMINADO",
-        finalScoreLabel: "Puntuación Final:",
-        levelReachedLabel: "Nivel Alcanzado:",
-        tryAgainBtn: "INTENTAR DE NUEVO",
-        completeLabel: "¡COMPLETADO!",
-        currentScoreLabel: "Puntuación Actual:",
-        nextLevelMsg: "Prepárate para el siguiente nivel...",
-        questLabel: "Misión",
-        generatingQuest: "Generando misión...",
-        questFetchError: "Fallo al cargar la misión.",
-        fomoPopupCollect: "¡Vela de Colección! ({name})<br>¡Recógela en 10 segundos!",
-        fomoPopupBigCandle: "¡Vela grande! ¡Recógela en 10s por +100 $POOR!",
-        fomoPopupMissedCollection: "¡Perdiste la vela de colección!",
-        fomoPopupMissedBig: "¡La vela grande desapareció!",
-        fomoTimer: "Tiempo: {seconds} seg.",
-        collectedNew: "¡Nueva vela en la colección! ¡Complétalas todas para un premio!",
-        collectedAgain: "¡Vela de colección recogida de nuevo!",
-        bigCandleBonus: "¡+100 $POOR por la vela grande!",
-        questDefaultFallback: "¡Recoge todas las velas!",
-      },
-      de: {
-        questPrompt: `Erfinde eine kurze, einzigartige Aufgabe für ein Arcade-Spiel im Pac-Man-Stil. Verwende nur diese Spielobjekte: Kerzen (grün, blau, rot, gelb, lila, gold), Sammelkerzen, Geister. Erfinde keine neuen Gegenstände. Die Aufgabe sollte eine Zeile sein.`,
-        poorLabel: "$POOR:",
-        livesLabel: "LEBEN:",
-        healthLabel: "HP:",
-        manaLabel: "MP:",
-        levelLabel: "LEVEL",
-        collectionLabel: "Sammlung:",
-        gameDescription: `Spiele, erfülle Quests und erhalte ein kostenloses Lotterielos!<br>Sammle grüne Kerzen, meide F.U.D.<br><span style="color:#14F195;">Power-Kerze:</span> Schieße mit Leertaste, J oder A.`,
-        startGameBtn: "SPIEL STARTEN",
-        gameOverTitle: "SPIEL VORBEI",
-        finalScoreLabel: "Endstand:",
-        levelReachedLabel: "Erreichtes Level:",
-        tryAgainBtn: "ERNEUT VERSUCHEN",
-        completeLabel: "ABGESCHLOSSEN!",
-        currentScoreLabel: "Aktueller Punktestand:",
-        nextLevelMsg: "Mach dich bereit für das nächste Level...",
-        questLabel: "Quest",
-        generatingQuest: "Quest wird generiert...",
-        questFetchError: "Quest konnte nicht geladen werden.",
-        fomoPopupCollect: "Sammelkerze! ({name})<br>Sammle sie in 10 Sekunden!",
-        fomoPopupBigCandle: "Große Kerze! Sammle sie in 10 Sekunden für +100 $POOR Bonus!",
-        fomoPopupMissedCollection: "Du hast die Sammelkerze verpasst!",
-        fomoPopupMissedBig: "Die große Kerze ist verschwunden!",
-        fomoTimer: "Verbleibende Zeit: {seconds} Sek.",
-        collectedNew: "Neue Kerze gesammelt! Vervollständige das Set für eine Belohnung!",
-        collectedAgain: "Sammelkerze erneut gesammelt!",
-        bigCandleBonus: "+100 $POOR für die große Kerze!",
-        questDefaultFallback: "Sammle alle Kerzen!",
-      },
-      fr: {
-        questPrompt: `Invente une quête courte et unique pour un jeu d'arcade de style Pac-Man. Utilise uniquement ces objets de jeu : bougies (vert, bleu, rouge, jaune, violet, or), bougies de collection, fantômes. N'invente pas de nouveaux objets. La quête doit être une seule ligne.`,
-        poorLabel: "$POOR:",
-        livesLabel: "VIES:",
-        healthLabel: "HP:",
-        manaLabel: "MP:",
-        levelLabel: "NIVEAU",
-        collectionLabel: "Collection:",
-        gameDescription: `Jouez, accomplissez des quêtes et obtenez un ticket de loterie gratuit !<br>Récupérez les bougies vertes, évitez les F.U.D.<br><span style="color:#14F195;">Super-bougie :</span> tirez avec Espace, J ou A.`,
-        startGameBtn: "COMMENCER À JOUER",
-        gameOverTitle: "PARTIE TERMINÉE",
-        finalScoreLabel: "Score final :",
-        levelReachedLabel: "Niveau atteint :",
-        tryAgainBtn: "RÉESSAYER",
-        completeLabel: "TERMINÉ !",
-        currentScoreLabel: "Score actuel :",
-        nextLevelMsg: "Préparez-vous pour le prochain niveau...",
-        questLabel: "Quête",
-        generatingQuest: "Génération de la quête...",
-        questFetchError: "Échec du chargement de la quête.",
-        fomoPopupCollect: "Bougie de collection ! ({name})<br>Récupérez-la en 10 secondes !",
-        fomoPopupBigCandle: "Grosse bougie ! Récupérez-la en 10 secondes pour un bonus de +100 $POOR !",
-        fomoPopupMissedCollection: "Vous avez manqué la bougie de collection !",
-        fomoPopupMissedBig: "La grosse bougie a disparu !",
-        fomoTimer: "Temps restant : {seconds} sec.",
-        collectedNew: "Nouvelle bougie collectée ! Complétez l'ensemble pour une récompense secrète !",
-        collectedAgain: "Bougie de collection récupérée à nouveau !",
-        bigCandleBonus: "+100 $POOR pour la grosse bougie !",
-        questDefaultFallback: "Collectez toutes les bougies !",
-      },
-      it: {
-        questPrompt: `Inventa una missione breve e unica per un gioco arcade in stile Pac-Man. Usa solo questi oggetti di gioco: candele (verdi, blu, rosse, gialle, viola, oro), candele da collezione, fantasmi. Non inventare nuovi oggetti. La missione deve essere una sola riga.`,
-        poorLabel: "$POOR:",
-        livesLabel: "VITE:",
-        healthLabel: "HP:",
-        manaLabel: "MP:",
-        levelLabel: "LIVELLO",
-        collectionLabel: "Collezione:",
-        gameDescription: `Gioca, completa le missioni e ottieni un biglietto della lotteria gratuito!<br>Raccogli le candele verdi, evita i F.U.D.<br><span style="color:#14F195;">Super-candela:</span> spara con Spazio, J o A.`,
-        startGameBtn: "INIZIA PARTITA",
-        gameOverTitle: "GIOCO FINITO",
-        finalScoreLabel: "Punteggio finale:",
-        levelReachedLabel: "Livello raggiunto:",
-        tryAgainBtn: "RIPROVA",
-        completeLabel: "COMPLETATO!",
-        currentScoreLabel: "Punteggio attuale:",
-        nextLevelMsg: "Preparati per il prossimo livello...",
-        questLabel: "Missione",
-        generatingQuest: "Generazione missione...",
-        questFetchError: "Impossibile caricare la missione.",
-        fomoPopupCollect: "Candela da collezione! ({name})<br>Raccoglila in 10 secondi!",
-        fomoPopupBigCandle: "Candela grande! Raccoglila in 10 secondi per +100 $POOR di bonus!",
-        fomoPopupMissedCollection: "Hai perso la candela da collezione!",
-        fomoPopupMissedBig: "La candela grande è scomparsa!",
-        fomoTimer: "Tempo rimasto: {seconds} sec.",
-        collectedNew: "Nuova candela raccolta! Completa il set per una ricompensa segreta!",
-        collectedAgain: "Candela da collezione raccolta di nuovo!",
-        bigCandleBonus: "+100 $POOR per la candela grande!",
-        questDefaultFallback: "Raccogli tutte le candele!",
-      },
-      zh: {
-        questPrompt: `为一款吃豆人风格的街机游戏设计一个简短而独特的任务。只使用这些游戏对象：蜡烛（绿色、蓝色、红色、黄色、紫色、金色）、收藏蜡烛、鬼魂。不要发明新物品。任务应该只有一行。`,
-        poorLabel: "$POOR:",
-        livesLabel: "生命:",
-        healthLabel: "HP:",
-        manaLabel: "MP:",
-        levelLabel: "等级",
-        collectionLabel: "收藏:",
-        gameDescription: `玩游戏，完成任务，获取免费彩票！<br>收集绿色蜡烛，躲避F.U.D。<br><span style="color:#14F195;">能量蜡烛:</span> 使用空格, J或A键射击。`,
-        startGameBtn: "开始游戏",
-        gameOverTitle: "游戏结束",
-        finalScoreLabel: "最终得分:",
-        levelReachedLabel: "达到等级:",
-        tryAgainBtn: "再试一次",
-        completeLabel: "完成！",
-        currentScoreLabel: "当前得分:",
-        nextLevelMsg: "准备好进入下一关...",
-        questLabel: "任务",
-        generatingQuest: "正在生成任务...",
-        questFetchError: "加载任务失败。",
-        fomoPopupCollect: "收藏蜡烛！({name})<br>在10秒内收集它！",
-        fomoPopupBigCandle: "大蜡烛！在10秒内收集它以获得+100 $POOR奖励！",
-        fomoPopupMissedCollection: "您错过了收藏蜡烛！",
-        fomoPopupMissedBig: "大蜡烛消失了！",
-        fomoTimer: "剩余时间: {seconds}秒",
-        collectedNew: "收集到新的蜡烛！集齐所有以获得神秘奖励！",
-        collectedAgain: "再次收集到收藏蜡烛！",
-        bigCandleBonus: "大蜡烛奖励+100 $POOR！",
-        questDefaultFallback: "收集所有蜡烛！",
-      },
-      ua: {
-        questPrompt: `Придумай коротке унікальне завдання для аркадної гри в стилі Pac-Man. Використовуй тільки такі ігрові об'єкти: свічки (зелені, сині, червоні, жовті, фіолетові, золоті), колекційні свічки, привиди. Не вигадуй нових предметів. Завдання має бути одним рядком.`,
-        poorLabel: "$POOR:",
-        livesLabel: "ЖИТТЯ:",
-        healthLabel: "HP:",
-        manaLabel: "MP:",
-        levelLabel: "РІВЕНЬ",
-        collectionLabel: "Колекція:",
-        gameDescription: `Грай, виконуй завдання та отримуй безкоштовний лотерейний квиток!<br>Збирай зелені свічки, уникай F.U.D.<br><span style="color:#14F195;">Силова-свічка:</span> стріляй за допомогою Пробілу, J або A.`,
-        startGameBtn: "ПОЧАТИ ГРУ",
-        gameOverTitle: "ГРУ ЗАВЕРШЕНО",
-        finalScoreLabel: "Підсумковий рахунок:",
-        levelReachedLabel: "Досягнутий рівень:",
-        tryAgainBtn: "СПРОБУВАТИ ЩЕ",
-        completeLabel: "ПРОЙДЕНО!",
-        currentScoreLabel: "Поточний рахунок:",
-        nextLevelMsg: "Приготуйтеся до наступного рівня...",
-        questLabel: "Завдання",
-        generatingQuest: "Генерація завдання...",
-        questFetchError: "Не вдалося завантажити завдання.",
-        fomoPopupCollect: "Колекційна свічка! ({name})<br>Збери її за 10 секунд!",
-        fomoPopupBigCandle: "Велика свічка! Збери її за 10 секунд і отримай +100 $POOR!",
-        fomoPopupMissedCollection: "Ти пропустив колекційну свічку!",
-        fomoPopupMissedBig: "Велика свічка зникла!",
-        fomoTimer: "Залишилось: {seconds} сек.",
-        collectedNew: "Нова свічка в колекції! Збери всі для секретної нагороди!",
-        collectedAgain: "Колекційну свічку зібрано знову!",
-        bigCandleBonus: "+100 $POOR за велику свічку!",
-        questDefaultFallback: "Збери всі свічки!",
-      },
-    };
-    let currentLang = 'ru';
-
-    function translateUI() {
-      document.querySelectorAll('[data-translate-key]').forEach(el => {
-        const key = el.dataset.translateKey;
-        const translation = translations[currentLang]?.[key] || translations['en']?.[key] || key;
-        if (translation) {
-          el.innerHTML = translation;
-        }
-      });
-      updateCollectionProfile();
-      if (currentQuest) {
-        showQuest(currentQuest);
-      }
-    }
-
-    function getTranslation(key, params = {}) {
-      let str = translations[currentLang]?.[key] || translations['en']?.[key] || key;
-      for (const [param, value] of Object.entries(params)) {
-        str = str.replace(`{${param}}`, value);
-      }
-      return str;
-    }
-
-    const wallStyles = [
-      { color: "#27ae60", shadow: "#145a32", radius: "8px", texture: "none" },
-      { color: "#39ff14", shadow: "#0f3d0f", radius: "12px", texture: "none" },
-      { color: "#4CAF50", shadow: "#1B5E20", radius: "20px", texture: "none" },
-    ];
-    const mazeLayouts = [
-      [
-        "#.################.#",
-        "#..F.....##........#",
-        "#.##.###.##.###.##.#",
-        "#.#..............#.#",
-        "#.#.##.######.##.#.#",
-        "#....*...##...*....#",
-        "#.##.#.#.##.#.#.##.#",
-        "#.#..............#.#",
-        "#.#.##.######.##.#.#",
-        ".............P......",
-        "#.#.##.######.##.#.#",
-        "#.#..............#.#",
-        "#.##.#.#.##.#.#.##.#",
-        "#....*...##...*....#",
-        "#.#.##.######.##.#.#",
-        "#.#..R...........#.#",
-        "#.##.###.##.###.##.#",
-        "#........##........#",
-        "#.....########.....#",
-        "#.################.#"
-      ],
-    ];
-    const COLLECTION_CANDLES = [
-      { name: "Emerald", color: "#14F195", border: "#fff", effect: "pulse" },
-      { name: "Sapphire", color: "#00BFFF", border: "#fff", effect: "spin" },
-      { name: "Ruby", color: "#FF4500", border: "#fff", effect: "shake" },
-      { name: "Amethyst", color: "#9945FF", border: "#fff", effect: "blink" },
-      { name: "Topaz", color: "#FFD700", border: "#fff", effect: "glow" }
-    ];
-    let playerCollection = [];
-    const gameBoard = document.getElementById('game-board');
-    const scoreElement = document.getElementById('score');
-    const livesElement = document.getElementById('lives');
-    const startBtn = document.getElementById('start-btn');
-    const startScreen = document.getElementById('start-screen');
-    const gameOverScreen = document.getElementById('game-over');
-    const levelCompleteScreen = document.getElementById('level-complete');
-    const finalScoreElement = document.getElementById('final-score');
-    const finalLevelElement = document.getElementById('final-level');
-    const completedLevelElement = document.getElementById('completed-level');
-    const levelScoreElement = document.getElementById('level-score');
-    const levelIndicator = document.getElementById('level-indicator');
-    const restartBtn = document.getElementById('restart-btn');
-    const abtnA = document.getElementById('abtn-a');
-    let player;
-    let ghosts = [];
-    let candles = [];
-    let walls = [];
-    let bullets = [];
-    let score = 0;
-    let lives = 3;
-    let level = 1;
-    let gameRunning = false;
-    let gameInterval;
-    const CELL_SIZE = 15;
-    const GRID_WIDTH = 20;
-    const GRID_HEIGHT = 20;
-    const PLAYER_SIZE = 16;
-    const GHOST_SIZE = 15;
-    const CANDLE_SIZE = 4;
-    let BOARD_WIDTH = 300;
-    let BOARD_HEIGHT = 300;
-    let scaleX = 1;
-    let scaleY = 1;
-    let powerMode = false;
-    let powerModeTimeout = null;
-    let playerDirection = { x: 0, y: 0 };
-    let playerNextDirection = { x: 0, y: 0 };
-    let playerX = 0;
-    let playerY = 0;
-    let playerStart = null;
-    let ghostStarts = [];
-    let powerCandleSpawned = false;
-    let currentMazeLayout = null;
-
-    function applyWallStyle(level) {
-      const style = wallStyles[(level - 1) % wallStyles.length];
-      document.documentElement.style.setProperty('--wall-color', style.color);
-      document.documentElement.style.setProperty('--wall-radius', style.radius);
-    }
-
-    function adjustGameBoardSize() {
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      let maxBoardSize;
-      if (window.matchMedia('(orientation: portrait)').matches) {
-        maxBoardSize = Math.min(windowWidth - 20, windowHeight * 0.5);
-      } else {
-        maxBoardSize = Math.min(windowWidth * 0.6, windowHeight - 180);
-      }
-      BOARD_WIDTH = maxBoardSize;
-      BOARD_HEIGHT = maxBoardSize;
-      document.documentElement.style.setProperty('--board-size', `${maxBoardSize}px`);
-      scaleX = maxBoardSize / 300;
-      scaleY = maxBoardSize / 300;
-      updateAllElementPositions();
-    }
-
-    function updatePlayerVisuals() {
-      if (!player) return;
-
-      player.style.left = (playerX * scaleX) + 'px';
-      player.style.top = (playerY * scaleY) + 'px';
-      player.style.transform = `scale(${scaleX * 2}, ${scaleY * 2})`;
-
-      playerState.frameCounter++;
-      if (playerState.frameCounter > ANIMATION_CONFIG.ANIMATION_SPEED) {
-        playerState.frameCounter = 0;
-        playerState.animationFrame = (playerState.animationFrame + 1) % ANIMATION_CONFIG.FRAME_COUNT;
-      }
-
-      let frameX = playerState.animationFrame * ANIMATION_CONFIG.FRAME_WIDTH;
-      let frameY = 0;
-
-      if (playerDirection.y === 1) { frameY = ANIMATION_CONFIG.FRAME_HEIGHT * 0; }      // Вниз
-      else if (playerDirection.x === 1) { frameY = ANIMATION_CONFIG.FRAME_HEIGHT * 1; }  // Вправо
-      else if (playerDirection.x === -1) { frameY = ANIMATION_CONFIG.FRAME_HEIGHT * 2; } // Влево
-      else if (playerDirection.y === -1) { frameY = ANIMATION_CONFIG.FRAME_HEIGHT * 3; } // Вверх
-      else {
-        frameX = 0;
-      }
-      player.style.backgroundPosition = `-${frameX}px -${frameY}px`;
-    }
-
-    function updateAllElementPositions() {
-      ghosts.forEach(ghost => {
-        ghost.element.style.left = (ghost.x * scaleX) + 'px';
-        ghost.element.style.top = (ghost.y * scaleY) + 'px';
-        ghost.element.style.transform = `scale(${scaleX}, ${scaleY})`;
-      });
-      candles.forEach(candle => {
-        candle.element.style.left = (candle.x * scaleX) + 'px';
-        candle.element.style.top = (candle.y * scaleY) + 'px';
-        candle.element.style.transform = `scale(${scaleX}, ${scaleY})`;
-      });
-      walls.forEach(wall => {
-        wall.element.style.left = (wall.x * scaleX) + 'px';
-        wall.element.style.top = (wall.y * scaleY) + 'px';
-        wall.element.style.width = (CELL_SIZE * scaleX) + 'px';
-        wall.element.style.height = (CELL_SIZE * scaleY) + 'px';
-      });
-      bullets.forEach(b => {
-        b.element.style.left = (b.x * scaleX) + 'px';
-        b.element.style.top = (b.y * scaleY) + 'px';
-      });
-      updatePlayerVisuals();
-    }
-
-    function createGhosts() {
-      ghosts.forEach(g => { if (gameBoard.contains(g.element)) gameBoard.removeChild(g.element) });
-      ghosts = [];
-      ghostStarts.forEach(ghostData => {
-        const ghost = document.createElement('div');
-        let type;
-        switch (ghostData.type) {
-          case 'F': type = 'fomo'; break;
-          case 'R': type = 'rug'; break;
-          case 'V': type = 'volatility'; break;
-          case 'A': type = 'paper'; break;
-        }
-        ghost.className = 'ghost ghost-' + type;
-        ghost.style.width = `${GHOST_SIZE}px`;
-        ghost.style.height = `${GHOST_SIZE}px`;
-        ghost.innerHTML = createGhostSvg(type);
-        gameBoard.appendChild(ghost);
-        ghosts.push({
-          element: ghost,
-          x: ghostData.x,
-          y: ghostData.y,
-          type: type,
-          speed: 1,
-          direction: { x: 0, y: 0 },
-          nextDirection: { x: 0, y: 0 }
-        });
-      });
-    }
-
-    function createPlayer() {
-      if (player && gameBoard.contains(player)) {
-        gameBoard.removeChild(player);
-      }
-      player = document.createElement('div');
-      player.className = 'player';
-      player.speed = 1.5;
-      player.invincible = false;
-      player.lastShot = 0;
-      gameBoard.appendChild(player);
-    }
-
-    function createMaze(levelIndex) {
-      playerStart = null;
-      ghostStarts = [];
-      currentMazeLayout = mazeLayouts[levelIndex] || mazeLayouts[0];
-      const layout = currentMazeLayout;
-      for (let y = 0; y < layout.length; y++) {
-        for (let x = 0; x < layout[y].length; x++) {
-          const cell = layout[y][x];
-          if (cell === '#') {
-            const wall = document.createElement('div');
-            wall.className = 'wall';
-            walls.push({
-              x: x * CELL_SIZE,
-              y: y * CELL_SIZE,
-              width: CELL_SIZE,
-              height: CELL_SIZE,
-              element: wall
-            });
-            gameBoard.appendChild(wall);
-          } else if (cell === '.') {
-            const cx = x * CELL_SIZE + (CELL_SIZE - CANDLE_SIZE) / 2;
-            const cy = y * CELL_SIZE + (CELL_SIZE - CANDLE_SIZE) / 2;
-            createCandleAt(cx, cy);
-          } else if (cell === '*') {
-            const cx = x * CELL_SIZE + (CELL_SIZE - 10) / 2;
-            const cy = y * CELL_SIZE + (CELL_SIZE - 10) / 2;
-            createPowerCandleAt(cx, cy);
-          } else if (cell === 'P') {
-            playerStart = {
-              x: x * CELL_SIZE,
-              y: y * CELL_SIZE
-            };
-          } else if (cell === 'F' || cell === 'R' || cell === 'V' || cell === 'A') {
-            ghostStarts.push({
-              type: cell,
-              x: x * CELL_SIZE + (CELL_SIZE - GHOST_SIZE) / 2,
-              y: y * CELL_SIZE + (CELL_SIZE - GHOST_SIZE) / 2
-            });
-          }
-        }
-      }
-    }
-
-    function getRandomCorridorCell() {
-      const freeCells = [];
-      for (let y = 0; y < currentMazeLayout.length; y++) {
-        for (let x = 0; x < currentMazeLayout[y].length; x++) {
-          const cell = currentMazeLayout[y][x];
-          if (cell === '.' || cell === ' ' || cell === '*') {
-            freeCells.push({ x, y });
-          }
-        }
-      }
-      if (freeCells.length === 0) return { x: 10, y: 10 };
-      return freeCells[Math.floor(Math.random() * freeCells.length)];
-    }
-
-    function createCandleAt(x, y, color = null) {
-      for (const candle of candles) {
-        const dx = candle.x - x;
-        const dy = candle.y - y;
-        if (Math.hypot(dx, dy) < 10) return;
-      }
-      const candle = document.createElement('div');
-      candle.className = 'candle';
-      if (color) {
-        candle.style.background = color;
-      }
-      candles.push({
-        element: candle,
-        x: x,
-        y: y
-      });
-      gameBoard.appendChild(candle);
-    }
-
-    function createPowerCandleAt(x, y) {
-      const candle = document.createElement('div');
-      candle.className = 'candle power-candle';
-      candles.push({
-        element: candle,
-        x: x,
-        y: y,
-        power: true
-      });
-      gameBoard.appendChild(candle);
-    }
-
-    function spawnPowerCandleOncePerLevel() {
-      if (powerCandleSpawned) return;
-      powerCandleSpawned = true;
-      let isCollection = Math.random() < 0.5;
-      let candleData = null;
-      if (isCollection) {
-        let notCollected = COLLECTION_CANDLES.filter(c => !playerCollection.includes(c.name));
-        if (notCollected.length === 0) notCollected = COLLECTION_CANDLES;
-        candleData = notCollected[Math.floor(Math.random() * notCollected.length)];
-      }
-      const cell = getRandomCorridorCell();
-      const x = cell.x * CELL_SIZE + (CELL_SIZE - 10) / 2;
-      const y = cell.y * CELL_SIZE + (CELL_SIZE - 10) / 2;
-      const candle = document.createElement('div');
-      candle.className = 'candle power-candle big-candle';
-      if (isCollection && candleData) {
-        candle.classList.add('candle-' + candleData.effect);
-        candle.style.background = candleData.color;
-        candle.style.border = `2px solid ${candleData.border}`;
-        candle.dataset.collection = candleData.name;
-      }
-      candles.push({
-        element: candle,
-        x: x,
-        y: y,
-        power: true,
-        big: true,
-        collection: isCollection ? candleData.name : null
-      });
-      gameBoard.appendChild(candle);
-      const popupText = isCollection && candleData ?
-        getTranslation('fomoPopupCollect', { name: candleData.name }) :
-        getTranslation('fomoPopupBigCandle');
-      showFomoPopup(popupText);
-
-      let timer = 10;
-      showFomoTimer(timer);
-      const timerInterval = setInterval(() => {
-        timer--;
-        updateFomoTimer(timer);
-        if (timer <= 0) {
-          clearInterval(timerInterval);
-          if (gameBoard.contains(candle)) {
-            gameBoard.removeChild(candle);
-            candles = candles.filter(c => c.element !== candle);
-            const missedText = isCollection && candleData ?
-              getTranslation('fomoPopupMissedCollection') :
-              getTranslation('fomoPopupMissedBig');
-            showFomoPopup(missedText);
-            hideFomoTimer();
-          }
-        }
-      }, 1000);
-    }
-
-    function showFomoPopup(text) {
-      let popup = document.getElementById('fomo-popup');
-      if (!popup) return;
-      popup.innerHTML = text;
-      popup.style.display = 'flex';
-      popup.style.animation = 'fomo-fadein 0.4s';
-      setTimeout(() => {
-        if (popup) popup.style.display = 'none';
-      }, 4000);
-    }
-
-    function showFomoTimer(seconds) {
-      let timerDiv = document.getElementById('fomo-timer');
-      timerDiv.textContent = getTranslation('fomoTimer', { seconds: seconds });
-      timerDiv.style.display = 'block';
-      timerDiv.classList.remove('fomo-blink');
-      if (seconds <= 3) timerDiv.classList.add('fomo-blink');
-    }
-
-    function updateFomoTimer(seconds) {
-      const timerDiv = document.getElementById('fomo-timer');
-      if (timerDiv) {
-        timerDiv.textContent = getTranslation('fomoTimer', { seconds: seconds });
-        if (seconds <= 3) timerDiv.classList.add('fomo-blink');
-        else timerDiv.classList.remove('fomo-blink');
-      }
-    }
-
-    function hideFomoTimer() {
-      const timerDiv = document.getElementById('fomo-timer');
-      if (timerDiv) {
-        timerDiv.style.display = 'none';
-        timerDiv.classList.remove('fomo-blink');
-      }
-    }
-
-    function createGhostSvg(type) {
-      let color, eyeColor, mouthPath;
-      switch (type) {
-        case 'fomo': color = '#FF0000'; eyeColor = '#FFF'; mouthPath = 'M5 10Q7.5 12 10 10'; break;
-        case 'rug': color = '#FF69B4'; eyeColor = '#FFF'; mouthPath = 'M5 11Q7.5 9 10 11'; break;
-        case 'volatility': color = '#00BFFF'; eyeColor = '#FFF'; mouthPath = 'M5 10L10 10'; break;
-        case 'paper': color = '#FFA500'; eyeColor = '#FFF'; mouthPath = 'M5 11Q7.5 10 10 11'; break;
-      }
-      return `
-        <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1.5 7.5 C1.5 4.5 3.5 1.5 7.5 1.5 C11.5 1.5 13.5 4.5 13.5 7.5 L13.5 12 C13.5 12 12 10.5 11 12 C10 13.5 9 12 8 12 C7 12 6 13.5 5 12 C4 10.5 3 12 3 12 L1.5 7.5Z" fill="${color}" />
-          <circle cx="5" cy="6" r="1" fill="${eyeColor}" /><circle cx="10" cy="6" r="1" fill="${eyeColor}" />
-          <circle cx="5" cy="6" r="0.5" fill="#000" /><circle cx="10" cy="6" r="0.5" fill="#000" />
-          <path d="${mouthPath}" stroke="#000" fill="none" stroke-width="0.4" />
-        </svg>`;
-    }
-
-    function updateCollectionProfile() {
-      const profile = document.getElementById('collection-profile');
-      if (!profile) return;
-      let html = `<span class="collection-label">${getTranslation('collectionLabel')}</span>`;
-      COLLECTION_CANDLES.forEach(c => {
-        const collected = playerCollection.includes(c.name);
-        html += `<span class="candle-icon${collected ? ' collected' : ''}" style="background:${c.color};${c.effect === 'glow' ? 'box-shadow:0 0 12px #FFD700;' : ''}" title="${c.name}"></span>`;
-      });
-      if (playerCollection.length === COLLECTION_CANDLES.length) {
-        html += `<span style="margin-left:8px;color:#14F195;font-weight:bold;">✔</span>`;
-      }
-      profile.innerHTML = html;
-    }
-
-    function initGame() {
-      level = 1;
-      lives = 3;
-      score = playerState ? parseInt(playerState.goldBalance, 10) || 0 : 0;
-      playerCollection = [];
-      resetLevelLayout();
-    }
-
-    function resetLevelLayout() {
-      applyWallStyle(level);
-      const elementsToClean = Array.from(gameBoard.children).filter(child =>
-        !child.classList.contains('start-screen') && !child.classList.contains('game-over') &&
-        !child.classList.contains('level-complete') && !child.classList.contains('level-indicator') &&
-        !child.classList.contains('fomo-timer')
-      );
-      elementsToClean.forEach(el => gameBoard.removeChild(el));
-      scoreElement.textContent = score;
-      livesElement.textContent = lives;
-      levelIndicator.innerHTML = `<span data-translate-key="levelLabel">${getTranslation('levelLabel')}</span> ${level}`;
-      ghosts = []; candles = []; walls = []; bullets = [];
-      powerMode = false; showAButton(false);
-      if (powerModeTimeout) clearTimeout(powerModeTimeout);
-      powerCandleSpawned = false;
-      updateCollectionProfile();
-      createMaze((level - 1) % mazeLayouts.length);
-      playerX = playerStart ? playerStart.x : 150 - PLAYER_SIZE / 2;
-      playerY = playerStart ? playerStart.y : 150 - PLAYER_SIZE / 2;
-      playerDirection = { x: 0, y: 0 }; playerNextDirection = { x: 0, y: 0 };
-      createPlayer(); createGhosts(); createCandles();
-      updateAllElementPositions();
-    }
-
-    function respawnAfterDeath() {
-      playerX = playerStart.x; playerY = playerStart.y;
-      playerDirection = { x: 0, y: 0 }; playerNextDirection = { x: 0, y: 0 };
-      if (player) player.style.opacity = '1';
-      createGhosts();
-      player.invincible = true;
-      player.classList.add('invincible');
-      setTimeout(() => {
-        if (player) {
-          player.invincible = false;
-          player.classList.remove('invincible');
-        }
-      }, 2000);
-      gameRunning = true;
-      gameInterval = setInterval(gameLoop, 30);
-    }
-
-    function startGame() {
-      if (gameRunning) return; gameRunning = true;
-      startScreen.style.display = 'none'; gameOverScreen.style.display = 'none';
-      levelCompleteScreen.style.display = 'none';
-      gameInterval = setInterval(gameLoop, 30);
-      setTimeout(spawnPowerCandleOncePerLevel, 3000);
-    }
-
-    function gameLoop() {
-      if (!gameRunning || !player) return;
-
-      if (playerNextDirection.x !== 0 || playerNextDirection.y !== 0) {
-        if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) {
-          playerDirection = { ...playerNextDirection };
-        }
-      }
-      if (playerDirection.x !== 0 || playerDirection.y !== 0) {
-        const speed = player.speed || 1.5;
-        const nextX = playerX + playerDirection.x * speed;
-        const nextY = playerY + playerDirection.y * speed;
-        if (canMove(playerX, playerY, playerDirection, PLAYER_SIZE)) {
-          playerX = nextX; playerY = nextY; handleTunnels();
-        }
-      }
-      moveGhosts(); moveBullets(); checkCandleCollection(); checkGhostCollision();
-      updateAllElementPositions();
-    }
-
-    function handleTunnels() {
-      if (playerX < -PLAYER_SIZE) playerX = 300; else if (playerX > 300) playerX = -PLAYER_SIZE;
-      if (playerY < -PLAYER_SIZE) playerY = 300; else if (playerY > 300) playerY = -PLAYER_SIZE;
-      ghosts.forEach(ghost => {
-        if (ghost.x < -GHOST_SIZE) ghost.x = 300; else if (ghost.x > 300) ghost.x = -GHOST_SIZE;
-        if (ghost.y < -GHOST_SIZE) ghost.y = 300; else if (ghost.y > 300) ghost.y = -GHOST_SIZE;
-      });
-    }
-
-    function canMove(x, y, dir, size) {
-      const nextX = x + dir.x * 1; const nextY = y + dir.y * 1;
-      if (nextX < 0 || nextX + size > 300 || nextY < 0 || nextY + size > 300) return false;
-      for (const wall of walls) {
-        if (nextX < wall.x + wall.width && nextX + size > wall.x && nextY < wall.y + wall.height && nextY + size > wall.y) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    function moveGhosts() {
-      ghosts.forEach(ghost => {
-        if (Math.random() < 0.05) {
-          let dx = playerX - ghost.x; let dy = playerY - ghost.y;
-          if (Math.abs(dx) > 150) dx = -Math.sign(dx) * (300 - Math.abs(dx));
-          if (Math.abs(dy) > 150) dy = -Math.sign(dy) * (300 - Math.abs(dy));
-          ghost.nextDirection = Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) };
-        }
-        if (ghost.nextDirection.x !== 0 || ghost.nextDirection.y !== 0) {
-          if (canMove(ghost.x, ghost.y, ghost.nextDirection, GHOST_SIZE)) {
-            ghost.direction = { ...ghost.nextDirection };
-            ghost.nextDirection = { x: 0, y: 0 };
-          }
-        }
-        if (!canMove(ghost.x, ghost.y, ghost.direction, GHOST_SIZE)) {
-          const directions = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
-          for (let i = directions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[directions[i], directions[j]] = [directions[j], directions[i]]; }
-          for (const dir of directions) { if (canMove(ghost.x, ghost.y, dir, GHOST_SIZE)) { ghost.direction = dir; break; } }
-        }
-        ghost.x += ghost.direction.x * ghost.speed; ghost.y += ghost.direction.y * ghost.speed;
-      });
-    }
-
-    function shootBullet() {
-      if (!powerMode) return;
-      if (player.lastShot && Date.now() - player.lastShot < 300) return;
-      player.lastShot = Date.now();
-      const bullet = document.createElement('div'); bullet.className = 'bullet';
-      bullets.push({
-        element: bullet, x: playerX + PLAYER_SIZE / 2 - 3, y: playerY + PLAYER_SIZE / 2 - 3,
-        dir: (playerDirection.x === 0 && playerDirection.y === 0) ? { x: 1, y: 0 } : { ...playerDirection }, speed: 5
-      });
-      gameBoard.appendChild(bullet); playTone(1000, 0.05, "square", 0.12);
-    }
-
-    function moveBullets() {
-      for (let i = bullets.length - 1; i >= 0; i--) {
-        const b = bullets[i];
-        b.x += b.dir.x * b.speed; b.y += b.dir.y * b.speed;
-        if (b.x < 0 || b.x > 300 || b.y < 0 || b.y > 300) { if (gameBoard.contains(b.element)) gameBoard.removeChild(b.element); bullets.splice(i, 1); continue; }
-        for (let j = ghosts.length - 1; j >= 0; j--) {
-          const g = ghosts[j];
-          const dx = b.x + 3 - (g.x + GHOST_SIZE / 2); const dy = b.y + 3 - (g.y + GHOST_SIZE / 2);
-          if (Math.hypot(dx, dy) < 10) {
-            if (gameBoard.contains(g.element)) gameBoard.removeChild(g.element); ghosts.splice(j, 1);
-            if (gameBoard.contains(b.element)) gameBoard.removeChild(b.element); bullets.splice(i, 1);
-            lives++; livesElement.textContent = lives; playTone(1200, 0.1, "square", 0.2); break;
-          }
-        }
-      }
-    }
-
-    function checkCandleCollection() {
-      if (!player) return;
-      for (let i = candles.length - 1; i >= 0; i--) {
-        const candle = candles[i];
-        const size = candle.power ? (candle.big ? 10 : 10) : 4;
-        const dx = playerX + PLAYER_SIZE / 2 - candle.x - size / 2;
-        const dy = playerY + PLAYER_SIZE / 2 - candle.y - size / 2;
-        if (Math.hypot(dx, dy) < PLAYER_SIZE / 2 + size / 2) {
-          if (gameBoard.contains(candle.element)) gameBoard.removeChild(candle.element); candles.splice(i, 1);
-          if (candle.big) {
-            if (candle.collection) {
-              if (!playerCollection.includes(candle.collection)) {
-                playerCollection.push(candle.collection); showFomoPopup(getTranslation('collectedNew')); updateCollectionProfile();
-              } else { showFomoPopup(getTranslation('collectedAgain')); }
-              playBigCandleSound(); hideFomoTimer();
-            } else { score += 100; scoreElement.textContent = score; playBigCandleSound(); showFomoPopup(getTranslation('bigCandleBonus')); hideFomoTimer(); }
-          } else if (candle.power) { playPowerCandleSound(); activatePowerMode(); } else { playCandleSound(); score += 10; scoreElement.textContent = score; }
-          if (candles.filter(c => !c.big && !c.power).length === 0) { levelComplete(); }
-        }
-      }
-    }
-
-    function createCandles() {
-      let count = 0;
-      for (let i = 0; i < candles.length; i++) { if (!candles[i].power && !candles[i].big) count++; }
-      let minCandles = 10 + 5 * level;
-      let candleColor = questParams.color || null;
-      for (let i = count; i < minCandles; i++) {
-        const validPos = findValidPosition(CANDLE_SIZE, CANDLE_SIZE); createCandleAt(validPos.x, validPos.y, candleColor);
-      }
-    }
-
-    function activatePowerMode() {
-      if (powerModeTimeout) clearTimeout(powerModeTimeout);
-      powerMode = true; if (player) player.style.filter = 'drop-shadow(0 0 10px #00FFFA) brightness(1.5)';
-      if (player) player.invincible = true; ghosts.forEach(g => g.element.style.filter = 'grayscale(1) brightness(1.5)');
-      showAButton(true);
-      powerModeTimeout = setTimeout(() => {
-        powerMode = false; if (player) player.style.filter = ''; if (player) player.invincible = false;
-        ghosts.forEach(g => g.element.style.filter = ''); showAButton(false);
-      }, 5000);
-    }
-
-    function checkGhostCollision() {
-      if (!player || player.invincible) return;
-      for (const ghost of ghosts) {
-        const dx = playerX + PLAYER_SIZE / 2 - (ghost.x + GHOST_SIZE / 2);
-        const dy = playerY + PLAYER_SIZE / 2 - (ghost.y + GHOST_SIZE / 2);
-        if (Math.hypot(dx, dy) < (PLAYER_SIZE / 2 + GHOST_SIZE / 2) - 5) {
-          if (powerMode) {
-            if (gameBoard.contains(ghost.element)) gameBoard.removeChild(ghost.element);
-            ghosts = ghosts.filter(g => g.element !== ghost.element);
-            score += 100; scoreElement.textContent = score;
-          } else { playerDies(); }
-        }
-      }
-    }
-
-    function playerDies() {
-      lives--; playDeathSound(); clearInterval(gameInterval); gameRunning = false;
-      if (player) player.style.opacity = '0';
-      setTimeout(() => {
-        if (lives <= 0) { livesElement.textContent = 0; gameOver(); }
-        else { livesElement.textContent = lives; respawnAfterDeath(); }
-      }, 800);
-    }
-
-    function levelComplete() {
-      clearInterval(gameInterval); gameRunning = false; updatePlayerScore(score);
-      if (player) player.classList.add('win-anim'); playLevelSound();
-      completedLevelElement.textContent = level; levelScoreElement.textContent = score;
-      levelCompleteScreen.style.display = 'flex'; level++;
-      setTimeout(() => {
-        levelCompleteScreen.style.display = 'none'; resetLevelLayout(); startGame();
-      }, 2000);
-    }
-
-    function gameOver() {
-      clearInterval(gameInterval); gameRunning = false; updatePlayerScore(score);
-      finalScoreElement.textContent = score; finalLevelElement.textContent = level;
-      gameOverScreen.style.display = 'flex';
-    }
-
-    function updatePlayerScore(finalScore) {
-      if (!playerState || !playerState.userId) { console.error('Прометей: Невозможно сохранить счет. ID игрока отсутствует.'); return; }
-      console.log(`Прометей: Отправка финального счета ${finalScore} для пользователя ${playerState.userId}...`);
-      fetch('/api/update-score', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: playerState.userId, newScore: finalScore }),
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Прометей: Ответ от сервера сохранения:', data.message);
-          if (data.playerData) { playerState.goldBalance = data.playerData.newGoldBalance; }
-        })
-        .catch(error => console.error('Прометей: Ошибка сохранения счета!', error));
-    }
-
-    function showAButton(active) { if (active) abtnA.classList.add('active'); else abtnA.classList.remove('active'); }
-
-    const langSelect = document.getElementById('lang-select');
-    const langIcon = document.getElementById('lang-icon');
-    langSelect.addEventListener('change', function () {
-      currentLang = this.value; langSelect.style.display = 'none'; langIcon.style.display = 'inline-block';
-      translateUI();
-    });
-    langIcon.addEventListener('click', function () { langSelect.style.display = 'inline-block'; langIcon.style.display = 'none'; langSelect.focus(); });
-
-    let currentQuest = ""; let questParams = {};
-    function showQuest(quest) {
-      currentQuest = quest; const questLabel = getTranslation('questLabel');
-      document.getElementById('console-quest').textContent = questLabel + ": " + quest;
-    }
-
-    let activeTouches = {};
-    const joystickOuter = document.getElementById('joystick-outer');
-    const joystickStick = document.getElementById('joystick-stick');
-    let joystickTouchId = null;
-
-    function handleJoystickMove(x, y) {
-      const rect = joystickOuter.getBoundingClientRect();
-      const dx = x - (rect.left + joystickOuter.offsetWidth / 2);
-      const dy = y - (rect.top + joystickOuter.offsetHeight / 2);
-      const maxDist = joystickOuter.offsetWidth / 2 - joystickStick.offsetWidth / 2;
-      let dist = Math.sqrt(dx * dx + dy * dy);
-      let stickX = dx; let stickY = dy;
-      if (dist > maxDist) { stickX = dx * maxDist / dist; stickY = dy * maxDist / dist; }
-      joystickStick.style.left = (joystickOuter.offsetWidth / 2 - joystickStick.offsetWidth / 2 + stickX) + 'px';
-      joystickStick.style.top = (joystickOuter.offsetHeight / 2 - joystickStick.offsetHeight / 2 + stickY) + 'px';
-      if (dist > 10) {
-        if (Math.abs(dx) > Math.abs(dy)) { playerNextDirection = { x: Math.sign(dx), y: 0 }; }
-        else { playerNextDirection = { x: 0, y: Math.sign(dy) }; }
-      } else { playerNextDirection = { x: 0, y: 0 }; }
-    }
-
-    function resetJoystick() {
-      joystickStick.style.left = (joystickOuter.offsetWidth / 2 - joystickStick.offsetWidth / 2) + 'px';
-      joystickStick.style.top = (joystickOuter.offsetHeight / 2 - joystickStick.offsetHeight / 2) + 'px';
-      playerNextDirection = { x: 0, y: 0 }; joystickTouchId = null;
-    }
-
-    async function handleStartGame() {
-      if (startBtn.disabled) return;
-      startBtn.disabled = true;
-
-      const userData = window.Telegram?.WebApp?.initDataUnsafe?.user;
-      let userPayload = userData ? { id: userData.id, first_name: userData.first_name } : { id: 2, first_name: 'BrowserGhost' };
-
-      try {
-        const userResponse = await fetch('/api/user', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userPayload),
-        });
-        const userData = await userResponse.json();
-        if (userData.playerData) {
-          playerState = { ...playerState, ...userData.playerData };
-          updateHealthDisplay(playerState.health, playerState.maxHealth);
-          updateManaDisplay(playerState.mana, playerState.maxMana);
-
-          const inventoryResponse = await fetch(`/api/inventory?userId=${playerState.userId}`);
-          const inventoryData = await inventoryResponse.json();
-          if (inventoryData.inventory) {
-            playerState.inventory = inventoryData.inventory;
-            populateHotbar();
-          }
-        }
-      } catch (error) {
-        console.error('Прометей: Ошибка инициализации!', error);
-      } finally {
-        initGame();
-        startGame();
-        startBtn.disabled = false;
-      }
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      const browserLang = navigator.language.slice(0, 2);
-      if (Object.keys(translations).includes(browserLang)) {
-        currentLang = browserLang; langSelect.value = browserLang;
+
+      // --- 1. CONFIGURATION & CONSTANTS ---
+      const CONFIG = {
+        PLAYER_SPEED: 2,
+        GHOST_SPEED: 1,
+        TILE_SIZE: 32,
+        PLAYER_WIDTH: 32,
+        PLAYER_HEIGHT: 32,
+        ANIMATION_SPEED: 150, // ms per frame
+        INVINCIBILITY_DURATION: 2000, // ms
+      };
+
+      const ANIMATIONS = {
+        WALK_DOWN: { row: 0, frames: 4 },
+        WALK_LEFT: { row: 1, frames: 4 },
+        WALK_RIGHT: { row: 2, frames: 4 },
+        WALK_UP: { row: 3, frames: 4 },
+        IDLE: { row: 0, frames: 1 },
+      };
+
+      const LEVEL_LAYOUT = [
+        "#####################",
+        "#c.......#.......c#",
+        "#.#####.###.#####.#",
+        "#P#####.###.#####.P#",
+        "#c.......c.......c#",
+        "#.#####.#.#.#####.#",
+        "#.......#.#.......#",
+        "#####.### ###.#####",
+        "#####.#   G   #.#####",
+        "#####.# ##### #.#####",
+        "T     #G#G#G#     T",
+        "#####.# ##### #.#####",
+        "#####.#   M   #.#####",
+        "#####.### ###.#####",
+        "#.......#.#.......#",
+        "#.#####.#.#.#####.#",
+        "#c.......c.......c#",
+        "#P#####.###.#####.P#",
+        "#c.......#.......c#",
+        "#####################",
+      ];
+
+      // --- 2. GAME STATE ---
+      const state = {
+        gameState: 'START_SCREEN', // START_SCREEN, PLAYING, GAME_OVER
+        player: {
+          x: 0,
+          y: 0,
+          dx: 0,
+          dy: 0,
+          el: null,
+          direction: 'WALK_DOWN',
+          frame: 0,
+          lastAnimationTime: 0,
+          isInvincible: false,
+          invincibleUntil: 0,
+        },
+        ghosts: [],
+        walls: [],
+        candles: [],
+        score: 0,
+        gold: 0,
+        health: 100,
+        maxHealth: 100,
+        mana: 50,
+        maxMana: 50,
+        level: 1,
+        userId: null,
+        username: 'anonymous',
+        gridSize: 0,
+      };
+
+      // --- 3. DOM ELEMENT SELECTORS ---
+      const DOMElements = {
+        gameBoard: document.getElementById('game-board'),
+        startScreen: document.getElementById('start-screen'),
+        startButton: document.getElementById('start-button'),
+        usernameDisplay: document.getElementById('username-display'),
+        goldBalanceDisplay: document.getElementById('gold-balance-display'),
+        healthBarProgress: document.getElementById('health-bar-progress'),
+        healthBarText: document.getElementById('health-bar-text'),
+        manaBarProgress: document.getElementById('mana-bar-progress'),
+        manaBarText: document.getElementById('mana-bar-text'),
+        playerLevel: document.getElementById('player-level'),
+        playerScore: document.getElementById('player-score'),
+        statusLeft: document.querySelector('.status-left'),
+        statusRight: document.querySelector('.status-right'),
+        joystick: {
+          outer: document.getElementById('joystick-outer'),
+          stick: document.getElementById('joystick-stick'),
+        },
+        actionButtonA: document.getElementById('action-button-a'),
+      };
+
+      // --- 4. TELEGRAM WEBAPP MOCK (for local testing) ---
+      if (typeof window.Telegram === 'undefined') {
+        console.warn("Telegram WebApp script not found. Using mock data.");
+        window.Telegram = {
+          WebApp: {
+            initDataUnsafe: {
+              user: {
+                id: 123456789,
+                first_name: "Mock",
+                last_name: "User",
+                username: "mock_user",
+              },
+            },
+            ready: () => { },
+            expand: () => { },
+          },
+        };
       }
-      translateUI();
-      adjustGameBoardSize();
 
-      window.addEventListener('touchstart', (e) => {
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          const touch = e.changedTouches[i]; const target = document.elementFromPoint(touch.clientX, touch.clientY);
-          if (joystickOuter.contains(target) && joystickTouchId === null) {
-            joystickTouchId = touch.identifier; activeTouches[touch.identifier] = 'joystick';
-            handleJoystickMove(touch.clientX, touch.clientY);
-          } else if (target && target.closest('.hotbar-slot')) {
-            const slot = target.closest('.hotbar-slot'); const slotNumber = parseInt(slot.dataset.slot, 10);
-            selectHotbarSlot(slotNumber);
-          } else if (target && target.closest('.abtn')) {
-            const button = target.closest('.abtn');
-            activeTouches[touch.identifier] = 'action_button'; useItemInSlot(playerState.activeHotbarSlot);
-            button.classList.add('active');
-          } else if (target && target.id === 'start-btn') { handleStartGame(); }
-          else if (target && target.id === 'restart-btn') { initGame(); startGame(); }
+      // --- 5. BACKEND API INTERACTION ---
+      const api = {
+        getUser: async (tgUser) => {
+          try {
+            const response = await fetch('/api/user', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ user: tgUser }),
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+          } catch (error) {
+            console.error("Failed to get or create user:", error);
+            DOMElements.startScreen.querySelector('p').textContent = 'Error connecting to server. Please try again later.';
+            return null;
+          }
+        },
+        updateGold: async (userId, newGoldBalance) => {
+          try {
+            const response = await fetch('/api/user', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId, gold: newGoldBalance }),
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+          } catch (error) {
+            console.error("Failed to update gold balance:", error);
+            return null;
+          }
         }
-      }, { passive: false });
+      };
 
-      window.addEventListener('touchmove', (e) => {
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          const touch = e.changedTouches[i];
-          if (activeTouches[touch.identifier] === 'joystick') { handleJoystickMove(touch.clientX, touch.clientY); }
-        }
-      }, { passive: false });
+      // --- 6. UI UPDATE FUNCTIONS ---
+      function updateUI() {
+        DOMElements.usernameDisplay.textContent = state.username;
+        DOMElements.goldBalanceDisplay.textContent = `GOLD: ${state.gold}`;
 
-      window.addEventListener('touchend', (e) => {
-        for (let i = 0; i < e.changedTouches.length; i++) {
-          const touch = e.changedTouches[i];
-          if (activeTouches[touch.identifier] === 'joystick') { resetJoystick(); }
-          else if (activeTouches[touch.identifier] === 'action_button') { document.getElementById('abtn-a').classList.remove('active'); }
-          delete activeTouches[touch.identifier];
-        }
-      });
+        const healthPercent = (state.health / state.maxHealth) * 100;
+        DOMElements.healthBarProgress.style.width = `${healthPercent}%`;
+        DOMElements.healthBarText.textContent = `${state.health} / ${state.maxHealth}`;
 
-      let isMouseDownOnJoystick = false;
-      joystickOuter.addEventListener('mousedown', (e) => { isMouseDownOnJoystick = true; handleJoystickMove(e.clientX, e.clientY); });
-      window.addEventListener('mousemove', (e) => { if (isMouseDownOnJoystick) { handleJoystickMove(e.clientX, e.clientY); } });
-      window.addEventListener('mouseup', (e) => { if (isMouseDownOnJoystick) { resetJoystick(); isMouseDownOnJoystick = false; } });
+        const manaPercent = (state.mana / state.maxMana) * 100;
+        DOMElements.manaBarProgress.style.width = `${manaPercent}%`;
+        DOMElements.manaBarText.textContent = `${state.mana} / ${state.maxMana}`;
 
-      startBtn.addEventListener('click', handleStartGame);
-      restartBtn.addEventListener('click', () => { initGame(); startGame(); });
-      window.addEventListener('resize', adjustGameBoardSize);
-      window.addEventListener('orientationchange', () => setTimeout(adjustGameBoardSize, 200));
+        DOMElements.playerLevel.textContent = `LVL ${state.level}`;
+        DOMElements.playerScore.textContent = `SCR: ${state.score}`;
 
-      document.addEventListener('keydown', e => {
-        if (e.key >= '1' && e.key <= '6') { const slotNumber = parseInt(e.key, 10); selectHotbarSlot(slotNumber); return; }
-        if (!gameRunning) return;
-        switch (e.key) {
-          case 'ArrowUp': case 'w': case 'W': playerNextDirection = { x: 0, y: -1 }; break;
-          case 'ArrowDown': case 's': case 'S': playerNextDirection = { x: 0, y: 1 }; break;
-          case 'ArrowLeft': case 'a': case 'A': playerNextDirection = { x: -1, y: 0 }; break;
-          case 'ArrowRight': case 'd': case 'D': playerNextDirection = { x: 1, y: 0 }; break;
-          case ' ': case 'j': case 'J': useItemInSlot(playerState.activeHotbarSlot); break;
-        }
-        if (playerDirection.x === 0 && playerDirection.y === 0) {
-          if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) { playerDirection = { ...playerNextDirection }; }
-        }
-      });
+        DOMElements.statusLeft.style.visibility = 'visible';
+        DOMElements.statusRight.style.visibility = 'visible';
+      }
 
-      document.querySelectorAll('.hotbar-slot').forEach(slot => {
-        slot.addEventListener('click', () => {
-          const slotNumber = parseInt(slot.dataset.slot, 10);
-          selectHotbarSlot(slotNumber);
+      function createGameBoard() {
+        const boardSize = DOMElements.gameBoard.offsetWidth;
+        state.gridSize = boardSize / LEVEL_LAYOUT[0].length;
+
+        LEVEL_LAYOUT.forEach((row, y) => {
+          for (let x = 0; x < row.length; x++) {
+            const char = row[x];
+            const el = document.createElement('div');
+            el.style.position = 'absolute';
+            el.style.left = `${x * state.gridSize}px`;
+            el.style.top = `${y * state.gridSize}px`;
+
+            if (char === '#') {
+              el.className = 'wall';
+              el.style.width = `${state.gridSize}px`;
+              el.style.height = `${state.gridSize}px`;
+              state.walls.push({ x: x * state.gridSize, y: y * state.gridSize, width: state.gridSize, height: state.gridSize, el });
+              DOMElements.gameBoard.appendChild(el);
+            } else if (char === 'c' || char === 'P') {
+              el.className = 'candle';
+              el.style.width = `${state.gridSize * 0.25}px`;
+              el.style.height = `${state.gridSize * 0.25}px`;
+              if (char === 'P') {
+                el.classList.add('power-candle');
+                el.style.width = `${state.gridSize * 0.5}px`;
+                el.style.height = `${state.gridSize * 0.5}px`;
+              }
+              const candle = { x: x * state.gridSize, y: y * state.gridSize, width: state.gridSize, height: state.gridSize, el, type: char === 'P' ? 'power' : 'normal' };
+              state.candles.push(candle);
+              DOMElements.gameBoard.appendChild(el);
+            } else if (char === 'M') {
+              state.player.x = x * state.gridSize;
+              state.player.y = y * state.gridSize;
+            } else if (char === 'G') {
+              const ghostEl = document.createElement('div');
+              ghostEl.className = 'ghost';
+              ghostEl.style.width = `${state.gridSize * 0.8}px`;
+              ghostEl.style.height = `${state.gridSize * 0.8}px`;
+              ghostEl.style.left = `${x * state.gridSize}px`;
+              ghostEl.style.top = `${y * state.gridSize}px`;
+              ghostEl.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
+              ghostEl.style.borderRadius = '50% 50% 0 0';
+              DOMElements.gameBoard.appendChild(ghostEl);
+              state.ghosts.push({
+                x: x * state.gridSize,
+                y: y * state.gridSize,
+                dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED,
+                dy: 0,
+                el: ghostEl,
+              });
+            }
+          }
         });
-      });
 
-      abtnA.addEventListener('click', e => { e.preventDefault(); useItemInSlot(playerState.activeHotbarSlot); });
-    });
-
-    function populateHotbar() {
-      const slots = document.querySelectorAll('.hotbar-slot');
-      slots.forEach((slot, index) => {
-        const item = playerState.inventory[index];
-        slot.innerHTML = `<span class="hotbar-keybind">${index + 1}</span>`;
-        if (item) {
-          slot.title = item.item_name;
-          const nameSpan = document.createElement('span');
-          nameSpan.textContent = item.item_name.substring(0, 3).toUpperCase();
-          nameSpan.style.fontSize = '8px'; nameSpan.style.color = '#ddd';
-          nameSpan.style.position = 'absolute'; nameSpan.style.top = '50%';
-          nameSpan.style.left = '50%'; nameSpan.style.transform = 'translate(-50%, -50%)';
-          slot.appendChild(nameSpan);
-        }
-      });
-      selectHotbarSlot(playerState.activeHotbarSlot);
-    }
-
-    function selectHotbarSlot(slotNumber) {
-      if (!slotNumber || slotNumber < 1 || slotNumber > 6) return;
-      document.querySelectorAll('.hotbar-slot').forEach(slot => {
-        slot.classList.remove('active');
-        if (parseInt(slot.dataset.slot, 10) === slotNumber) { slot.classList.add('active'); }
-      });
-      playerState.activeHotbarSlot = slotNumber;
-      console.log(`Прометей: Выбран слот ${slotNumber}`);
-    }
-
-    function useItemInSlot(slotNumber) {
-      if (!gameRunning) return;
-      const item = playerState.inventory[slotNumber - 1];
-      if (!item) { console.log(`Прометей: Слот ${slotNumber} пуст.`); return; }
-      console.log(`Прометей: Используется предмет "${item.item_name}" из слота ${slotNumber}`);
-      if (item.item_type === 'CONSUMABLE' && item.attributes.effect === 'heal') {
-        console.log(`Прометей: Восстановление ${item.attributes.value} здоровья.`); playPowerCandleSound();
-      } else if (item.item_type === 'WEAPON') {
-        console.log(`Прометей: Атака оружием ${item.item_name}.`); shootBullet();
+        // Create player element
+        const playerEl = document.createElement('div');
+        playerEl.className = 'player';
+        playerEl.style.width = `${CONFIG.PLAYER_WIDTH}px`;
+        playerEl.style.height = `${CONFIG.PLAYER_HEIGHT}px`;
+        DOMElements.gameBoard.appendChild(playerEl);
+        state.player.el = playerEl;
       }
-    }
+
+      // --- 7. INPUT HANDLING ---
+      function setupInput() {
+        let joystickActive = false;
+        let joystickStartX = 0;
+        let joystickStartY = 0;
+        const maxRadius = DOMElements.joystick.outer.offsetWidth / 2;
+
+        function handleJoystickMove(e) {
+          if (!joystickActive) return;
+          e.preventDefault();
+          const touch = e.touches ? e.touches[0] : e;
+          const rect = DOMElements.joystick.outer.getBoundingClientRect();
+          const currentX = touch.clientX - rect.left - maxRadius;
+          const currentY = touch.clientY - rect.top - maxRadius;
+
+          const angle = Math.atan2(currentY, currentX);
+          const distance = Math.min(maxRadius, Math.hypot(currentX, currentY));
+
+          const stickX = Math.cos(angle) * distance;
+          const stickY = Math.sin(angle) * distance;
+
+          DOMElements.joystick.stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
+
+          const threshold = 0.3;
+          if (Math.abs(stickX) > Math.abs(stickY)) {
+            state.player.dx = stickX / maxRadius > threshold ? CONFIG.PLAYER_SPEED : (stickX / maxRadius < -threshold ? -CONFIG.PLAYER_SPEED : 0);
+            state.player.dy = 0;
+          } else {
+            state.player.dy = stickY / maxRadius > threshold ? CONFIG.PLAYER_SPEED : (stickY / maxRadius < -threshold ? -CONFIG.PLAYER_SPEED : 0);
+            state.player.dx = 0;
+          }
+        }
+
+        function handleJoystickEnd(e) {
+          if (!joystickActive) return;
+          joystickActive = false;
+          DOMElements.joystick.stick.style.transform = 'translate(0, 0)';
+          state.player.dx = 0;
+          state.player.dy = 0;
+        }
+
+        DOMElements.joystick.outer.addEventListener('touchstart', (e) => { joystickActive = true; handleJoystickMove(e); }, { passive: false });
+        DOMElements.joystick.outer.addEventListener('touchmove', handleJoystickMove, { passive: false });
+        DOMElements.joystick.outer.addEventListener('touchend', handleJoystickEnd);
+        DOMElements.joystick.outer.addEventListener('touchcancel', handleJoystickEnd);
+
+        // Mouse support for joystick for debugging
+        DOMElements.joystick.outer.addEventListener('mousedown', (e) => { joystickActive = true; handleJoystickMove(e); });
+        document.addEventListener('mousemove', handleJoystickMove);
+        document.addEventListener('mouseup', (e) => { if (joystickActive) handleJoystickEnd(e); });
+
+
+        // Keyboard controls for debugging
+        document.addEventListener('keydown', (e) => {
+          if (state.gameState !== 'PLAYING') return;
+          switch (e.key) {
+            case 'ArrowUp': case 'w': state.player.dy = -CONFIG.PLAYER_SPEED; state.player.dx = 0; break;
+            case 'ArrowDown': case 's': state.player.dy = CONFIG.PLAYER_SPEED; state.player.dx = 0; break;
+            case 'ArrowLeft': case 'a': state.player.dx = -CONFIG.PLAYER_SPEED; state.player.dy = 0; break;
+            case 'ArrowRight': case 'd': state.player.dx = CONFIG.PLAYER_SPEED; state.player.dy = 0; break;
+          }
+        });
+        document.addEventListener('keyup', (e) => {
+          if (state.gameState !== 'PLAYING') return;
+          switch (e.key) {
+            case 'ArrowUp': case 'w': if (state.player.dy < 0) state.player.dy = 0; break;
+            case 'ArrowDown': case 's': if (state.player.dy > 0) state.player.dy = 0; break;
+            case 'ArrowLeft': case 'a': if (state.player.dx < 0) state.player.dx = 0; break;
+            case 'ArrowRight': case 'd': if (state.player.dx > 0) state.player.dx = 0; break;
+          }
+        });
+      }
+
+      // --- 8. COLLISION & MOVEMENT LOGIC ---
+      function checkCollision(rect1, rect2) {
+        return rect1.x < rect2.x + rect2.width &&
+          rect1.x + rect1.width > rect2.x &&
+          rect1.y < rect2.y + rect2.height &&
+          rect1.y + rect1.height > rect2.y;
+      }
+
+      function movePlayer() {
+        let nextX = state.player.x + state.player.dx;
+        let nextY = state.player.y + state.player.dy;
+
+        const playerRect = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
+
+        let collisionX = false;
+        let collisionY = false;
+
+        for (const wall of state.walls) {
+          if (checkCollision({ ...playerRect, y: state.player.y }, wall)) {
+            collisionX = true;
+          }
+          if (checkCollision({ ...playerRect, x: state.player.x }, wall)) {
+            collisionY = true;
+          }
+        }
+
+        if (!collisionX) state.player.x = nextX;
+        if (!collisionY) state.player.y = nextY;
+
+        // Board boundaries
+        const boardSize = DOMElements.gameBoard.offsetWidth;
+        state.player.x = Math.max(0, Math.min(boardSize - CONFIG.PLAYER_WIDTH, state.player.x));
+        state.player.y = Math.max(0, Math.min(boardSize - CONFIG.PLAYER_HEIGHT, state.player.y));
+      }
+
+      function moveGhosts() {
+        state.ghosts.forEach(ghost => {
+          let nextX = ghost.x + ghost.dx;
+          let nextY = ghost.y + ghost.dy;
+
+          const ghostRect = { x: nextX, y: nextY, width: state.gridSize * 0.8, height: state.gridSize * 0.8 };
+
+          let collided = false;
+          for (const wall of state.walls) {
+            if (checkCollision(ghostRect, wall)) {
+              collided = true;
+              break;
+            }
+          }
+
+          const boardSize = DOMElements.gameBoard.offsetWidth;
+          if (collided || nextX < 0 || nextX > boardSize - ghostRect.width || nextY < 0 || nextY > boardSize - ghostRect.height) {
+            if (Math.random() > 0.5) {
+              ghost.dx = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED;
+              ghost.dy = 0;
+            } else {
+              ghost.dy = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED;
+              ghost.dx = 0;
+            }
+          } else {
+            ghost.x = nextX;
+            ghost.y = nextY;
+          }
+        });
+      }
+
+      function checkGameCollisions() {
+        const playerRect = { x: state.player.x, y: state.player.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
+
+        // Player vs Candles
+        for (let i = state.candles.length - 1; i >= 0; i--) {
+          const candle = state.candles[i];
+          if (checkCollision(playerRect, candle)) {
+            DOMElements.gameBoard.removeChild(candle.el);
+            state.candles.splice(i, 1);
+            state.score += candle.type === 'power' ? 50 : 10;
+            state.gold += candle.type === 'power' ? 5 : 1;
+            updateUI();
+          }
+        }
+
+        // Player vs Ghosts
+        if (!state.player.isInvincible) {
+          for (const ghost of state.ghosts) {
+            const ghostRect = { x: ghost.x, y: ghost.y, width: state.gridSize * 0.8, height: state.gridSize * 0.8 };
+            if (checkCollision(playerRect, ghostRect)) {
+              state.health -= 10;
+              state.player.isInvincible = true;
+              state.player.invincibleUntil = Date.now() + CONFIG.INVINCIBILITY_DURATION;
+              state.player.el.classList.add('invincible');
+              updateUI();
+              if (state.health <= 0) {
+                endGame();
+              }
+              break;
+            }
+          }
+        }
+      }
+
+      // --- 9. ANIMATION ---
+      function updateAnimation(timestamp) {
+        if (state.player.dx > 0) state.player.direction = 'WALK_RIGHT';
+        else if (state.player.dx < 0) state.player.direction = 'WALK_LEFT';
+        else if (state.player.dy > 0) state.player.direction = 'WALK_DOWN';
+        else if (state.player.dy < 0) state.player.direction = 'WALK_UP';
+
+        const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
+        const anim = isMoving ? ANIMATIONS[state.player.direction] : ANIMATIONS.IDLE;
+
+        if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
+          state.player.frame = (state.player.frame + 1) % anim.frames;
+          state.player.lastAnimationTime = timestamp;
+        }
+
+        const bgPosX = state.player.frame * CONFIG.PLAYER_WIDTH;
+        const bgPosY = anim.row * CONFIG.PLAYER_HEIGHT;
+
+        state.player.el.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
+      }
+
+      // --- 10. CORE GAME LOGIC ---
+      function gameLoop(timestamp) {
+        if (state.gameState !== 'PLAYING') return;
+
+        movePlayer();
+        moveGhosts();
+        checkGameCollisions();
+
+        // Render
+        state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
+        state.ghosts.forEach(g => {
+          g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
+        });
+
+        // Update Invincibility
+        if (state.player.isInvincible && Date.now() > state.player.invincibleUntil) {
+          state.player.isInvincible = false;
+          state.player.el.classList.remove('invincible');
+        }
+
+        updateAnimation(timestamp);
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      function startGame() {
+        state.gameState = 'PLAYING';
+        DOMElements.startScreen.style.display = 'none';
+        requestAnimationFrame(gameLoop);
+      }
+
+      function endGame() {
+        state.gameState = 'GAME_OVER';
+        api.updateGold(state.userId, state.gold); // Final gold update
+
+        const gameOverEl = document.createElement('div');
+        gameOverEl.className = 'game-over';
+        gameOverEl.innerHTML = `
+          <h1>GAME OVER</h1>
+          <p>Final Score: ${state.score}</p>
+          <p>Total Gold: ${state.gold}</p>
+          <button onclick="window.location.reload()" class="start-button">RESTART</button>
+        `;
+        DOMElements.gameBoard.appendChild(gameOverEl);
+      }
+
+
+      // --- 11. INITIALIZER ---
+      async function initialize() {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+
+        const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+        if (!tgUser || !tgUser.id) {
+          DOMElements.startScreen.querySelector('p').textContent = "Could not identify user. Please open through Telegram.";
+          return;
+        }
+
+        const userData = await api.getUser(tgUser);
+
+        if (userData) {
+          state.userId = userData.user_id;
+          state.username = userData.username || 'degen';
+          state.gold = userData.gold_balance || 0;
+          state.health = userData.health || 100;
+          state.maxHealth = userData.max_health || 100;
+          state.mana = userData.mana || 50;
+          state.maxMana = userData.max_mana || 50;
+
+          updateUI();
+          DOMElements.startScreen.querySelector('p').textContent = 'Collect candles. Avoid ghosts. Get rich or die tryin\'.';
+          DOMElements.startButton.textContent = 'START';
+          DOMElements.startButton.disabled = false;
+        }
+
+        DOMElements.startButton.addEventListener('click', () => {
+          if (state.gameState === 'START_SCREEN') {
+            startGame();
+          }
+        });
+
+        createGameBoard();
+        setupInput();
+      }
+
+      initialize();
+    });
   </script>
 </body>
 
