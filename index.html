@@ -290,16 +290,13 @@
       margin: 0 auto;
       position: relative;
       overflow: hidden;
-      /* ПРОМЕТЕЙ: Критическое изменение. Viewport скрывает мир. */
     }
 
-    /* ПРОМЕТЕЙ: Новый контейнер для всего игрового мира, который будет двигаться внутри .game-board */
     .world-container {
       position: absolute;
       top: 0;
       left: 0;
       transition: transform 0.1s linear;
-      /* Плавное движение камеры */
     }
 
     .level-indicator {
@@ -322,14 +319,18 @@
     }
 
     .player {
-      width: 32px;
-      height: 32px;
+      /* ПРОМЕТЕЙ: Целевой размер отображения игрока */
+      width: 64px;
+      height: 64px;
       z-index: 10;
       transition: opacity 0.2s;
       background-image: url('./assets/sprites/player_sprites.png');
       background-repeat: no-repeat;
       image-rendering: pixelated;
       transform-origin: center center;
+      /* ПРОМЕТЕЙ: Масштабирование фона для соответствия новому размеру */
+      /* (4 кадра * 32px) * 2x масштаб = 256px */
+      background-size: 256px;
     }
 
     .player.invincible {
@@ -352,14 +353,12 @@
 
     .ghost {
       width: 32px;
-      /* Увеличен для соответствия новому TILE_SIZE */
       height: 32px;
       z-index: 5;
     }
 
     .candle {
       width: 8px;
-      /* Увеличен */
       height: 8px;
       z-index: 3;
       border-radius: 50%;
@@ -369,7 +368,6 @@
 
     .candle.power-candle {
       width: 16px;
-      /* Увеличен */
       height: 16px;
       background-color: #00FFFA;
       box-shadow: 0 0 12px #00FFFA, 0 0 4px #00FFFA;
@@ -646,7 +644,6 @@
 
   <div class="game-board-wrapper">
     <div class="game-board" id="game-board">
-      <!-- ПРОМЕТЕЙ: Этот контейнер будет двигаться для симуляции камеры -->
       <div class="world-container" id="world-container"></div>
       <div class="start-screen" id="start-screen">
         <h1>DEGEN-MAN</h1>
@@ -675,11 +672,15 @@
 
       // --- 1. CONFIGURATION & CONSTANTS ---
       const CONFIG = {
-        PLAYER_SPEED: 3, // Увеличена скорость
+        PLAYER_SPEED: 3,
         GHOST_SPEED: 1.5,
-        TILE_SIZE: 32, // Фиксированный размер тайла
-        PLAYER_WIDTH: 32,
-        PLAYER_HEIGHT: 32,
+        TILE_SIZE: 32,
+        // ПРОМЕТЕЙ: Размер игрока на экране (для коллизий и камеры)
+        PLAYER_WIDTH: 64,
+        PLAYER_HEIGHT: 64,
+        // ПРОМЕТЕЙ: Истинный размер кадра в спрайт-листе (для анимации)
+        SPRITE_FRAME_WIDTH: 32,
+        SPRITE_FRAME_HEIGHT: 32,
         ANIMATION_SPEED: 150,
         INVINCIBILITY_DURATION: 2000,
       };
@@ -692,7 +693,6 @@
         IDLE: { row: 0, frames: 1 },
       };
 
-      // ПРОМЕТЕЙ: Новый, процедурно-сгенерированный уровень 41x41
       const LEVEL_LAYOUT = [
         "#########################################",
         "#M.c................#...c...............#",
@@ -753,7 +753,6 @@
           isInvincible: false,
           invincibleUntil: 0,
         },
-        // ПРОМЕТЕЙ: Состояние камеры для отслеживания viewport
         camera: {
           x: 0,
           y: 0,
@@ -775,7 +774,7 @@
       // --- 3. DOM ELEMENT SELECTORS ---
       const DOMElements = {
         gameBoard: document.getElementById('game-board'),
-        worldContainer: document.getElementById('world-container'), // ПРОМЕТЕЙ: ссылка на мир
+        worldContainer: document.getElementById('world-container'),
         startScreen: document.getElementById('start-screen'),
         startButton: document.getElementById('start-button'),
         usernameDisplay: document.getElementById('username-display'),
@@ -901,8 +900,8 @@
             } else if (char === 'G') {
               const ghostEl = document.createElement('div');
               ghostEl.className = 'ghost';
-              ghostEl.style.width = `${CONFIG.PLAYER_WIDTH}px`;
-              ghostEl.style.height = `${CONFIG.PLAYER_HEIGHT}px`;
+              ghostEl.style.width = `${CONFIG.TILE_SIZE}px`;
+              ghostEl.style.height = `${CONFIG.TILE_SIZE}px`;
               ghostEl.style.left = `${elX}px`;
               ghostEl.style.top = `${elY}px`;
               ghostEl.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
@@ -918,8 +917,7 @@
 
         const playerEl = document.createElement('div');
         playerEl.className = 'player';
-        playerEl.style.width = `${CONFIG.PLAYER_WIDTH}px`;
-        playerEl.style.height = `${CONFIG.PLAYER_HEIGHT}px`;
+        // Note: size is now set via CSS class
         DOMElements.worldContainer.appendChild(playerEl);
         state.player.el = playerEl;
       }
@@ -1008,11 +1006,11 @@
         state.ghosts.forEach(ghost => {
           let nextX = ghost.x + ghost.dx;
           let nextY = ghost.y + ghost.dy;
-          const ghostRect = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
+          const ghostRect = { x: nextX, y: nextY, width: CONFIG.TILE_SIZE, height: CONFIG.TILE_SIZE };
           let collided = false;
           for (const wall of state.walls) { if (checkCollision(ghostRect, wall)) { collided = true; break; } }
 
-          if (collided || Math.random() < 0.01) { // Change direction on collision or randomly
+          if (collided || Math.random() < 0.01) {
             if (Math.random() > 0.5) {
               ghost.dx = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED; ghost.dy = 0;
             } else {
@@ -1036,7 +1034,7 @@
         }
         if (!state.player.isInvincible) {
           for (const ghost of state.ghosts) {
-            const ghostRect = { x: ghost.x, y: ghost.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
+            const ghostRect = { x: ghost.x, y: ghost.y, width: CONFIG.TILE_SIZE, height: CONFIG.TILE_SIZE };
             if (checkCollision(playerRect, ghostRect)) {
               state.health -= 10;
               state.player.isInvincible = true;
@@ -1052,7 +1050,6 @@
 
       // --- 9. ANIMATION & RENDERING ---
       function updateAnimationAndRender(timestamp) {
-        // Determine direction
         if (state.player.dx !== 0 || state.player.dy !== 0) {
           const angle = Math.atan2(state.player.dy, state.player.dx) * 180 / Math.PI;
           if (angle > -135 && angle <= -45) state.player.direction = 'WALK_UP';
@@ -1067,29 +1064,27 @@
           state.player.frame = (state.player.frame + 1) % anim.frames;
           state.player.lastAnimationTime = timestamp;
         }
-        const bgPosX = state.player.frame * CONFIG.PLAYER_WIDTH;
-        const bgPosY = anim.row * CONFIG.PLAYER_HEIGHT;
+
+        // ПРОМЕТЕЙ: Расчет смещения фона на основе истинного размера кадра спрайта.
+        const bgPosX = state.player.frame * CONFIG.SPRITE_FRAME_WIDTH;
+        const bgPosY = anim.row * CONFIG.SPRITE_FRAME_HEIGHT;
         state.player.el.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
 
-        // Render positions
         state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
         state.ghosts.forEach(g => {
           g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
         });
       }
 
-      // ПРОМЕТЕЙ: Новая функция для управления камерой
       function updateCamera() {
         const viewportWidth = DOMElements.gameBoard.offsetWidth;
         const viewportHeight = DOMElements.gameBoard.offsetHeight;
         const worldWidth = DOMElements.worldContainer.offsetWidth;
         const worldHeight = DOMElements.worldContainer.offsetHeight;
 
-        // Цель: центр игрока в центре viewport
         let targetX = state.player.x + CONFIG.PLAYER_WIDTH / 2 - viewportWidth / 2;
         let targetY = state.player.y + CONFIG.PLAYER_HEIGHT / 2 - viewportHeight / 2;
 
-        // Ограничиваем камеру границами мира
         targetX = Math.max(0, Math.min(targetX, worldWidth - viewportWidth));
         targetY = Math.max(0, Math.min(targetY, worldHeight - viewportHeight));
 
