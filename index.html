@@ -327,6 +327,7 @@
       background-repeat: no-repeat;
       image-rendering: pixelated;
       transform-origin: center center;
+      /* ПРОМЕТЕЙ: Размер фона соответствует размеру файла спрайт-листа (13*64 x 4*64) */
       background-size: 832px 256px;
     }
 
@@ -672,20 +673,23 @@
         PLAYER_SPEED: 3,
         GHOST_SPEED: 1.5,
         TILE_SIZE: 32,
-        PLAYER_WIDTH: 64,
-        PLAYER_HEIGHT: 64,
+        // ПРОМЕТЕЙ: Размер физического тела для коллизий (меньше визуала для свободы)
+        PLAYER_WIDTH: 48,
+        PLAYER_HEIGHT: 48,
+        // ПРОМЕТЕЙ: Истинный размер кадра в новом спрайт-листе
         SPRITE_FRAME_WIDTH: 64,
         SPRITE_FRAME_HEIGHT: 64,
-        ANIMATION_SPEED: 150, // Возвращаем скорость анимации к более медленной
+        ANIMATION_SPEED: 80, // Ускорена для соответствия 13 кадрам
         INVINCIBILITY_DURATION: 2000,
       };
 
-      // ПРОМЕТЕЙ: Количество кадров возвращено к 4 для эмуляции старой анимации
       const ANIMATIONS = {
-        WALK_RIGHT: { row: 0, frames: 4 },
-        WALK_LEFT: { row: 1, frames: 4 },
-        WALK_DOWN: { row: 2, frames: 4 },
-        WALK_UP: { row: 3, frames: 4 },
+        // ПРОМЕТЕЙ: Конфигурация анимации обновлена для нового спрайта (13 кадров)
+        WALK_RIGHT: { row: 0, frames: 13 },
+        WALK_LEFT: { row: 1, frames: 13 },
+        WALK_DOWN: { row: 2, frames: 13 },
+        WALK_UP: { row: 3, frames: 13 },
+        // ПРОМЕТЕЙ: Логический вывод - IDLE использует 1-й кадр анимации "вниз"
         IDLE: { row: 2, frames: 1 },
       };
 
@@ -743,16 +747,13 @@
           dx: 0,
           dy: 0,
           el: null,
-          direction: 'WALK_DOWN',
+          direction: 'IDLE',
           frame: 0,
           lastAnimationTime: 0,
           isInvincible: false,
           invincibleUntil: 0,
         },
-        camera: {
-          x: 0,
-          y: 0,
-        },
+        camera: { x: 0, y: 0 },
         ghosts: [],
         walls: [],
         candles: [],
@@ -1045,16 +1046,19 @@
 
       // --- 9. ANIMATION & RENDERING ---
       function updateAnimationAndRender(timestamp) {
-        if (state.player.dx !== 0 || state.player.dy !== 0) {
-          const angle = Math.atan2(state.player.dy, state.player.dx) * 180 / Math.PI;
-          if (angle > 45 && angle <= 135) state.player.direction = 'WALK_DOWN';
-          else if (angle > 135 || angle <= -135) state.player.direction = 'WALK_LEFT';
-          else if (angle > -135 && angle <= -45) state.player.direction = 'WALK_UP';
-          else state.player.direction = 'WALK_RIGHT';
+        let newDirection = state.player.direction;
+        if (state.player.dx > 0) newDirection = 'WALK_RIGHT';
+        else if (state.player.dx < 0) newDirection = 'WALK_LEFT';
+        else if (state.player.dy > 0) newDirection = 'WALK_DOWN';
+        else if (state.player.dy < 0) newDirection = 'WALK_UP';
+        else newDirection = 'IDLE';
+
+        if (newDirection !== state.player.direction) {
+          state.player.direction = newDirection;
+          state.player.frame = 0; // Reset frame on direction change
         }
 
-        const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
-        const anim = isMoving ? ANIMATIONS[state.player.direction] : ANIMATIONS.IDLE;
+        const anim = ANIMATIONS[state.player.direction];
         if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
           state.player.frame = (state.player.frame + 1) % anim.frames;
           state.player.lastAnimationTime = timestamp;
@@ -1064,7 +1068,11 @@
         const bgPosY = anim.row * CONFIG.SPRITE_FRAME_HEIGHT;
         state.player.el.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
 
-        state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
+        // ПРОМЕТЕЙ: Смещение визуала для центрирования над физическим телом
+        const visualX = state.player.x - (CONFIG.SPRITE_FRAME_WIDTH - CONFIG.PLAYER_WIDTH) / 2;
+        const visualY = state.player.y - (CONFIG.SPRITE_FRAME_HEIGHT - CONFIG.PLAYER_HEIGHT) / 2;
+        state.player.el.style.transform = `translate(${visualX}px, ${visualY}px)`;
+
         state.ghosts.forEach(g => {
           g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
         });
@@ -1076,6 +1084,7 @@
         const worldWidth = DOMElements.worldContainer.offsetWidth;
         const worldHeight = DOMElements.worldContainer.offsetHeight;
 
+        // Цель: центр физического тела игрока в центре viewport
         let targetX = state.player.x + CONFIG.PLAYER_WIDTH / 2 - viewportWidth / 2;
         let targetY = state.player.y + CONFIG.PLAYER_HEIGHT / 2 - viewportHeight / 2;
 
