@@ -293,10 +293,9 @@
     }
 
     .player {
-      width: 32px;
-      height: 32px;
+      width: 16px;
+      height: 16px;
       z-index: 10;
-      /* ПРОМЕТЕЙ: Исправленный путь к спрайту */
       background-image: url('./assets/sprites/player_sprites.png');
       background-repeat: no-repeat;
       image-rendering: pixelated;
@@ -1268,7 +1267,7 @@
     const CELL_SIZE = 15;
     const GRID_WIDTH = 20;
     const GRID_HEIGHT = 20;
-    const PLAYER_SIZE = 32;
+    const PLAYER_SIZE = 16;
     const GHOST_SIZE = 15;
     const CANDLE_SIZE = 4;
     let BOARD_WIDTH = 300;
@@ -1648,8 +1647,8 @@
       if (!gameRunning) return;
 
       // --- ПРОМЕТЕЙ: Анимационный Движок v2.0 ---
-      const FRAME_WIDTH = 32;
-      const FRAME_HEIGHT = 32;
+      const FRAME_WIDTH = 16;
+      const FRAME_HEIGHT = 16;
       const ANIMATION_SPEED = 4;
       const FRAME_COUNT = 12;
       frameCounter++;
@@ -1883,6 +1882,11 @@
     function showQuest(quest) {
       currentQuest = quest; const questLabel = getTranslation('questLabel');
       document.getElementById('console-quest').textContent = questLabel + ": " + quest;
+    }
+    async function generateAndShowQuest() {
+      showQuest(getTranslation('generatingQuest'));
+      const quest = await fetchQuestFromGemini();
+      showQuest(quest); questParams = parseQuest(quest);
     }
 
     let activeTouches = {};
