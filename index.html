@@ -327,8 +327,6 @@
       background-repeat: no-repeat;
       image-rendering: pixelated;
       transform-origin: center center;
-      /* ПРОМЕТЕЙ: Пересчитанный размер фона для спрайт-листа 13x4 @ 64px. */
-      /* (13 кадров * 64px) x (4 ряда * 64px) */
       background-size: 832px 256px;
     }
 
@@ -676,20 +674,18 @@
         TILE_SIZE: 32,
         PLAYER_WIDTH: 64,
         PLAYER_HEIGHT: 64,
-        // ПРОМЕТЕЙ: Обновлено до 64px для соответствия новому активу
         SPRITE_FRAME_WIDTH: 64,
         SPRITE_FRAME_HEIGHT: 64,
-        ANIMATION_SPEED: 100, // Ускорена анимация для 13 кадров
+        ANIMATION_SPEED: 80, // ПРОМЕТЕЙ: Скорость откалибрована
         INVINCIBILITY_DURATION: 2000,
       };
 
-      // ПРОМЕТЕЙ: Параметры анимации обновлены для спрайт-листа 13x4
       const ANIMATIONS = {
         WALK_RIGHT: { row: 0, frames: 13 },
         WALK_LEFT: { row: 1, frames: 13 },
         WALK_DOWN: { row: 2, frames: 13 },
         WALK_UP: { row: 3, frames: 13 },
-        IDLE: { row: 2, frames: 1 }, // Использует 1-й кадр ходьбы вниз
+        IDLE: { row: 2, frames: 1 },
       };
 
       const LEVEL_LAYOUT = [
@@ -1048,15 +1044,17 @@
 
       // --- 9. ANIMATION & RENDERING ---
       function updateAnimationAndRender(timestamp) {
-        if (state.player.dx !== 0 || state.player.dy !== 0) {
-          const angle = Math.atan2(state.player.dy, state.player.dx) * 180 / Math.PI;
-          if (angle > 45 && angle <= 135) state.player.direction = 'WALK_DOWN';
-          else if (angle > 135 || angle <= -135) state.player.direction = 'WALK_LEFT';
-          else if (angle > -135 && angle <= -45) state.player.direction = 'WALK_UP';
-          else state.player.direction = 'WALK_RIGHT';
+        const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
+
+        // ПРОМЕТЕЙ: Стабилизированная логика выбора направления
+        if (isMoving) {
+          if (Math.abs(state.player.dx) > Math.abs(state.player.dy)) {
+            state.player.direction = state.player.dx > 0 ? 'WALK_RIGHT' : 'WALK_LEFT';
+          } else {
+            state.player.direction = state.player.dy > 0 ? 'WALK_DOWN' : 'WALK_UP';
+          }
         }
 
-        const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
         const anim = isMoving ? ANIMATIONS[state.player.direction] : ANIMATIONS.IDLE;
         if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
           state.player.frame = (state.player.frame + 1) % anim.frames;
