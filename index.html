@@ -194,78 +194,6 @@
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
     }
 
-    .console-quest {
-      margin: 8px 0;
-      color: #FFD700;
-      font-size: 1.1em;
-      text-align: center;
-    }
-
-    #new-quest-btn {
-      margin-bottom: 10px;
-      display: none;
-      background: #9945FF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 5px 10px;
-      font-family: 'Share Tech Mono', monospace;
-      cursor: pointer;
-    }
-
-    #new-quest-btn:disabled {
-      background: #555;
-      cursor: not-allowed;
-    }
-
-    .fomo-popup {
-      position: absolute;
-      top: 0.5em;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 94vw;
-      max-width: var(--max-board);
-      min-height: 44px;
-      background: linear-gradient(90deg, #9945FF 70%, #14F195 100%);
-      color: #fff;
-      font-size: 1.08em;
-      font-family: 'Share Tech Mono', monospace;
-      font-weight: bold;
-      letter-spacing: 1px;
-      border-radius: 10px;
-      box-shadow: 0 4px 24px #9945FF88, 0 1px 8px #14F19544;
-      z-index: 1001;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.5em 1em;
-      opacity: 0.97;
-      pointer-events: none;
-      animation: fomo-fadein 0.4s;
-      backdrop-filter: blur(2px);
-      border: 2px solid #14F195;
-    }
-
-    .fomo-popup::before {
-      content: "⚡";
-      font-size: 1.3em;
-      margin-right: 0.6em;
-      filter: drop-shadow(0 0 4px #FFD700);
-      opacity: 0.85;
-    }
-
-    @keyframes fomo-fadein {
-      from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-20px);
-      }
-
-      to {
-        opacity: 0.97;
-        transform: translateX(-50%) translateY(0);
-      }
-    }
-
     .game-board-wrapper {
       width: 100vw;
       max-width: var(--max-board);
@@ -292,15 +220,11 @@
       overflow: hidden;
     }
 
-    .level-indicator {
+    #game-world {
       position: absolute;
-      top: 8px;
-      left: 8px;
-      color: var(--neon-green);
-      font-size: 1rem;
-      z-index: 5;
-      text-shadow: var(--neon-green-glow);
-      font-family: inherit;
+      top: 0;
+      left: 0;
+      transition: transform 0.1s linear;
     }
 
     .player,
@@ -312,8 +236,8 @@
     }
 
     .player {
-      width: 32px;
-      height: 32px;
+      width: 96px;
+      height: 64px;
       z-index: 10;
       transition: opacity 0.2s;
       background-image: url('./assets/sprites/player_sprites.png');
@@ -341,147 +265,33 @@
     }
 
     .ghost {
-      width: 15px;
-      height: 15px;
+      width: 50px;
+      height: 50px;
       z-index: 5;
     }
 
     .candle {
-      width: 4px;
-      height: 4px;
+      width: 16px;
+      height: 16px;
       z-index: 3;
       border-radius: 50%;
       background-color: #FFD700;
-      box-shadow: 0 0 6px #FFD700;
+      box-shadow: 0 0 12px #FFD700;
     }
 
     .candle.power-candle {
-      width: 10px;
-      height: 10px;
+      width: 32px;
+      height: 32px;
       background-color: #00FFFA;
-      box-shadow: 0 0 12px #00FFFA, 0 0 4px #00FFFA;
-      border: 2px solid #fff;
-    }
-
-    .candle.big-candle {
-      width: 10px !important;
-      height: 10px !important;
-      background: #FFD700;
-      border: 2px solid #FF4500;
-      box-shadow: 0 0 14px #FFD700, 0 0 6px #FF4500;
-      z-index: 12;
-      animation: big-candle-blink 0.5s steps(1) infinite;
-    }
-
-    @keyframes big-candle-blink {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-    .candle.candle-pulse {
-      animation: candle-pulse 1s infinite;
-    }
-
-    @keyframes candle-pulse {
-      0% {
-        box-shadow: 0 0 6px #14F195;
-      }
-
-      50% {
-        box-shadow: 0 0 18px #14F195;
-      }
-
-      100% {
-        box-shadow: 0 0 6px #14F195;
-      }
-    }
-
-    .candle.candle-spin {
-      animation: candle-spin 1.2s linear infinite;
-    }
-
-    @keyframes candle-spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    .candle.candle-shake {
-      animation: candle-shake 0.4s infinite;
-    }
-
-    @keyframes candle-shake {
-      0% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-2px);
-      }
-
-      50% {
-        transform: translateX(2px);
-      }
-
-      75% {
-        transform: translateX(-2px);
-      }
-
-      100% {
-        transform: translateX(0);
-      }
-    }
-
-    .candle.candle-blink {
-      animation: candle-blink 0.7s steps(1) infinite;
-    }
-
-    @keyframes candle-blink {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-    .candle.candle-glow {
-      box-shadow: 0 0 18px #FFD700, 0 0 8px #fff;
+      box-shadow: 0 0 18px #00FFFA, 0 0 6px #00FFFA;
+      border: 3px solid #fff;
     }
 
     .wall {
       background-color: #14F195;
       z-index: 2;
-      border-radius: 2px;
-      box-shadow: 0 0 10px #14F195, 0 0 2px #14F195;
-    }
-
-    .bullet {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #00FFFA;
-      box-shadow: 0 0 8px #00FFFA;
-      z-index: 20;
-      pointer-events: none;
+      border-radius: 4px;
+      box-shadow: 0 0 12px #14F195, 0 0 3px #14F195;
     }
 
     .game-over,
@@ -526,8 +336,6 @@
       color: var(--neon);
     }
 
-
-    .score-panel,
     .controls {
       display: none;
     }
@@ -702,52 +510,6 @@
       font-family: 'Share Tech Mono', monospace;
     }
 
-    .fomo-timer {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      z-index: 50;
-      color: #fff;
-      font-size: 1.18em;
-      font-family: 'Share Tech Mono', monospace;
-      font-weight: bold;
-      text-shadow:
-        0 0 2px #fff,
-        0 0 6px #fff,
-        0 0 0 #fff,
-        1px 1px 0 #ff9800,
-        -1px -1px 0 #ff4500,
-        2px 2px 2px #ff9800,
-        -2px -2px 2px #ff4500;
-      background: none !important;
-      border: none !important;
-      padding: 0;
-      margin: 0;
-      border-radius: 0;
-      box-shadow: none;
-      pointer-events: none;
-      transition: opacity 0.2s;
-      opacity: 1;
-    }
-
-    .fomo-timer.fomo-blink {
-      animation: fomo-blink 0.5s steps(1) infinite;
-    }
-
-    @keyframes fomo-blink {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
     @media (max-width: 500px) {
       .abtns {
         width: 100px;
@@ -882,44 +644,58 @@
 
       // --- 1. CONFIGURATION & CONSTANTS ---
       const CONFIG = {
-        PLAYER_SPEED: 2,
-        GHOST_SPEED: 1,
-        TILE_SIZE: 32,
-        PLAYER_WIDTH: 32,
-        PLAYER_HEIGHT: 32,
-        ANIMATION_SPEED: 150, // ms per frame
+        PLAYER_SPEED: 4,
+        GHOST_SPEED: 1.5,
+        TILE_SIZE: 64, // Прометей: Размер тайла увеличен
+        PLAYER_WIDTH: 96, // Прометей: Ширина игрока обновлена
+        PLAYER_HEIGHT: 64, // Прометей: Высота игрока обновлена
+        ANIMATION_SPEED: 100, // ms per frame, увеличена для плавной анимации
         INVINCIBILITY_DURATION: 2000, // ms
       };
 
+      // Прометей: Схема анимации полностью перестроена для нового спрайта
       const ANIMATIONS = {
-        WALK_DOWN: { row: 0, frames: 4 },
-        WALK_LEFT: { row: 1, frames: 4 },
-        WALK_RIGHT: { row: 2, frames: 4 },
-        WALK_UP: { row: 3, frames: 4 },
-        IDLE: { row: 0, frames: 1 },
+        WALK_LEFT: { row: 0, frames: 12 },
+        WALK_RIGHT: { row: 1, frames: 12 },
+        WALK_UP: { row: 2, frames: 12 },
+        WALK_DOWN: { row: 3, frames: 12 },
       };
 
+      // Прометей: Карта уровня перестроена для создания больших пространств
       const LEVEL_LAYOUT = [
-        "#####################",
-        "#c.......#.......c#",
-        "#.#####.###.#####.#",
-        "#P#####.###.#####.P#",
-        "#c.......c.......c#",
-        "#.#####.#.#.#####.#",
-        "#.......#.#.......#",
-        "#####.### ###.#####",
-        "#####.#   G   #.#####",
-        "#####.# ##### #.#####",
-        "T     #G#G#G#     T",
-        "#####.# ##### #.#####",
-        "#####.#   M   #.#####",
-        "#####.### ###.#####",
-        "#.......#.#.......#",
-        "#.#####.#.#.#####.#",
-        "#c.......c.......c#",
-        "#P#####.###.#####.P#",
-        "#c.......#.......c#",
-        "#####################",
+        "##################################################",
+        "#................................................#",
+        "#..M.............................................#",
+        "#............c...................................#",
+        "#....#####.....................#####.............#",
+        "#....#...#.....................#...#.............#",
+        "#....#...#.....................#...#.............#",
+        "#....#####.....................#####.............#",
+        "#................................................#",
+        "#..................c................c............#",
+        "#................................................#",
+        "#####...###########################...#####......#",
+        "#...#...................................#...#....#",
+        "#...#................G..................#...#....#",
+        "#...#...................................#...#....#",
+        "#####...................................#####....#",
+        "#................................................#",
+        "#.........P....................P.................#",
+        "#................................................#",
+        "#....#####.....................#####.............#",
+        "#....#...........................#.............#",
+        "#....#...........................#.............#",
+        "#....#.........G.................#.............#",
+        "#....#####.....................#####.............#",
+        "#................................................#",
+        "#...........c....................................#",
+        "#................................................#",
+        "#..#################...........##################",
+        "#..................#...........#.................#",
+        "#..................#..G........#.................#",
+        "#..................#...........#.................#",
+        "#..................#...........#.................#",
+        "##################################################",
       ];
 
       // --- 2. GAME STATE ---
@@ -949,12 +725,12 @@
         level: 1,
         userId: null,
         username: 'anonymous',
-        gridSize: 0,
       };
 
       // --- 3. DOM ELEMENT SELECTORS ---
       const DOMElements = {
         gameBoard: document.getElementById('game-board'),
+        gameWorld: null, // Прометей: Добавлен контейнер для мира
         startScreen: document.getElementById('start-screen'),
         startButton: document.getElementById('start-button'),
         usernameDisplay: document.getElementById('username-display'),
@@ -1032,90 +808,88 @@
       function updateUI() {
         DOMElements.usernameDisplay.textContent = state.username;
         DOMElements.goldBalanceDisplay.textContent = `GOLD: ${state.gold}`;
-
         const healthPercent = (state.health / state.maxHealth) * 100;
         DOMElements.healthBarProgress.style.width = `${healthPercent}%`;
         DOMElements.healthBarText.textContent = `${state.health} / ${state.maxHealth}`;
-
         const manaPercent = (state.mana / state.maxMana) * 100;
         DOMElements.manaBarProgress.style.width = `${manaPercent}%`;
         DOMElements.manaBarText.textContent = `${state.mana} / ${state.maxMana}`;
-
         DOMElements.playerLevel.textContent = `LVL ${state.level}`;
         DOMElements.playerScore.textContent = `SCR: ${state.score}`;
-
         DOMElements.statusLeft.style.visibility = 'visible';
         DOMElements.statusRight.style.visibility = 'visible';
       }
 
       function createGameBoard() {
-        const boardSize = DOMElements.gameBoard.offsetWidth;
-        state.gridSize = boardSize / LEVEL_LAYOUT[0].length;
+        // Прометей: Создаем контейнер мира
+        const gameWorld = document.createElement('div');
+        gameWorld.id = 'game-world';
+        DOMElements.gameBoard.appendChild(gameWorld);
+        DOMElements.gameWorld = gameWorld;
 
         LEVEL_LAYOUT.forEach((row, y) => {
           for (let x = 0; x < row.length; x++) {
             const char = row[x];
+            const TILE_SIZE = CONFIG.TILE_SIZE;
             const el = document.createElement('div');
             el.style.position = 'absolute';
-            el.style.left = `${x * state.gridSize}px`;
-            el.style.top = `${y * state.gridSize}px`;
+            el.style.left = `${x * TILE_SIZE}px`;
+            el.style.top = `${y * TILE_SIZE}px`;
 
             if (char === '#') {
               el.className = 'wall';
-              el.style.width = `${state.gridSize}px`;
-              el.style.height = `${state.gridSize}px`;
-              state.walls.push({ x: x * state.gridSize, y: y * state.gridSize, width: state.gridSize, height: state.gridSize, el });
-              DOMElements.gameBoard.appendChild(el);
+              el.style.width = `${TILE_SIZE}px`;
+              el.style.height = `${TILE_SIZE}px`;
+              state.walls.push({ x: x * TILE_SIZE, y: y * TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE });
+              DOMElements.gameWorld.appendChild(el);
             } else if (char === 'c' || char === 'P') {
               el.className = 'candle';
-              el.style.width = `${state.gridSize * 0.25}px`;
-              el.style.height = `${state.gridSize * 0.25}px`;
+              const candleSize = char === 'P' ? TILE_SIZE * 0.5 : TILE_SIZE * 0.25;
+              el.style.width = `${candleSize}px`;
+              el.style.height = `${candleSize}px`;
+              el.style.left = `${x * TILE_SIZE + (TILE_SIZE - candleSize) / 2}px`;
+              el.style.top = `${y * TILE_SIZE + (TILE_SIZE - candleSize) / 2}px`;
+
               if (char === 'P') {
                 el.classList.add('power-candle');
-                el.style.width = `${state.gridSize * 0.5}px`;
-                el.style.height = `${state.gridSize * 0.5}px`;
               }
-              const candle = { x: x * state.gridSize, y: y * state.gridSize, width: state.gridSize, height: state.gridSize, el, type: char === 'P' ? 'power' : 'normal' };
+              const candle = { x: x * TILE_SIZE, y: y * TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, el, type: char === 'P' ? 'power' : 'normal' };
               state.candles.push(candle);
-              DOMElements.gameBoard.appendChild(el);
+              DOMElements.gameWorld.appendChild(el);
             } else if (char === 'M') {
-              state.player.x = x * state.gridSize;
-              state.player.y = y * state.gridSize;
+              state.player.x = x * CONFIG.TILE_SIZE;
+              state.player.y = y * CONFIG.TILE_SIZE;
             } else if (char === 'G') {
               const ghostEl = document.createElement('div');
+              const ghostSize = TILE_SIZE * 0.8;
               ghostEl.className = 'ghost';
-              ghostEl.style.width = `${state.gridSize * 0.8}px`;
-              ghostEl.style.height = `${state.gridSize * 0.8}px`;
-              ghostEl.style.left = `${x * state.gridSize}px`;
-              ghostEl.style.top = `${y * state.gridSize}px`;
+              ghostEl.style.width = `${ghostSize}px`;
+              ghostEl.style.height = `${ghostSize}px`;
               ghostEl.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
-              ghostEl.style.borderRadius = '50% 50% 0 0';
-              DOMElements.gameBoard.appendChild(ghostEl);
+              ghostEl.style.borderRadius = '50%';
+              DOMElements.gameWorld.appendChild(ghostEl);
               state.ghosts.push({
-                x: x * state.gridSize,
-                y: y * state.gridSize,
+                x: x * TILE_SIZE,
+                y: y * TILE_SIZE,
                 dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED,
                 dy: 0,
                 el: ghostEl,
+                width: ghostSize,
+                height: ghostSize
               });
             }
           }
         });
 
-        // Create player element
         const playerEl = document.createElement('div');
         playerEl.className = 'player';
-        playerEl.style.width = `${CONFIG.PLAYER_WIDTH}px`;
-        playerEl.style.height = `${CONFIG.PLAYER_HEIGHT}px`;
-        DOMElements.gameBoard.appendChild(playerEl);
+        DOMElements.gameWorld.appendChild(playerEl);
         state.player.el = playerEl;
       }
 
       // --- 7. INPUT HANDLING ---
       function setupInput() {
         let joystickActive = false;
-        let joystickStartX = 0;
-        let joystickStartY = 0;
         const maxRadius = DOMElements.joystick.outer.offsetWidth / 2;
 
         function handleJoystickMove(e) {
@@ -1131,17 +905,11 @@
 
           const stickX = Math.cos(angle) * distance;
           const stickY = Math.sin(angle) * distance;
-
           DOMElements.joystick.stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
 
           const threshold = 0.3;
-          if (Math.abs(stickX) > Math.abs(stickY)) {
-            state.player.dx = stickX / maxRadius > threshold ? CONFIG.PLAYER_SPEED : (stickX / maxRadius < -threshold ? -CONFIG.PLAYER_SPEED : 0);
-            state.player.dy = 0;
-          } else {
-            state.player.dy = stickY / maxRadius > threshold ? CONFIG.PLAYER_SPEED : (stickY / maxRadius < -threshold ? -CONFIG.PLAYER_SPEED : 0);
-            state.player.dx = 0;
-          }
+          state.player.dx = (stickX / maxRadius) * CONFIG.PLAYER_SPEED;
+          state.player.dy = (stickY / maxRadius) * CONFIG.PLAYER_SPEED;
         }
 
         function handleJoystickEnd(e) {
@@ -1156,21 +924,17 @@
         DOMElements.joystick.outer.addEventListener('touchmove', handleJoystickMove, { passive: false });
         DOMElements.joystick.outer.addEventListener('touchend', handleJoystickEnd);
         DOMElements.joystick.outer.addEventListener('touchcancel', handleJoystickEnd);
-
-        // Mouse support for joystick for debugging
         DOMElements.joystick.outer.addEventListener('mousedown', (e) => { joystickActive = true; handleJoystickMove(e); });
         document.addEventListener('mousemove', handleJoystickMove);
         document.addEventListener('mouseup', (e) => { if (joystickActive) handleJoystickEnd(e); });
 
-
-        // Keyboard controls for debugging
         document.addEventListener('keydown', (e) => {
           if (state.gameState !== 'PLAYING') return;
           switch (e.key) {
-            case 'ArrowUp': case 'w': state.player.dy = -CONFIG.PLAYER_SPEED; state.player.dx = 0; break;
-            case 'ArrowDown': case 's': state.player.dy = CONFIG.PLAYER_SPEED; state.player.dx = 0; break;
-            case 'ArrowLeft': case 'a': state.player.dx = -CONFIG.PLAYER_SPEED; state.player.dy = 0; break;
-            case 'ArrowRight': case 'd': state.player.dx = CONFIG.PLAYER_SPEED; state.player.dy = 0; break;
+            case 'ArrowUp': case 'w': state.player.dy = -CONFIG.PLAYER_SPEED; break;
+            case 'ArrowDown': case 's': state.player.dy = CONFIG.PLAYER_SPEED; break;
+            case 'ArrowLeft': case 'a': state.player.dx = -CONFIG.PLAYER_SPEED; break;
+            case 'ArrowRight': case 'd': state.player.dx = CONFIG.PLAYER_SPEED; break;
           }
         });
         document.addEventListener('keyup', (e) => {
@@ -1195,37 +959,25 @@
       function movePlayer() {
         let nextX = state.player.x + state.player.dx;
         let nextY = state.player.y + state.player.dy;
-
-        const playerRect = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
-
-        let collisionX = false;
-        let collisionY = false;
+        const playerHitbox = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
 
         for (const wall of state.walls) {
-          if (checkCollision({ ...playerRect, y: state.player.y }, wall)) {
-            collisionX = true;
-          }
-          if (checkCollision({ ...playerRect, x: state.player.x }, wall)) {
-            collisionY = true;
+          if (checkCollision(playerHitbox, wall)) {
+            // Basic collision resolution, stops movement. More complex logic can be added.
+            nextX = state.player.x;
+            nextY = state.player.y;
+            break;
           }
         }
-
-        if (!collisionX) state.player.x = nextX;
-        if (!collisionY) state.player.y = nextY;
-
-        // Board boundaries
-        const boardSize = DOMElements.gameBoard.offsetWidth;
-        state.player.x = Math.max(0, Math.min(boardSize - CONFIG.PLAYER_WIDTH, state.player.x));
-        state.player.y = Math.max(0, Math.min(boardSize - CONFIG.PLAYER_HEIGHT, state.player.y));
+        state.player.x = nextX;
+        state.player.y = nextY;
       }
 
       function moveGhosts() {
         state.ghosts.forEach(ghost => {
           let nextX = ghost.x + ghost.dx;
           let nextY = ghost.y + ghost.dy;
-
-          const ghostRect = { x: nextX, y: nextY, width: state.gridSize * 0.8, height: state.gridSize * 0.8 };
-
+          const ghostRect = { x: nextX, y: nextY, width: ghost.width, height: ghost.height };
           let collided = false;
           for (const wall of state.walls) {
             if (checkCollision(ghostRect, wall)) {
@@ -1233,15 +985,13 @@
               break;
             }
           }
-
-          const boardSize = DOMElements.gameBoard.offsetWidth;
-          if (collided || nextX < 0 || nextX > boardSize - ghostRect.width || nextY < 0 || nextY > boardSize - ghostRect.height) {
+          const worldWidth = LEVEL_LAYOUT[0].length * CONFIG.TILE_SIZE;
+          const worldHeight = LEVEL_LAYOUT.length * CONFIG.TILE_SIZE;
+          if (collided || nextX < 0 || nextX > worldWidth - ghost.width || nextY < 0 || nextY > worldHeight - ghost.height) {
             if (Math.random() > 0.5) {
-              ghost.dx = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED;
-              ghost.dy = 0;
+              ghost.dx = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED; ghost.dy = 0;
             } else {
-              ghost.dy = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED;
-              ghost.dx = 0;
+              ghost.dy = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED; ghost.dx = 0;
             }
           } else {
             ghost.x = nextX;
@@ -1252,32 +1002,25 @@
 
       function checkGameCollisions() {
         const playerRect = { x: state.player.x, y: state.player.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
-
-        // Player vs Candles
         for (let i = state.candles.length - 1; i >= 0; i--) {
           const candle = state.candles[i];
           if (checkCollision(playerRect, candle)) {
-            DOMElements.gameBoard.removeChild(candle.el);
+            DOMElements.gameWorld.removeChild(candle.el);
             state.candles.splice(i, 1);
             state.score += candle.type === 'power' ? 50 : 10;
             state.gold += candle.type === 'power' ? 5 : 1;
             updateUI();
           }
         }
-
-        // Player vs Ghosts
         if (!state.player.isInvincible) {
           for (const ghost of state.ghosts) {
-            const ghostRect = { x: ghost.x, y: ghost.y, width: state.gridSize * 0.8, height: state.gridSize * 0.8 };
-            if (checkCollision(playerRect, ghostRect)) {
-              state.health -= 10;
+            if (checkCollision(playerRect, ghost)) {
+              state.health -= 25; // More punishing
               state.player.isInvincible = true;
               state.player.invincibleUntil = Date.now() + CONFIG.INVINCIBILITY_DURATION;
               state.player.el.classList.add('invincible');
               updateUI();
-              if (state.health <= 0) {
-                endGame();
-              }
+              if (state.health <= 0) endGame();
               break;
             }
           }
@@ -1286,22 +1029,29 @@
 
       // --- 9. ANIMATION ---
       function updateAnimation(timestamp) {
-        if (state.player.dx > 0) state.player.direction = 'WALK_RIGHT';
-        else if (state.player.dx < 0) state.player.direction = 'WALK_LEFT';
-        else if (state.player.dy > 0) state.player.direction = 'WALK_DOWN';
-        else if (state.player.dy < 0) state.player.direction = 'WALK_UP';
+        const speed = Math.hypot(state.player.dx, state.player.dy);
+        const isMoving = speed > 0.1;
 
-        const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
-        const anim = isMoving ? ANIMATIONS[state.player.direction] : ANIMATIONS.IDLE;
+        if (isMoving) {
+          if (Math.abs(state.player.dx) > Math.abs(state.player.dy)) {
+            state.player.direction = state.player.dx > 0 ? 'WALK_RIGHT' : 'WALK_LEFT';
+          } else {
+            state.player.direction = state.player.dy > 0 ? 'WALK_DOWN' : 'WALK_UP';
+          }
+        }
 
-        if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
-          state.player.frame = (state.player.frame + 1) % anim.frames;
+        const anim = ANIMATIONS[state.player.direction];
+        if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED / (speed > 0.1 ? speed / 2 : 1)) {
+          if (isMoving) {
+            state.player.frame = (state.player.frame + 1) % anim.frames;
+          } else {
+            state.player.frame = 0; // Idle frame
+          }
           state.player.lastAnimationTime = timestamp;
         }
 
         const bgPosX = state.player.frame * CONFIG.PLAYER_WIDTH;
         const bgPosY = anim.row * CONFIG.PLAYER_HEIGHT;
-
         state.player.el.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
       }
 
@@ -1312,20 +1062,35 @@
         movePlayer();
         moveGhosts();
         checkGameCollisions();
+        updateAnimation(timestamp);
 
-        // Render
+        // --- РЕНДЕРИНГ И КАМЕРА (Прометей: Полный рефакторинг) ---
+        // 1. Обновляем позицию всех дочерних элементов в мире
         state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
         state.ghosts.forEach(g => {
           g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
         });
+
+        // 2. Вычисляем и прижимаем позицию камеры
+        const viewportWidth = DOMElements.gameBoard.offsetWidth;
+        const viewportHeight = DOMElements.gameBoard.offsetHeight;
+        const worldWidth = LEVEL_LAYOUT[0].length * CONFIG.TILE_SIZE;
+        const worldHeight = LEVEL_LAYOUT.length * CONFIG.TILE_SIZE;
+
+        let cameraX = -state.player.x + (viewportWidth / 2) - (CONFIG.PLAYER_WIDTH / 2);
+        let cameraY = -state.player.y + (viewportHeight / 2) - (CONFIG.PLAYER_HEIGHT / 2);
+
+        cameraX = Math.min(0, Math.max(-(worldWidth - viewportWidth), cameraX));
+        cameraY = Math.min(0, Math.max(-(worldHeight - viewportHeight), cameraY));
+
+        // 3. Двигаем весь мир
+        DOMElements.gameWorld.style.transform = `translate(${cameraX}px, ${cameraY}px)`;
 
         // Update Invincibility
         if (state.player.isInvincible && Date.now() > state.player.invincibleUntil) {
           state.player.isInvincible = false;
           state.player.el.classList.remove('invincible');
         }
-
-        updateAnimation(timestamp);
 
         requestAnimationFrame(gameLoop);
       }
@@ -1338,19 +1103,12 @@
 
       function endGame() {
         state.gameState = 'GAME_OVER';
-        api.updateGold(state.userId, state.gold); // Final gold update
-
+        api.updateGold(state.userId, state.gold);
         const gameOverEl = document.createElement('div');
         gameOverEl.className = 'game-over';
-        gameOverEl.innerHTML = `
-          <h1>GAME OVER</h1>
-          <p>Final Score: ${state.score}</p>
-          <p>Total Gold: ${state.gold}</p>
-          <button onclick="window.location.reload()" class="start-button">RESTART</button>
-        `;
+        gameOverEl.innerHTML = `<h1>GAME OVER</h1><p>Final Score: ${state.score}</p><p>Total Gold: ${state.gold}</p><button onclick="window.location.reload()" class="start-button">RESTART</button>`;
         DOMElements.gameBoard.appendChild(gameOverEl);
       }
-
 
       // --- 11. INITIALIZER ---
       async function initialize() {
@@ -1364,8 +1122,6 @@
         }
 
         const responseData = await api.getUser(tgUser);
-
-        // Прометей: Коррекция. Ответ сервера содержит объект playerData.
         if (responseData && responseData.playerData) {
           const { playerData } = responseData;
           state.userId = playerData.userId;
@@ -1375,7 +1131,6 @@
           state.maxHealth = playerData.maxHealth || 100;
           state.mana = playerData.mana || 50;
           state.maxMana = playerData.maxMana || 50;
-
           updateUI();
           DOMElements.startScreen.querySelector('p').textContent = 'Collect candles. Avoid ghosts. Get rich or die tryin\'.';
           DOMElements.startButton.textContent = 'START';
