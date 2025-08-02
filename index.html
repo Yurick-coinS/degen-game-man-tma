@@ -319,7 +319,6 @@
     }
 
     .player {
-      /* ПРОМЕТЕЙ: Целевой размер отображения игрока */
       width: 64px;
       height: 64px;
       z-index: 10;
@@ -328,9 +327,9 @@
       background-repeat: no-repeat;
       image-rendering: pixelated;
       transform-origin: center center;
-      /* ПРОМЕТЕЙ: Масштабирование фона для соответствия новому размеру */
-      /* (4 кадра * 32px) * 2x масштаб = 256px */
-      background-size: 256px;
+      /* ПРОМЕТЕЙ: Пересчитанный размер фона для спрайт-листа 13x4 @ 64px. */
+      /* (13 кадров * 64px) x (4 ряда * 64px) */
+      background-size: 832px 256px;
     }
 
     .player.invincible {
@@ -675,22 +674,22 @@
         PLAYER_SPEED: 3,
         GHOST_SPEED: 1.5,
         TILE_SIZE: 32,
-        // ПРОМЕТЕЙ: Размер игрока на экране (для коллизий и камеры)
         PLAYER_WIDTH: 64,
         PLAYER_HEIGHT: 64,
-        // ПРОМЕТЕЙ: Истинный размер кадра в спрайт-листе (для анимации)
-        SPRITE_FRAME_WIDTH: 32,
-        SPRITE_FRAME_HEIGHT: 32,
-        ANIMATION_SPEED: 150,
+        // ПРОМЕТЕЙ: Обновлено до 64px для соответствия новому активу
+        SPRITE_FRAME_WIDTH: 64,
+        SPRITE_FRAME_HEIGHT: 64,
+        ANIMATION_SPEED: 100, // Ускорена анимация для 13 кадров
         INVINCIBILITY_DURATION: 2000,
       };
 
+      // ПРОМЕТЕЙ: Параметры анимации обновлены для спрайт-листа 13x4
       const ANIMATIONS = {
-        WALK_DOWN: { row: 0, frames: 4 },
-        WALK_LEFT: { row: 1, frames: 4 },
-        WALK_RIGHT: { row: 2, frames: 4 },
-        WALK_UP: { row: 3, frames: 4 },
-        IDLE: { row: 0, frames: 1 },
+        WALK_RIGHT: { row: 0, frames: 13 },
+        WALK_LEFT: { row: 1, frames: 13 },
+        WALK_DOWN: { row: 2, frames: 13 },
+        WALK_UP: { row: 3, frames: 13 },
+        IDLE: { row: 2, frames: 1 }, // Использует 1-й кадр ходьбы вниз
       };
 
       const LEVEL_LAYOUT = [
@@ -917,7 +916,6 @@
 
         const playerEl = document.createElement('div');
         playerEl.className = 'player';
-        // Note: size is now set via CSS class
         DOMElements.worldContainer.appendChild(playerEl);
         state.player.el = playerEl;
       }
@@ -1052,9 +1050,9 @@
       function updateAnimationAndRender(timestamp) {
         if (state.player.dx !== 0 || state.player.dy !== 0) {
           const angle = Math.atan2(state.player.dy, state.player.dx) * 180 / Math.PI;
-          if (angle > -135 && angle <= -45) state.player.direction = 'WALK_UP';
-          else if (angle > 45 && angle <= 135) state.player.direction = 'WALK_DOWN';
+          if (angle > 45 && angle <= 135) state.player.direction = 'WALK_DOWN';
           else if (angle > 135 || angle <= -135) state.player.direction = 'WALK_LEFT';
+          else if (angle > -135 && angle <= -45) state.player.direction = 'WALK_UP';
           else state.player.direction = 'WALK_RIGHT';
         }
 
@@ -1065,7 +1063,6 @@
           state.player.lastAnimationTime = timestamp;
         }
 
-        // ПРОМЕТЕЙ: Расчет смещения фона на основе истинного размера кадра спрайта.
         const bgPosX = state.player.frame * CONFIG.SPRITE_FRAME_WIDTH;
         const bgPosY = anim.row * CONFIG.SPRITE_FRAME_HEIGHT;
         state.player.el.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
