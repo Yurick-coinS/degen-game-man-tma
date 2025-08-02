@@ -676,15 +676,16 @@
         PLAYER_HEIGHT: 64,
         SPRITE_FRAME_WIDTH: 64,
         SPRITE_FRAME_HEIGHT: 64,
-        ANIMATION_SPEED: 80, // ПРОМЕТЕЙ: Скорость откалибрована
+        ANIMATION_SPEED: 150, // Возвращаем скорость анимации к более медленной
         INVINCIBILITY_DURATION: 2000,
       };
 
+      // ПРОМЕТЕЙ: Количество кадров возвращено к 4 для эмуляции старой анимации
       const ANIMATIONS = {
-        WALK_RIGHT: { row: 0, frames: 13 },
-        WALK_LEFT: { row: 1, frames: 13 },
-        WALK_DOWN: { row: 2, frames: 13 },
-        WALK_UP: { row: 3, frames: 13 },
+        WALK_RIGHT: { row: 0, frames: 4 },
+        WALK_LEFT: { row: 1, frames: 4 },
+        WALK_DOWN: { row: 2, frames: 4 },
+        WALK_UP: { row: 3, frames: 4 },
         IDLE: { row: 2, frames: 1 },
       };
 
@@ -1044,17 +1045,15 @@
 
       // --- 9. ANIMATION & RENDERING ---
       function updateAnimationAndRender(timestamp) {
-        const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
-
-        // ПРОМЕТЕЙ: Стабилизированная логика выбора направления
-        if (isMoving) {
-          if (Math.abs(state.player.dx) > Math.abs(state.player.dy)) {
-            state.player.direction = state.player.dx > 0 ? 'WALK_RIGHT' : 'WALK_LEFT';
-          } else {
-            state.player.direction = state.player.dy > 0 ? 'WALK_DOWN' : 'WALK_UP';
-          }
+        if (state.player.dx !== 0 || state.player.dy !== 0) {
+          const angle = Math.atan2(state.player.dy, state.player.dx) * 180 / Math.PI;
+          if (angle > 45 && angle <= 135) state.player.direction = 'WALK_DOWN';
+          else if (angle > 135 || angle <= -135) state.player.direction = 'WALK_LEFT';
+          else if (angle > -135 && angle <= -45) state.player.direction = 'WALK_UP';
+          else state.player.direction = 'WALK_RIGHT';
         }
 
+        const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
         const anim = isMoving ? ANIMATIONS[state.player.direction] : ANIMATIONS.IDLE;
         if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
           state.player.frame = (state.player.frame + 1) % anim.frames;
