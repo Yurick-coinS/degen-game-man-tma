@@ -1315,7 +1315,7 @@
       if (!player) return;
       player.style.left = (playerX * scaleX) + 'px';
       player.style.top = (playerY * scaleY) + 'px';
-      player.style.transform = `scale(${scaleX}, ${scaleY})`;
+      player.style.transform = `scale(${scaleX * 2}, ${scaleY * 2})`;
       ghosts.forEach(ghost => {
         ghost.element.style.left = (ghost.x * scaleX) + 'px';
         ghost.element.style.top = (ghost.y * scaleY) + 'px';
@@ -1644,9 +1644,8 @@
     }
 
     function gameLoop() {
-      if (!gameRunning) return;
+      if (!gameRunning || !player) return;
 
-      // --- ПРОМЕТЕЙ: Анимационный Движок v2.0 ---
       const FRAME_WIDTH = 16;
       const FRAME_HEIGHT = 16;
       const ANIMATION_SPEED = 4;
@@ -1663,10 +1662,7 @@
       else if (playerDirection.y === 1) { frameY = 0; }
       else if (playerDirection.y === -1) { frameY = FRAME_HEIGHT * 3; }
       else { frameX = 0; }
-      if (player) {
-        player.style.backgroundPosition = `-${frameX}px -${frameY}px`;
-      }
-      // --- Конец Движка ---
+      player.style.backgroundPosition = `-${frameX}px -${frameY}px`;
 
       if (playerNextDirection.x !== 0 || playerNextDirection.y !== 0) {
         if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) {
@@ -1800,7 +1796,7 @@
     }
 
     function checkGhostCollision() {
-      if (player.invincible) return;
+      if (!player || player.invincible) return;
       for (const ghost of ghosts) {
         const dx = playerX + PLAYER_SIZE / 2 - (ghost.x + GHOST_SIZE / 2);
         const dy = playerY + PLAYER_SIZE / 2 - (ghost.y + GHOST_SIZE / 2);
@@ -1840,7 +1836,7 @@
     }
 
     function updatePlayerScore(finalScore) {
-      if (!playerState) { console.error('Прометей: Невозможно сохранить счет. Состояние игрока отсутствует.'); return; }
+      if (!playerState || !playerState.userId) { console.error('Прометей: Невозможно сохранить счет. ID игрока отсутствует.'); return; }
       console.log(`Прометей: Отправка финального счета ${finalScore} для пользователя ${playerState.userId}...`);
       fetch('/api/update-score', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
