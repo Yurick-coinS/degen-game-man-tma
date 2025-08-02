@@ -290,15 +290,6 @@
       margin: 0 auto;
       position: relative;
       overflow: hidden;
-      /* Crucial for camera viewport */
-    }
-
-    .world-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      transition: transform 0.1s linear;
-      /* Smooth camera movement */
     }
 
     .level-indicator {
@@ -321,16 +312,14 @@
     }
 
     .player {
-      width: 80px;
-      height: 64px;
+      width: 32px;
+      height: 32px;
       z-index: 10;
       transition: opacity 0.2s;
       background-image: url('./assets/sprites/player_sprites.png');
       background-repeat: no-repeat;
       image-rendering: pixelated;
       transform-origin: center center;
-      /* Visual offset for hitbox alignment */
-      transform: translate(-24px, -32px);
     }
 
     .player.invincible {
@@ -358,21 +347,124 @@
     }
 
     .candle {
-      width: 16px;
-      /* Increased size */
-      height: 16px;
+      width: 4px;
+      height: 4px;
       z-index: 3;
       border-radius: 50%;
       background-color: #FFD700;
-      box-shadow: 0 0 12px #FFD700;
+      box-shadow: 0 0 6px #FFD700;
     }
 
     .candle.power-candle {
-      width: 24px;
-      height: 24px;
+      width: 10px;
+      height: 10px;
       background-color: #00FFFA;
-      box-shadow: 0 0 16px #00FFFA, 0 0 6px #00FFFA;
+      box-shadow: 0 0 12px #00FFFA, 0 0 4px #00FFFA;
       border: 2px solid #fff;
+    }
+
+    .candle.big-candle {
+      width: 10px !important;
+      height: 10px !important;
+      background: #FFD700;
+      border: 2px solid #FF4500;
+      box-shadow: 0 0 14px #FFD700, 0 0 6px #FF4500;
+      z-index: 12;
+      animation: big-candle-blink 0.5s steps(1) infinite;
+    }
+
+    @keyframes big-candle-blink {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .candle.candle-pulse {
+      animation: candle-pulse 1s infinite;
+    }
+
+    @keyframes candle-pulse {
+      0% {
+        box-shadow: 0 0 6px #14F195;
+      }
+
+      50% {
+        box-shadow: 0 0 18px #14F195;
+      }
+
+      100% {
+        box-shadow: 0 0 6px #14F195;
+      }
+    }
+
+    .candle.candle-spin {
+      animation: candle-spin 1.2s linear infinite;
+    }
+
+    @keyframes candle-spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .candle.candle-shake {
+      animation: candle-shake 0.4s infinite;
+    }
+
+    @keyframes candle-shake {
+      0% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-2px);
+      }
+
+      50% {
+        transform: translateX(2px);
+      }
+
+      75% {
+        transform: translateX(-2px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+    .candle.candle-blink {
+      animation: candle-blink 0.7s steps(1) infinite;
+    }
+
+    @keyframes candle-blink {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .candle.candle-glow {
+      box-shadow: 0 0 18px #FFD700, 0 0 8px #fff;
     }
 
     .wall {
@@ -380,6 +472,16 @@
       z-index: 2;
       border-radius: 2px;
       box-shadow: 0 0 10px #14F195, 0 0 2px #14F195;
+    }
+
+    .bullet {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #00FFFA;
+      box-shadow: 0 0 8px #00FFFA;
+      z-index: 20;
+      pointer-events: none;
     }
 
     .game-over,
@@ -422,6 +524,73 @@
     .start-button:hover {
       background-color: #fff;
       color: var(--neon);
+    }
+
+
+    .score-panel,
+    .controls {
+      display: none;
+    }
+
+    .hotbar-container {
+      width: 100vw;
+      max-width: var(--max-board);
+      margin: 0.5em auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      z-index: 50;
+      pointer-events: auto;
+    }
+
+    .hotbar-slot {
+      width: 48px;
+      height: 48px;
+      background: rgba(15, 15, 26, 0.7);
+      border: 2px solid #9945FF;
+      border-radius: 8px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 8px #9945FF55;
+    }
+
+    .hotbar-slot:hover {
+      border-color: #14F195;
+      box-shadow: 0 0 12px #14F19588;
+    }
+
+    .hotbar-slot.active {
+      border-color: #FFD700;
+      transform: scale(1.1);
+      box-shadow: 0 0 16px #FFD700, 0 0 24px #9945FF;
+    }
+
+    .hotbar-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    .hotbar-keybind {
+      position: absolute;
+      top: 2px;
+      left: 4px;
+      font-size: 10px;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .hotbar-quantity {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
     }
 
     .controls-row {
@@ -511,6 +680,18 @@
       font-family: inherit;
     }
 
+    .abtn.active {
+      opacity: 1;
+      background: #e74c3c;
+      color: #fff;
+    }
+
+    .abtn:active {
+      background: #c0392b;
+      opacity: 1;
+      transform: scale(0.95);
+    }
+
     .game-description {
       color: #fff;
       font-size: 1.08em;
@@ -521,7 +702,59 @@
       font-family: 'Share Tech Mono', monospace;
     }
 
+    .fomo-timer {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      z-index: 50;
+      color: #fff;
+      font-size: 1.18em;
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: bold;
+      text-shadow:
+        0 0 2px #fff,
+        0 0 6px #fff,
+        0 0 0 #fff,
+        1px 1px 0 #ff9800,
+        -1px -1px 0 #ff4500,
+        2px 2px 2px #ff9800,
+        -2px -2px 2px #ff4500;
+      background: none !important;
+      border: none !important;
+      padding: 0;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      opacity: 1;
+    }
+
+    .fomo-timer.fomo-blink {
+      animation: fomo-blink 0.5s steps(1) infinite;
+    }
+
+    @keyframes fomo-blink {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
     @media (max-width: 500px) {
+      .abtns {
+        width: 100px;
+        height: 100px;
+        margin-right: 0.5cm;
+      }
+
       .abtn {
         width: 48px;
         height: 48px;
@@ -543,6 +776,47 @@
         height: 28px;
         left: 26px;
         top: 26px;
+      }
+
+      .hotbar-slot {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    @media (max-width: 350px) {
+      .abtns {
+        width: 60px;
+        height: 60px;
+        margin-right: 0.5cm;
+      }
+
+      .abtn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+      }
+
+      .joystick-outer {
+        width: 60px;
+        height: 60px;
+      }
+
+      .joystick-base {
+        width: 60px;
+        height: 60px;
+      }
+
+      .joystick-stick {
+        width: 20px;
+        height: 20px;
+        left: 20px;
+        top: 20px;
+      }
+
+      .hotbar-slot {
+        width: 36px;
+        height: 36px;
       }
     }
 
@@ -586,8 +860,11 @@
         <p class="game-description">Initializing system... Awaiting user data...</p>
         <button id="start-button" class="start-button" disabled>CONNECTING...</button>
       </div>
-      <div class="world-layer" id="world-layer"></div>
     </div>
+  </div>
+
+  <div class="hotbar-container" id="hotbar-container">
+    <!-- Slots will be generated by JavaScript -->
   </div>
 
   <div class="controls-row">
@@ -605,80 +882,79 @@
 
       // --- 1. CONFIGURATION & CONSTANTS ---
       const CONFIG = {
-        PLAYER_SPEED: 4,
-        GHOST_SPEED: 1.5,
+        PLAYER_SPEED: 2,
+        GHOST_SPEED: 1,
         TILE_SIZE: 32,
-        PLAYER_VISUAL_WIDTH: 80,
-        PLAYER_VISUAL_HEIGHT: 64,
-        PLAYER_HITBOX_WIDTH: 32,
-        PLAYER_HITBOX_HEIGHT: 32,
-        ANIMATION_SPEED: 100,
-        INVINCIBILITY_DURATION: 2000,
+        PLAYER_WIDTH: 32,
+        PLAYER_HEIGHT: 32,
+        ANIMATION_SPEED: 150, // ms per frame
+        INVINCIBILITY_DURATION: 2000, // ms
       };
 
       const ANIMATIONS = {
-        WALK_RIGHT: { row: 0, frames: 12 },
-        WALK_LEFT: { row: 1, frames: 12 },
-        WALK_DOWN: { row: 2, frames: 12 },
-        WALK_UP: { row: 3, frames: 12 },
-        IDLE_RIGHT: { row: 0, frames: 1 },
-        IDLE_LEFT: { row: 1, frames: 1 },
-        IDLE_DOWN: { row: 2, frames: 1 },
-        IDLE_UP: { row: 3, frames: 1 },
+        WALK_DOWN: { row: 0, frames: 4 },
+        WALK_LEFT: { row: 1, frames: 4 },
+        WALK_RIGHT: { row: 2, frames: 4 },
+        WALK_UP: { row: 3, frames: 4 },
+        IDLE: { row: 0, frames: 1 },
       };
 
       const LEVEL_LAYOUT = [
-        "##################################################",
-        "#M...............................................#",
-        "#...##########################################...#",
-        "#...#                                        #...#",
-        "#...#  ...c.c.c................c.c.c...  #...#",
-        "#...#  ..................................  #...#",
-        "#...#  ...##############################...  #...#",
-        "#...#  ...#                            #...  #...#",
-        "#...#  ...#  ...c.c.P.c.c...  #...  #...#",
-        "#...#  ...#  ...............  #...  #...#",
-        "#...#  ...#  ...c.c.c.c.c...  #...  #...#",
-        "#...#  ...#                            #...  #...#",
-        "#...#  ...##############################...  #...#",
-        "#...#  ................................G...  #...#",
-        "#...#  .G..................................  #...#",
-        "#...##########################################...#",
-        "#................................................#",
-        "#..................G.............................#",
-        "#...##########################################...#",
-        "#...#                                        #...#",
-        "#...#  ...c.c.c................c.c.c...  #...#",
-        "#...#  ..................................  #...#",
-        "#...#  ...##############################...  #...#",
-        "#...#  ...#                            #...  #...#",
-        "#...#  ...#  ...P.c.c.c.c...  #...  #...#",
-        "#...#  ...#  ...............  #...  #...#",
-        "#...#  ...#                            #...  #...#",
-        "#...#  ...##############################...  #...#",
-        "#P..#........................................#..P#",
-        "##################################################",
+        "#####################",
+        "#c.......#.......c#",
+        "#.#####.###.#####.#",
+        "#P#####.###.#####.P#",
+        "#c.......c.......c#",
+        "#.#####.#.#.#####.#",
+        "#.......#.#.......#",
+        "#####.### ###.#####",
+        "#####.#   G   #.#####",
+        "#####.# ##### #.#####",
+        "T     #G#G#G#     T",
+        "#####.# ##### #.#####",
+        "#####.#   M   #.#####",
+        "#####.### ###.#####",
+        "#.......#.#.......#",
+        "#.#####.#.#.#####.#",
+        "#c.......c.......c#",
+        "#P#####.###.#####.P#",
+        "#c.......#.......c#",
+        "#####################",
       ];
 
       // --- 2. GAME STATE ---
       const state = {
-        gameState: 'START_SCREEN',
+        gameState: 'START_SCREEN', // START_SCREEN, PLAYING, GAME_OVER
         player: {
-          x: 0, y: 0, prevX: 0, prevY: 0,
-          dx: 0, dy: 0, el: null,
-          direction: 'WALK_DOWN', lastDirection: 'WALK_DOWN',
-          frame: 0, lastAnimationTime: 0,
-          isInvincible: false, invincibleUntil: 0,
+          x: 0,
+          y: 0,
+          dx: 0,
+          dy: 0,
+          el: null,
+          direction: 'WALK_DOWN',
+          frame: 0,
+          lastAnimationTime: 0,
+          isInvincible: false,
+          invincibleUntil: 0,
         },
-        ghosts: [], walls: [], candles: [], score: 0,
-        gold: 0, health: 100, maxHealth: 100, mana: 50, maxMana: 50,
-        level: 1, userId: null, username: 'anonymous', gridSize: 0,
+        ghosts: [],
+        walls: [],
+        candles: [],
+        score: 0,
+        gold: 0,
+        health: 100,
+        maxHealth: 100,
+        mana: 50,
+        maxMana: 50,
+        level: 1,
+        userId: null,
+        username: 'anonymous',
+        gridSize: 0,
       };
 
       // --- 3. DOM ELEMENT SELECTORS ---
       const DOMElements = {
         gameBoard: document.getElementById('game-board'),
-        worldLayer: document.getElementById('world-layer'),
         startScreen: document.getElementById('start-screen'),
         startButton: document.getElementById('start-button'),
         usernameDisplay: document.getElementById('username-display'),
@@ -689,6 +965,8 @@
         manaBarText: document.getElementById('mana-bar-text'),
         playerLevel: document.getElementById('player-level'),
         playerScore: document.getElementById('player-score'),
+        statusLeft: document.querySelector('.status-left'),
+        statusRight: document.querySelector('.status-right'),
         joystick: {
           outer: document.getElementById('joystick-outer'),
           stick: document.getElementById('joystick-stick'),
@@ -696,17 +974,34 @@
         actionButtonA: document.getElementById('action-button-a'),
       };
 
-      // --- 4. TELEGRAM WEBAPP MOCK ---
+      // --- 4. TELEGRAM WEBAPP MOCK (for local testing) ---
       if (typeof window.Telegram === 'undefined') {
         console.warn("Telegram WebApp script not found. Using mock data.");
-        window.Telegram = { WebApp: { initDataUnsafe: { user: { id: 123456789, first_name: "Mock", username: "mock_user" } }, ready: () => { }, expand: () => { } } };
+        window.Telegram = {
+          WebApp: {
+            initDataUnsafe: {
+              user: {
+                id: 123456789,
+                first_name: "Mock",
+                last_name: "User",
+                username: "mock_user",
+              },
+            },
+            ready: () => { },
+            expand: () => { },
+          },
+        };
       }
 
       // --- 5. BACKEND API INTERACTION ---
       const api = {
         getUser: async (tgUser) => {
           try {
-            const response = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: tgUser }) });
+            const response = await fetch('/api/user', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ user: tgUser }),
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
           } catch (error) {
@@ -717,7 +1012,11 @@
         },
         updateGold: async (userId, newGoldBalance) => {
           try {
-            const response = await fetch('/api/user', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: userId, gold: newGoldBalance }) });
+            const response = await fetch('/api/user', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: userId, gold: newGoldBalance }),
+            });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
             console.log(result.message);
@@ -733,82 +1032,92 @@
       function updateUI() {
         DOMElements.usernameDisplay.textContent = state.username;
         DOMElements.goldBalanceDisplay.textContent = `GOLD: ${state.gold}`;
+
         const healthPercent = (state.health / state.maxHealth) * 100;
         DOMElements.healthBarProgress.style.width = `${healthPercent}%`;
         DOMElements.healthBarText.textContent = `${state.health} / ${state.maxHealth}`;
+
         const manaPercent = (state.mana / state.maxMana) * 100;
         DOMElements.manaBarProgress.style.width = `${manaPercent}%`;
         DOMElements.manaBarText.textContent = `${state.mana} / ${state.maxMana}`;
+
         DOMElements.playerLevel.textContent = `LVL ${state.level}`;
         DOMElements.playerScore.textContent = `SCR: ${state.score}`;
+
         DOMElements.statusLeft.style.visibility = 'visible';
         DOMElements.statusRight.style.visibility = 'visible';
       }
 
-      // --- 7. WORLD CREATION ---
       function createGameBoard() {
-        state.gridSize = CONFIG.TILE_SIZE;
-        const worldWidth = LEVEL_LAYOUT[0].length * state.gridSize;
-        const worldHeight = LEVEL_LAYOUT.length * state.gridSize;
-        DOMElements.worldLayer.style.width = `${worldWidth}px`;
-        DOMElements.worldLayer.style.height = `${worldHeight}px`;
+        const boardSize = DOMElements.gameBoard.offsetWidth;
+        state.gridSize = boardSize / LEVEL_LAYOUT[0].length;
 
         LEVEL_LAYOUT.forEach((row, y) => {
           for (let x = 0; x < row.length; x++) {
             const char = row[x];
-            const elX = x * state.gridSize;
-            const elY = y * state.gridSize;
+            const el = document.createElement('div');
+            el.style.position = 'absolute';
+            el.style.left = `${x * state.gridSize}px`;
+            el.style.top = `${y * state.gridSize}px`;
 
             if (char === '#') {
-              const el = document.createElement('div');
               el.className = 'wall';
-              el.style.left = `${elX}px`;
-              el.style.top = `${elY}px`;
               el.style.width = `${state.gridSize}px`;
               el.style.height = `${state.gridSize}px`;
-              state.walls.push({ x: elX, y: elY, width: state.gridSize, height: state.gridSize, el });
-              DOMElements.worldLayer.appendChild(el);
+              state.walls.push({ x: x * state.gridSize, y: y * state.gridSize, width: state.gridSize, height: state.gridSize, el });
+              DOMElements.gameBoard.appendChild(el);
             } else if (char === 'c' || char === 'P') {
-              const el = document.createElement('div');
-              el.className = char === 'P' ? 'candle power-candle' : 'candle';
-              const candleSize = char === 'P' ? 24 : 16;
-              el.style.left = `${elX + (state.gridSize - candleSize) / 2}px`;
-              el.style.top = `${elY + (state.gridSize - candleSize) / 2}px`;
-              const candle = { x: elX, y: elY, width: state.gridSize, height: state.gridSize, el, type: char === 'P' ? 'power' : 'normal' };
+              el.className = 'candle';
+              el.style.width = `${state.gridSize * 0.25}px`;
+              el.style.height = `${state.gridSize * 0.25}px`;
+              if (char === 'P') {
+                el.classList.add('power-candle');
+                el.style.width = `${state.gridSize * 0.5}px`;
+                el.style.height = `${state.gridSize * 0.5}px`;
+              }
+              const candle = { x: x * state.gridSize, y: y * state.gridSize, width: state.gridSize, height: state.gridSize, el, type: char === 'P' ? 'power' : 'normal' };
               state.candles.push(candle);
-              DOMElements.worldLayer.appendChild(el);
+              DOMElements.gameBoard.appendChild(el);
             } else if (char === 'M') {
-              state.player.x = elX;
-              state.player.y = elY;
-              state.player.prevX = elX;
-              state.player.prevY = elY;
+              state.player.x = x * state.gridSize;
+              state.player.y = y * state.gridSize;
             } else if (char === 'G') {
               const ghostEl = document.createElement('div');
               ghostEl.className = 'ghost';
-              ghostEl.style.left = `${elX}px`;
-              ghostEl.style.top = `${elY}px`;
               ghostEl.style.width = `${state.gridSize * 0.8}px`;
               ghostEl.style.height = `${state.gridSize * 0.8}px`;
+              ghostEl.style.left = `${x * state.gridSize}px`;
+              ghostEl.style.top = `${y * state.gridSize}px`;
               ghostEl.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
               ghostEl.style.borderRadius = '50% 50% 0 0';
-              DOMElements.worldLayer.appendChild(ghostEl);
+              DOMElements.gameBoard.appendChild(ghostEl);
               state.ghosts.push({
-                x: elX, y: elY, dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED, dy: 0, el: ghostEl,
+                x: x * state.gridSize,
+                y: y * state.gridSize,
+                dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED,
+                dy: 0,
+                el: ghostEl,
               });
             }
           }
         });
 
+        // Create player element
         const playerEl = document.createElement('div');
         playerEl.className = 'player';
-        DOMElements.worldLayer.appendChild(playerEl);
+        playerEl.style.width = `${CONFIG.PLAYER_WIDTH}px`;
+        playerEl.style.height = `${CONFIG.PLAYER_HEIGHT}px`;
+        DOMElements.gameBoard.appendChild(playerEl);
         state.player.el = playerEl;
       }
 
-      // --- 8. INPUT HANDLING ---
+      // --- 7. INPUT HANDLING ---
       function setupInput() {
         let joystickActive = false;
+        let joystickStartX = 0;
+        let joystickStartY = 0;
         const maxRadius = DOMElements.joystick.outer.offsetWidth / 2;
+
         function handleJoystickMove(e) {
           if (!joystickActive) return;
           e.preventDefault();
@@ -816,11 +1125,15 @@
           const rect = DOMElements.joystick.outer.getBoundingClientRect();
           const currentX = touch.clientX - rect.left - maxRadius;
           const currentY = touch.clientY - rect.top - maxRadius;
+
           const angle = Math.atan2(currentY, currentX);
           const distance = Math.min(maxRadius, Math.hypot(currentX, currentY));
+
           const stickX = Math.cos(angle) * distance;
           const stickY = Math.sin(angle) * distance;
+
           DOMElements.joystick.stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
+
           const threshold = 0.3;
           if (Math.abs(stickX) > Math.abs(stickY)) {
             state.player.dx = stickX / maxRadius > threshold ? CONFIG.PLAYER_SPEED : (stickX / maxRadius < -threshold ? -CONFIG.PLAYER_SPEED : 0);
@@ -830,6 +1143,7 @@
             state.player.dx = 0;
           }
         }
+
         function handleJoystickEnd(e) {
           if (!joystickActive) return;
           joystickActive = false;
@@ -837,9 +1151,19 @@
           state.player.dx = 0;
           state.player.dy = 0;
         }
+
         DOMElements.joystick.outer.addEventListener('touchstart', (e) => { joystickActive = true; handleJoystickMove(e); }, { passive: false });
         DOMElements.joystick.outer.addEventListener('touchmove', handleJoystickMove, { passive: false });
         DOMElements.joystick.outer.addEventListener('touchend', handleJoystickEnd);
+        DOMElements.joystick.outer.addEventListener('touchcancel', handleJoystickEnd);
+
+        // Mouse support for joystick for debugging
+        DOMElements.joystick.outer.addEventListener('mousedown', (e) => { joystickActive = true; handleJoystickMove(e); });
+        document.addEventListener('mousemove', handleJoystickMove);
+        document.addEventListener('mouseup', (e) => { if (joystickActive) handleJoystickEnd(e); });
+
+
+        // Keyboard controls for debugging
         document.addEventListener('keydown', (e) => {
           if (state.gameState !== 'PLAYING') return;
           switch (e.key) {
@@ -860,7 +1184,7 @@
         });
       }
 
-      // --- 9. CORE LOGIC ---
+      // --- 8. COLLISION & MOVEMENT LOGIC ---
       function checkCollision(rect1, rect2) {
         return rect1.x < rect2.x + rect2.width &&
           rect1.x + rect1.width > rect2.x &&
@@ -869,20 +1193,19 @@
       }
 
       function movePlayer() {
-        const nextX = state.player.x + state.player.dx;
-        const nextY = state.player.y + state.player.dy;
+        let nextX = state.player.x + state.player.dx;
+        let nextY = state.player.y + state.player.dy;
 
-        const playerHitbox = { width: CONFIG.PLAYER_HITBOX_WIDTH, height: CONFIG.PLAYER_HITBOX_HEIGHT };
+        const playerRect = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
 
         let collisionX = false;
         let collisionY = false;
 
         for (const wall of state.walls) {
-          const wallRect = { x: wall.x, y: wall.y, width: wall.width, height: wall.height };
-          if (checkCollision({ ...playerHitbox, x: nextX, y: state.player.y }, wallRect)) {
+          if (checkCollision({ ...playerRect, y: state.player.y }, wall)) {
             collisionX = true;
           }
-          if (checkCollision({ ...playerHitbox, x: state.player.x, y: nextY }, wallRect)) {
+          if (checkCollision({ ...playerRect, x: state.player.x }, wall)) {
             collisionY = true;
           }
         }
@@ -890,19 +1213,51 @@
         if (!collisionX) state.player.x = nextX;
         if (!collisionY) state.player.y = nextY;
 
-        const worldWidth = LEVEL_LAYOUT[0].length * state.gridSize;
-        const worldHeight = LEVEL_LAYOUT.length * state.gridSize;
-        state.player.x = Math.max(0, Math.min(worldWidth - CONFIG.PLAYER_HITBOX_WIDTH, state.player.x));
-        state.player.y = Math.max(0, Math.min(worldHeight - CONFIG.PLAYER_HITBOX_HEIGHT, state.player.y));
+        // Board boundaries
+        const boardSize = DOMElements.gameBoard.offsetWidth;
+        state.player.x = Math.max(0, Math.min(boardSize - CONFIG.PLAYER_WIDTH, state.player.x));
+        state.player.y = Math.max(0, Math.min(boardSize - CONFIG.PLAYER_HEIGHT, state.player.y));
+      }
+
+      function moveGhosts() {
+        state.ghosts.forEach(ghost => {
+          let nextX = ghost.x + ghost.dx;
+          let nextY = ghost.y + ghost.dy;
+
+          const ghostRect = { x: nextX, y: nextY, width: state.gridSize * 0.8, height: state.gridSize * 0.8 };
+
+          let collided = false;
+          for (const wall of state.walls) {
+            if (checkCollision(ghostRect, wall)) {
+              collided = true;
+              break;
+            }
+          }
+
+          const boardSize = DOMElements.gameBoard.offsetWidth;
+          if (collided || nextX < 0 || nextX > boardSize - ghostRect.width || nextY < 0 || nextY > boardSize - ghostRect.height) {
+            if (Math.random() > 0.5) {
+              ghost.dx = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED;
+              ghost.dy = 0;
+            } else {
+              ghost.dy = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED;
+              ghost.dx = 0;
+            }
+          } else {
+            ghost.x = nextX;
+            ghost.y = nextY;
+          }
+        });
       }
 
       function checkGameCollisions() {
-        const playerHitbox = { x: state.player.x, y: state.player.y, width: CONFIG.PLAYER_HITBOX_WIDTH, height: CONFIG.PLAYER_HITBOX_HEIGHT };
+        const playerRect = { x: state.player.x, y: state.player.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
 
+        // Player vs Candles
         for (let i = state.candles.length - 1; i >= 0; i--) {
           const candle = state.candles[i];
-          if (checkCollision(playerHitbox, candle)) {
-            DOMElements.worldLayer.removeChild(candle.el);
+          if (checkCollision(playerRect, candle)) {
+            DOMElements.gameBoard.removeChild(candle.el);
             state.candles.splice(i, 1);
             state.score += candle.type === 'power' ? 50 : 10;
             state.gold += candle.type === 'power' ? 5 : 1;
@@ -910,58 +1265,61 @@
           }
         }
 
+        // Player vs Ghosts
         if (!state.player.isInvincible) {
           for (const ghost of state.ghosts) {
             const ghostRect = { x: ghost.x, y: ghost.y, width: state.gridSize * 0.8, height: state.gridSize * 0.8 };
-            if (checkCollision(playerHitbox, ghostRect)) {
+            if (checkCollision(playerRect, ghostRect)) {
               state.health -= 10;
               state.player.isInvincible = true;
               state.player.invincibleUntil = Date.now() + CONFIG.INVINCIBILITY_DURATION;
               state.player.el.classList.add('invincible');
               updateUI();
-              if (state.health <= 0) endGame();
+              if (state.health <= 0) {
+                endGame();
+              }
               break;
             }
           }
         }
       }
 
+      // --- 9. ANIMATION ---
       function updateAnimation(timestamp) {
-        const hasMoved = state.player.x !== state.player.prevX || state.player.y !== state.player.prevY;
-        let anim;
+        if (state.player.dx > 0) state.player.direction = 'WALK_RIGHT';
+        else if (state.player.dx < 0) state.player.direction = 'WALK_LEFT';
+        else if (state.player.dy > 0) state.player.direction = 'WALK_DOWN';
+        else if (state.player.dy < 0) state.player.direction = 'WALK_UP';
 
-        if (hasMoved) {
-          if (state.player.dx > 0) state.player.direction = 'WALK_RIGHT';
-          else if (state.player.dx < 0) state.player.direction = 'WALK_LEFT';
-          else if (state.player.dy > 0) state.player.direction = 'WALK_DOWN';
-          else if (state.player.dy < 0) state.player.direction = 'WALK_UP';
-
-          anim = ANIMATIONS[state.player.direction];
-          state.player.lastDirection = state.player.direction;
-        } else {
-          anim = ANIMATIONS[state.player.lastDirection.replace('WALK', 'IDLE')];
-        }
+        const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
+        const anim = isMoving ? ANIMATIONS[state.player.direction] : ANIMATIONS.IDLE;
 
         if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
           state.player.frame = (state.player.frame + 1) % anim.frames;
           state.player.lastAnimationTime = timestamp;
         }
 
-        const bgPosX = state.player.frame * CONFIG.PLAYER_VISUAL_WIDTH;
-        const bgPosY = anim.row * CONFIG.PLAYER_VISUAL_HEIGHT;
+        const bgPosX = state.player.frame * CONFIG.PLAYER_WIDTH;
+        const bgPosY = anim.row * CONFIG.PLAYER_HEIGHT;
 
         state.player.el.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
       }
 
+      // --- 10. CORE GAME LOGIC ---
       function gameLoop(timestamp) {
         if (state.gameState !== 'PLAYING') return;
 
-        state.player.prevX = state.player.x;
-        state.player.prevY = state.player.y;
-
         movePlayer();
+        moveGhosts();
         checkGameCollisions();
 
+        // Render
+        state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
+        state.ghosts.forEach(g => {
+          g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
+        });
+
+        // Update Invincibility
         if (state.player.isInvincible && Date.now() > state.player.invincibleUntil) {
           state.player.isInvincible = false;
           state.player.el.classList.remove('invincible');
@@ -969,51 +1327,45 @@
 
         updateAnimation(timestamp);
 
-        state.player.el.style.left = `${state.player.x}px`;
-        state.player.el.style.top = `${state.player.y}px`;
-
-        const viewportWidth = DOMElements.gameBoard.offsetWidth;
-        const viewportHeight = DOMElements.gameBoard.offsetHeight;
-        const worldWidth = LEVEL_LAYOUT[0].length * state.gridSize;
-        const worldHeight = LEVEL_LAYOUT.length * state.gridSize;
-
-        let cameraX = state.player.x + (CONFIG.PLAYER_HITBOX_WIDTH / 2) - (viewportWidth / 2);
-        let cameraY = state.player.y + (CONFIG.PLAYER_HITBOX_HEIGHT / 2) - (viewportHeight / 2);
-
-        cameraX = Math.max(0, Math.min(cameraX, worldWidth - viewportWidth));
-        cameraY = Math.max(0, Math.min(cameraY, worldHeight - viewportHeight));
-
-        DOMElements.worldLayer.style.transform = `translate(${-cameraX}px, ${-cameraY}px)`;
-
         requestAnimationFrame(gameLoop);
       }
 
       function startGame() {
         state.gameState = 'PLAYING';
         DOMElements.startScreen.style.display = 'none';
-        // CORRECTED: The call to start the game loop is restored.
         requestAnimationFrame(gameLoop);
       }
 
       function endGame() {
         state.gameState = 'GAME_OVER';
-        api.updateGold(state.userId, state.gold);
+        api.updateGold(state.userId, state.gold); // Final gold update
+
         const gameOverEl = document.createElement('div');
         gameOverEl.className = 'game-over';
-        gameOverEl.innerHTML = `<h1>GAME OVER</h1><p>Final Score: ${state.score}</p><p>Total Gold: ${state.gold}</p><button onclick="window.location.reload()" class="start-button">RESTART</button>`;
+        gameOverEl.innerHTML = `
+          <h1>GAME OVER</h1>
+          <p>Final Score: ${state.score}</p>
+          <p>Total Gold: ${state.gold}</p>
+          <button onclick="window.location.reload()" class="start-button">RESTART</button>
+        `;
         DOMElements.gameBoard.appendChild(gameOverEl);
       }
+
 
       // --- 11. INITIALIZER ---
       async function initialize() {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
+
         const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
         if (!tgUser || !tgUser.id) {
-          DOMElements.startScreen.querySelector('p').textContent = "Could not identify user.";
+          DOMElements.startScreen.querySelector('p').textContent = "Could not identify user. Please open through Telegram.";
           return;
         }
+
         const responseData = await api.getUser(tgUser);
+
+        // Прометей: Коррекция. Ответ сервера содержит объект playerData.
         if (responseData && responseData.playerData) {
           const { playerData } = responseData;
           state.userId = playerData.userId;
@@ -1023,12 +1375,19 @@
           state.maxHealth = playerData.maxHealth || 100;
           state.mana = playerData.mana || 50;
           state.maxMana = playerData.maxMana || 50;
+
           updateUI();
           DOMElements.startScreen.querySelector('p').textContent = 'Collect candles. Avoid ghosts. Get rich or die tryin\'.';
           DOMElements.startButton.textContent = 'START';
           DOMElements.startButton.disabled = false;
         }
-        DOMElements.startButton.addEventListener('click', () => { if (state.gameState === 'START_SCREEN') startGame(); });
+
+        DOMElements.startButton.addEventListener('click', () => {
+          if (state.gameState === 'START_SCREEN') {
+            startGame();
+          }
+        });
+
         createGameBoard();
         setupInput();
       }
