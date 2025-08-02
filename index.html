@@ -646,22 +646,21 @@
       const CONFIG = {
         PLAYER_SPEED: 4,
         GHOST_SPEED: 1.5,
-        TILE_SIZE: 64, // Прометей: Размер тайла увеличен
-        PLAYER_WIDTH: 96, // Прометей: Ширина игрока обновлена
-        PLAYER_HEIGHT: 64, // Прометей: Высота игрока обновлена
-        ANIMATION_SPEED: 100, // ms per frame, увеличена для плавной анимации
-        INVINCIBILITY_DURATION: 2000, // ms
+        TILE_SIZE: 64,
+        PLAYER_WIDTH: 96,
+        PLAYER_HEIGHT: 64,
+        ANIMATION_SPEED: 100,
+        INVINCIBILITY_DURATION: 2000,
       };
 
-      // Прометей: Схема анимации полностью перестроена для нового спрайта
+      // Прометей: Исправлен маппинг строк анимации
       const ANIMATIONS = {
-        WALK_LEFT: { row: 0, frames: 12 },
-        WALK_RIGHT: { row: 1, frames: 12 },
+        WALK_RIGHT: { row: 0, frames: 12 },
+        WALK_LEFT: { row: 1, frames: 12 },
         WALK_UP: { row: 2, frames: 12 },
         WALK_DOWN: { row: 3, frames: 12 },
       };
 
-      // Прометей: Карта уровня перестроена для создания больших пространств
       const LEVEL_LAYOUT = [
         "##################################################",
         "#................................................#",
@@ -700,7 +699,7 @@
 
       // --- 2. GAME STATE ---
       const state = {
-        gameState: 'START_SCREEN', // START_SCREEN, PLAYING, GAME_OVER
+        gameState: 'START_SCREEN',
         player: {
           x: 0,
           y: 0,
@@ -730,7 +729,7 @@
       // --- 3. DOM ELEMENT SELECTORS ---
       const DOMElements = {
         gameBoard: document.getElementById('game-board'),
-        gameWorld: null, // Прометей: Добавлен контейнер для мира
+        gameWorld: null,
         startScreen: document.getElementById('start-screen'),
         startButton: document.getElementById('start-button'),
         usernameDisplay: document.getElementById('username-display'),
@@ -750,18 +749,13 @@
         actionButtonA: document.getElementById('action-button-a'),
       };
 
-      // --- 4. TELEGRAM WEBAPP MOCK (for local testing) ---
+      // --- 4. TELEGRAM WEBAPP MOCK ---
       if (typeof window.Telegram === 'undefined') {
         console.warn("Telegram WebApp script not found. Using mock data.");
         window.Telegram = {
           WebApp: {
             initDataUnsafe: {
-              user: {
-                id: 123456789,
-                first_name: "Mock",
-                last_name: "User",
-                username: "mock_user",
-              },
+              user: { id: 123456789, first_name: "Mock", username: "mock_user" },
             },
             ready: () => { },
             expand: () => { },
@@ -794,9 +788,7 @@
               body: JSON.stringify({ userId: userId, gold: newGoldBalance }),
             });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const result = await response.json();
-            console.log(result.message);
-            return result;
+            return await response.json();
           } catch (error) {
             console.error("Failed to update gold balance:", error);
             return null;
@@ -808,11 +800,9 @@
       function updateUI() {
         DOMElements.usernameDisplay.textContent = state.username;
         DOMElements.goldBalanceDisplay.textContent = `GOLD: ${state.gold}`;
-        const healthPercent = (state.health / state.maxHealth) * 100;
-        DOMElements.healthBarProgress.style.width = `${healthPercent}%`;
+        DOMElements.healthBarProgress.style.width = `${(state.health / state.maxHealth) * 100}%`;
         DOMElements.healthBarText.textContent = `${state.health} / ${state.maxHealth}`;
-        const manaPercent = (state.mana / state.maxMana) * 100;
-        DOMElements.manaBarProgress.style.width = `${manaPercent}%`;
+        DOMElements.manaBarProgress.style.width = `${(state.mana / state.maxMana) * 100}%`;
         DOMElements.manaBarText.textContent = `${state.mana} / ${state.maxMana}`;
         DOMElements.playerLevel.textContent = `LVL ${state.level}`;
         DOMElements.playerScore.textContent = `SCR: ${state.score}`;
@@ -821,7 +811,6 @@
       }
 
       function createGameBoard() {
-        // Прометей: Создаем контейнер мира
         const gameWorld = document.createElement('div');
         gameWorld.id = 'game-world';
         DOMElements.gameBoard.appendChild(gameWorld);
@@ -849,16 +838,12 @@
               el.style.height = `${candleSize}px`;
               el.style.left = `${x * TILE_SIZE + (TILE_SIZE - candleSize) / 2}px`;
               el.style.top = `${y * TILE_SIZE + (TILE_SIZE - candleSize) / 2}px`;
-
-              if (char === 'P') {
-                el.classList.add('power-candle');
-              }
-              const candle = { x: x * TILE_SIZE, y: y * TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, el, type: char === 'P' ? 'power' : 'normal' };
-              state.candles.push(candle);
+              if (char === 'P') el.classList.add('power-candle');
+              state.candles.push({ x: x * TILE_SIZE, y: y * TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, el, type: char === 'P' ? 'power' : 'normal' });
               DOMElements.gameWorld.appendChild(el);
             } else if (char === 'M') {
-              state.player.x = x * CONFIG.TILE_SIZE;
-              state.player.y = y * CONFIG.TILE_SIZE;
+              state.player.x = x * TILE_SIZE;
+              state.player.y = y * TILE_SIZE;
             } else if (char === 'G') {
               const ghostEl = document.createElement('div');
               const ghostSize = TILE_SIZE * 0.8;
@@ -868,15 +853,7 @@
               ghostEl.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
               ghostEl.style.borderRadius = '50%';
               DOMElements.gameWorld.appendChild(ghostEl);
-              state.ghosts.push({
-                x: x * TILE_SIZE,
-                y: y * TILE_SIZE,
-                dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED,
-                dy: 0,
-                el: ghostEl,
-                width: ghostSize,
-                height: ghostSize
-              });
+              state.ghosts.push({ x: x * TILE_SIZE, y: y * TILE_SIZE, dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED, dy: 0, el: ghostEl, width: ghostSize, height: ghostSize });
             }
           }
         });
@@ -899,20 +876,16 @@
           const rect = DOMElements.joystick.outer.getBoundingClientRect();
           const currentX = touch.clientX - rect.left - maxRadius;
           const currentY = touch.clientY - rect.top - maxRadius;
-
           const angle = Math.atan2(currentY, currentX);
           const distance = Math.min(maxRadius, Math.hypot(currentX, currentY));
-
           const stickX = Math.cos(angle) * distance;
           const stickY = Math.sin(angle) * distance;
           DOMElements.joystick.stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
-
-          const threshold = 0.3;
           state.player.dx = (stickX / maxRadius) * CONFIG.PLAYER_SPEED;
           state.player.dy = (stickY / maxRadius) * CONFIG.PLAYER_SPEED;
         }
 
-        function handleJoystickEnd(e) {
+        function handleJoystickEnd() {
           if (!joystickActive) return;
           joystickActive = false;
           DOMElements.joystick.stick.style.transform = 'translate(0, 0)';
@@ -925,27 +898,31 @@
         DOMElements.joystick.outer.addEventListener('touchend', handleJoystickEnd);
         DOMElements.joystick.outer.addEventListener('touchcancel', handleJoystickEnd);
         DOMElements.joystick.outer.addEventListener('mousedown', (e) => { joystickActive = true; handleJoystickMove(e); });
-        document.addEventListener('mousemove', handleJoystickMove);
-        document.addEventListener('mouseup', (e) => { if (joystickActive) handleJoystickEnd(e); });
+        document.addEventListener('mousemove', (e) => { if (joystickActive) handleJoystickMove(e); });
+        document.addEventListener('mouseup', handleJoystickEnd);
 
+        const keyState = {};
         document.addEventListener('keydown', (e) => {
           if (state.gameState !== 'PLAYING') return;
-          switch (e.key) {
-            case 'ArrowUp': case 'w': state.player.dy = -CONFIG.PLAYER_SPEED; break;
-            case 'ArrowDown': case 's': state.player.dy = CONFIG.PLAYER_SPEED; break;
-            case 'ArrowLeft': case 'a': state.player.dx = -CONFIG.PLAYER_SPEED; break;
-            case 'ArrowRight': case 'd': state.player.dx = CONFIG.PLAYER_SPEED; break;
-          }
+          keyState[e.key] = true;
+          updatePlayerVelocityFromKeys();
         });
         document.addEventListener('keyup', (e) => {
           if (state.gameState !== 'PLAYING') return;
-          switch (e.key) {
-            case 'ArrowUp': case 'w': if (state.player.dy < 0) state.player.dy = 0; break;
-            case 'ArrowDown': case 's': if (state.player.dy > 0) state.player.dy = 0; break;
-            case 'ArrowLeft': case 'a': if (state.player.dx < 0) state.player.dx = 0; break;
-            case 'ArrowRight': case 'd': if (state.player.dx > 0) state.player.dx = 0; break;
-          }
+          keyState[e.key] = false;
+          updatePlayerVelocityFromKeys();
         });
+
+        function updatePlayerVelocityFromKeys() {
+          let dx = 0;
+          let dy = 0;
+          if (keyState['ArrowUp'] || keyState['w']) dy = -CONFIG.PLAYER_SPEED;
+          if (keyState['ArrowDown'] || keyState['s']) dy = CONFIG.PLAYER_SPEED;
+          if (keyState['ArrowLeft'] || keyState['a']) dx = -CONFIG.PLAYER_SPEED;
+          if (keyState['ArrowRight'] || keyState['d']) dx = CONFIG.PLAYER_SPEED;
+          state.player.dx = dx;
+          state.player.dy = dy;
+        }
       }
 
       // --- 8. COLLISION & MOVEMENT LOGIC ---
@@ -956,21 +933,35 @@
           rect1.y + rect1.height > rect2.y;
       }
 
+      // Прометей: Логика столкновений переработана для скольжения вдоль стен
       function movePlayer() {
+        // Попытка движения по оси X
         let nextX = state.player.x + state.player.dx;
-        let nextY = state.player.y + state.player.dy;
-        const playerHitbox = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
-
+        let playerHitboxX = { x: nextX, y: state.player.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
+        let collisionX = false;
         for (const wall of state.walls) {
-          if (checkCollision(playerHitbox, wall)) {
-            // Basic collision resolution, stops movement. More complex logic can be added.
-            nextX = state.player.x;
-            nextY = state.player.y;
+          if (checkCollision(playerHitboxX, wall)) {
+            collisionX = true;
             break;
           }
         }
-        state.player.x = nextX;
-        state.player.y = nextY;
+        if (!collisionX) {
+          state.player.x = nextX;
+        }
+
+        // Попытка движения по оси Y
+        let nextY = state.player.y + state.player.dy;
+        let playerHitboxY = { x: state.player.x, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
+        let collisionY = false;
+        for (const wall of state.walls) {
+          if (checkCollision(playerHitboxY, wall)) {
+            collisionY = true;
+            break;
+          }
+        }
+        if (!collisionY) {
+          state.player.y = nextY;
+        }
       }
 
       function moveGhosts() {
@@ -1015,7 +1006,7 @@
         if (!state.player.isInvincible) {
           for (const ghost of state.ghosts) {
             if (checkCollision(playerRect, ghost)) {
-              state.health -= 25; // More punishing
+              state.health -= 25;
               state.player.isInvincible = true;
               state.player.invincibleUntil = Date.now() + CONFIG.INVINCIBILITY_DURATION;
               state.player.el.classList.add('invincible');
@@ -1041,7 +1032,7 @@
         }
 
         const anim = ANIMATIONS[state.player.direction];
-        if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED / (speed > 0.1 ? speed / 2 : 1)) {
+        if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
           if (isMoving) {
             state.player.frame = (state.player.frame + 1) % anim.frames;
           } else {
@@ -1064,29 +1055,21 @@
         checkGameCollisions();
         updateAnimation(timestamp);
 
-        // --- РЕНДЕРИНГ И КАМЕРА (Прометей: Полный рефакторинг) ---
-        // 1. Обновляем позицию всех дочерних элементов в мире
         state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
         state.ghosts.forEach(g => {
           g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
         });
 
-        // 2. Вычисляем и прижимаем позицию камеры
         const viewportWidth = DOMElements.gameBoard.offsetWidth;
         const viewportHeight = DOMElements.gameBoard.offsetHeight;
         const worldWidth = LEVEL_LAYOUT[0].length * CONFIG.TILE_SIZE;
         const worldHeight = LEVEL_LAYOUT.length * CONFIG.TILE_SIZE;
-
         let cameraX = -state.player.x + (viewportWidth / 2) - (CONFIG.PLAYER_WIDTH / 2);
         let cameraY = -state.player.y + (viewportHeight / 2) - (CONFIG.PLAYER_HEIGHT / 2);
-
         cameraX = Math.min(0, Math.max(-(worldWidth - viewportWidth), cameraX));
         cameraY = Math.min(0, Math.max(-(worldHeight - viewportHeight), cameraY));
-
-        // 3. Двигаем весь мир
         DOMElements.gameWorld.style.transform = `translate(${cameraX}px, ${cameraY}px)`;
 
-        // Update Invincibility
         if (state.player.isInvincible && Date.now() > state.player.invincibleUntil) {
           state.player.isInvincible = false;
           state.player.el.classList.remove('invincible');
@@ -1114,7 +1097,6 @@
       async function initialize() {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-
         const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
         if (!tgUser || !tgUser.id) {
           DOMElements.startScreen.querySelector('p').textContent = "Could not identify user. Please open through Telegram.";
