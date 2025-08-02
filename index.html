@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>DEGEN-MAN: Solana Edition</title>
+  <title>DEGEN-MAN: Nexus Grid</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
@@ -29,7 +29,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      overflow-x: hidden;
+      overflow: hidden;
+      /* Prevent scrollbars from ever appearing */
       touch-action: none;
     }
 
@@ -63,27 +64,6 @@
       user-select: none;
     }
 
-    .collection-profile .candle-icon {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      margin: 0 2px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      vertical-align: middle;
-      opacity: 0.4;
-      filter: grayscale(1);
-      transition: opacity 0.2s, filter 0.2s, border 0.2s;
-      box-shadow: 0 0 6px #222;
-    }
-
-    .collection-profile .candle-icon.collected {
-      opacity: 1;
-      filter: none;
-      border: 2px solid #14F195;
-      box-shadow: 0 0 12px #14F195, 0 0 4px #FFD700;
-    }
-
     .collection-profile .collection-label {
       margin-right: 8px;
       color: #FFD700;
@@ -91,18 +71,6 @@
       font-size: 1em;
       text-shadow: 0 0 6px #9945FF, 0 0 2px #fff;
       letter-spacing: 1px;
-    }
-
-    @media (max-width: 500px) {
-      .collection-profile .candle-icon {
-        width: 13px;
-        height: 13px;
-      }
-
-      .collection-profile {
-        font-size: 0.98em;
-        min-height: 20px;
-      }
     }
 
     .console-status {
@@ -123,7 +91,6 @@
     .status-right {
       flex-shrink: 0;
       visibility: hidden;
-      /* Hidden until data is loaded */
     }
 
     .status-bars {
@@ -196,35 +163,28 @@
 
     .game-board-wrapper {
       width: 100vw;
+      height: calc(100vh - 250px);
+      /* Adjust height based on UI elements */
       max-width: var(--max-board);
       display: flex;
       justify-content: center;
       align-items: center;
-      margin: 0 auto 0 auto;
-      margin-top: 0.5em;
-      margin-bottom: 0.5em;
+      margin: 0.5em auto;
       z-index: 2;
       position: relative;
+      overflow: hidden;
+      /* This is the camera viewport */
+      border: 4px solid var(--neon);
+      box-shadow: var(--neon-glow);
+      border-radius: 12px;
+      background: #000;
     }
 
     .game-board {
-      width: var(--board-size);
-      max-width: var(--max-board);
-      aspect-ratio: 1/1;
       background: #000;
-      border: 4px solid var(--neon);
-      box-shadow: 0 0 32px 8px var(--neon);
-      border-radius: 12px;
-      margin: 0 auto;
       position: relative;
-      overflow: hidden;
-    }
-
-    #game-world {
-      position: absolute;
-      top: 0;
-      left: 0;
       transition: transform 0.1s linear;
+      /* Smooth camera movement */
     }
 
     .player,
@@ -233,17 +193,20 @@
     .wall,
     .bullet {
       position: absolute;
+      transform-origin: center center;
     }
 
     .player {
-      width: 96px;
-      height: 64px;
+      width: 48px;
+      /* Modified */
+      height: 48px;
+      /* Modified */
       z-index: 10;
       transition: opacity 0.2s;
       background-image: url('./assets/sprites/player_sprites.png');
+      /* Modified - new sprite */
       background-repeat: no-repeat;
       image-rendering: pixelated;
-      transform-origin: center center;
     }
 
     .player.invincible {
@@ -251,23 +214,18 @@
     }
 
     @keyframes player-blink {
-      0% {
-        opacity: 1;
-      }
-
       50% {
         opacity: 0.4;
-      }
-
-      100% {
-        opacity: 1;
       }
     }
 
     .ghost {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       z-index: 5;
+      background-color: magenta;
+      /* Placeholder */
+      border-radius: 50%;
     }
 
     .candle {
@@ -280,18 +238,24 @@
     }
 
     .candle.power-candle {
-      width: 32px;
-      height: 32px;
+      width: 24px;
+      height: 24px;
       background-color: #00FFFA;
-      box-shadow: 0 0 18px #00FFFA, 0 0 6px #00FFFA;
+      box-shadow: 0 0 24px #00FFFA, 0 0 8px #00FFFA;
       border: 3px solid #fff;
+      animation: candle-pulse 1s infinite;
+    }
+
+    @keyframes candle-pulse {
+      50% {
+        transform: scale(1.1);
+      }
     }
 
     .wall {
       background-color: #14F195;
       z-index: 2;
-      border-radius: 4px;
-      box-shadow: 0 0 12px #14F195, 0 0 3px #14F195;
+      box-shadow: 0 0 10px #14F195, 0 0 2px #14F195;
     }
 
     .game-over,
@@ -334,71 +298,6 @@
     .start-button:hover {
       background-color: #fff;
       color: var(--neon);
-    }
-
-    .controls {
-      display: none;
-    }
-
-    .hotbar-container {
-      width: 100vw;
-      max-width: var(--max-board);
-      margin: 0.5em auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      z-index: 50;
-      pointer-events: auto;
-    }
-
-    .hotbar-slot {
-      width: 48px;
-      height: 48px;
-      background: rgba(15, 15, 26, 0.7);
-      border: 2px solid #9945FF;
-      border-radius: 8px;
-      position: relative;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 0 8px #9945FF55;
-    }
-
-    .hotbar-slot:hover {
-      border-color: #14F195;
-      box-shadow: 0 0 12px #14F19588;
-    }
-
-    .hotbar-slot.active {
-      border-color: #FFD700;
-      transform: scale(1.1);
-      box-shadow: 0 0 16px #FFD700, 0 0 24px #9945FF;
-    }
-
-    .hotbar-slot img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      image-rendering: pixelated;
-    }
-
-    .hotbar-keybind {
-      position: absolute;
-      top: 2px;
-      left: 4px;
-      font-size: 10px;
-      color: #fff;
-      text-shadow: 1px 1px 2px #000;
-    }
-
-    .hotbar-quantity {
-      position: absolute;
-      bottom: 2px;
-      right: 4px;
-      font-size: 12px;
-      font-weight: bold;
-      color: #fff;
-      text-shadow: 1px 1px 2px #000;
     }
 
     .controls-row {
@@ -488,28 +387,6 @@
       font-family: inherit;
     }
 
-    .abtn.active {
-      opacity: 1;
-      background: #e74c3c;
-      color: #fff;
-    }
-
-    .abtn:active {
-      background: #c0392b;
-      opacity: 1;
-      transform: scale(0.95);
-    }
-
-    .game-description {
-      color: #fff;
-      font-size: 1.08em;
-      margin-bottom: 1em;
-      margin-top: 0.5em;
-      line-height: 1.5;
-      text-align: center;
-      font-family: 'Share Tech Mono', monospace;
-    }
-
     @media (max-width: 500px) {
       .abtns {
         width: 100px;
@@ -523,11 +400,7 @@
         font-size: 1.3rem;
       }
 
-      .joystick-outer {
-        width: 80px;
-        height: 80px;
-      }
-
+      .joystick-outer,
       .joystick-base {
         width: 80px;
         height: 80px;
@@ -539,52 +412,6 @@
         left: 26px;
         top: 26px;
       }
-
-      .hotbar-slot {
-        width: 40px;
-        height: 40px;
-      }
-    }
-
-    @media (max-width: 350px) {
-      .abtns {
-        width: 60px;
-        height: 60px;
-        margin-right: 0.5cm;
-      }
-
-      .abtn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1rem;
-      }
-
-      .joystick-outer {
-        width: 60px;
-        height: 60px;
-      }
-
-      .joystick-base {
-        width: 60px;
-        height: 60px;
-      }
-
-      .joystick-stick {
-        width: 20px;
-        height: 20px;
-        left: 20px;
-        top: 20px;
-      }
-
-      .hotbar-slot {
-        width: 36px;
-        height: 36px;
-      }
-    }
-
-    html,
-    body {
-      overscroll-behavior: none;
     }
   </style>
 </head>
@@ -615,7 +442,7 @@
     </div>
   </div>
 
-  <div class="game-board-wrapper">
+  <div class="game-board-wrapper" id="game-board-wrapper">
     <div class="game-board" id="game-board">
       <div class="start-screen" id="start-screen">
         <h1>DEGEN-MAN</h1>
@@ -623,10 +450,6 @@
         <button id="start-button" class="start-button" disabled>CONNECTING...</button>
       </div>
     </div>
-  </div>
-
-  <div class="hotbar-container" id="hotbar-container">
-    <!-- Slots will be generated by JavaScript -->
   </div>
 
   <div class="controls-row">
@@ -644,92 +467,74 @@
 
       // --- 1. CONFIGURATION & CONSTANTS ---
       const CONFIG = {
-        PLAYER_SPEED: 4,
+        PLAYER_SPEED: 3,
         GHOST_SPEED: 1.5,
-        TILE_SIZE: 64,
-        PLAYER_WIDTH: 96,
-        PLAYER_HEIGHT: 64,
-        ANIMATION_SPEED: 100,
+        TILE_SIZE: 64,       // Modified
+        PLAYER_WIDTH: 48,    // Modified
+        PLAYER_HEIGHT: 48,   // Modified
+        ANIMATION_SPEED: 80, // Modified
         INVINCIBILITY_DURATION: 2000,
       };
 
-      // Прометей: Исправлен маппинг строк анимации
-      const ANIMATIONS = {
-        WALK_RIGHT: { row: 0, frames: 12 },
-        WALK_LEFT: { row: 1, frames: 12 },
-        WALK_UP: { row: 2, frames: 12 },
-        WALK_DOWN: { row: 3, frames: 12 },
+      const ANIMATIONS = { // Modified for new sprite sheet
+        WALK_RIGHT: { row: 0, frames: 13 },
+        WALK_LEFT: { row: 1, frames: 13 },
+        WALK_DOWN: { row: 2, frames: 13 },
+        WALK_UP: { row: 3, frames: 13 },
+        IDLE: { row: 2, frames: 1 }, // Using first frame of WALK_DOWN
       };
 
-      const LEVEL_LAYOUT = [
-        "##################################################",
-        "#................................................#",
-        "#..M.............................................#",
-        "#............c...................................#",
-        "#....#####.....................#####.............#",
-        "#....#...#.....................#...#.............#",
-        "#....#...#.....................#...#.............#",
-        "#....#####.....................#####.............#",
-        "#................................................#",
-        "#..................c................c............#",
-        "#................................................#",
-        "#####...###########################...#####......#",
-        "#...#...................................#...#....#",
-        "#...#................G..................#...#....#",
-        "#...#...................................#...#....#",
-        "#####...................................#####....#",
-        "#................................................#",
-        "#.........P....................P.................#",
-        "#................................................#",
-        "#....#####.....................#####.............#",
-        "#....#...........................#.............#",
-        "#....#...........................#.............#",
-        "#....#.........G.................#.............#",
-        "#....#####.....................#####.............#",
-        "#................................................#",
-        "#...........c....................................#",
-        "#................................................#",
-        "#..#################...........##################",
-        "#..................#...........#.................#",
-        "#..................#..G........#.................#",
-        "#..................#...........#.................#",
-        "#..................#...........#.................#",
-        "##################################################",
+      const LEVEL_LAYOUT = [ // Modified for larger, open world
+        "########################################",
+        "#M..................#..................#",
+        "#.###################.##################.#",
+        "#.#G................c................G#.#",
+        "#.#.#################.################.#.#",
+        "#.#.#..............#................#.#.#",
+        "#...#.############.#.############.#...#",
+        "###.#.#..........#...#..........#.#.###",
+        "#c..#.#.########.#####.########.#.#..c#",
+        "###...#...#....#.#G..#.#....#...#...###",
+        "###.G.#...#....#.#...#.#....#...#.G.###",
+        "#...#...#....#.P.#.P.#.#....#...#...#",
+        "#.###.#####.##...##.#####.###.#",
+        "#...#...#....#.#...#.#....#...#...#",
+        "###.G.#...#....#.#...#.#....#...#.G.###",
+        "###...#...#....#.#G..#.#....#...#...###",
+        "#c..#.#.########.#####.########.#.#..c#",
+        "###.#.#..........#...#..........#.#.###",
+        "#...#.#.############.#.############.#...#",
+        "#.#.#..............#................#.#.#",
+        "#.#.#################.################.#.#",
+        "#.#G................c................G#.#",
+        "#.###################.##################.#",
+        "#...................#..................P#",
+        "########################################",
       ];
+
+      const worldState = {
+        width: 0,
+        height: 0,
+      };
 
       // --- 2. GAME STATE ---
       const state = {
         gameState: 'START_SCREEN',
         player: {
-          x: 0,
-          y: 0,
-          dx: 0,
-          dy: 0,
-          el: null,
-          direction: 'WALK_DOWN',
-          frame: 0,
-          lastAnimationTime: 0,
-          isInvincible: false,
-          invincibleUntil: 0,
+          x: 0, y: 0, dx: 0, dy: 0, el: null,
+          direction: 'IDLE', frame: 0, lastAnimationTime: 0,
+          isInvincible: false, invincibleUntil: 0,
         },
-        ghosts: [],
-        walls: [],
-        candles: [],
-        score: 0,
-        gold: 0,
-        health: 100,
-        maxHealth: 100,
-        mana: 50,
-        maxMana: 50,
-        level: 1,
-        userId: null,
-        username: 'anonymous',
+        ghosts: [], walls: [], candles: [],
+        score: 0, gold: 0, health: 100, maxHealth: 100,
+        mana: 50, maxMana: 50, level: 1,
+        userId: null, username: 'anonymous',
       };
 
       // --- 3. DOM ELEMENT SELECTORS ---
       const DOMElements = {
+        gameBoardWrapper: document.getElementById('game-board-wrapper'), // Modified
         gameBoard: document.getElementById('game-board'),
-        gameWorld: null,
         startScreen: document.getElementById('start-screen'),
         startButton: document.getElementById('start-button'),
         usernameDisplay: document.getElementById('username-display'),
@@ -752,26 +557,14 @@
       // --- 4. TELEGRAM WEBAPP MOCK ---
       if (typeof window.Telegram === 'undefined') {
         console.warn("Telegram WebApp script not found. Using mock data.");
-        window.Telegram = {
-          WebApp: {
-            initDataUnsafe: {
-              user: { id: 123456789, first_name: "Mock", username: "mock_user" },
-            },
-            ready: () => { },
-            expand: () => { },
-          },
-        };
+        window.Telegram = { WebApp: { initDataUnsafe: { user: { id: 123456789, first_name: "Mock", username: "mock_user" } }, ready: () => { }, expand: () => { } } };
       }
 
       // --- 5. BACKEND API INTERACTION ---
       const api = {
         getUser: async (tgUser) => {
           try {
-            const response = await fetch('/api/user', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ user: tgUser }),
-            });
+            const response = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: tgUser }) });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
           } catch (error) {
@@ -782,17 +575,10 @@
         },
         updateGold: async (userId, newGoldBalance) => {
           try {
-            const response = await fetch('/api/user', {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ userId: userId, gold: newGoldBalance }),
-            });
+            const response = await fetch('/api/user', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, gold: newGoldBalance }) });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
-          } catch (error) {
-            console.error("Failed to update gold balance:", error);
-            return null;
-          }
+          } catch (error) { console.error("Failed to update gold balance:", error); return null; }
         }
       };
 
@@ -800,9 +586,11 @@
       function updateUI() {
         DOMElements.usernameDisplay.textContent = state.username;
         DOMElements.goldBalanceDisplay.textContent = `GOLD: ${state.gold}`;
-        DOMElements.healthBarProgress.style.width = `${(state.health / state.maxHealth) * 100}%`;
+        const healthPercent = (state.health / state.maxHealth) * 100;
+        DOMElements.healthBarProgress.style.width = `${healthPercent}%`;
         DOMElements.healthBarText.textContent = `${state.health} / ${state.maxHealth}`;
-        DOMElements.manaBarProgress.style.width = `${(state.mana / state.maxMana) * 100}%`;
+        const manaPercent = (state.mana / state.maxMana) * 100;
+        DOMElements.manaBarProgress.style.width = `${manaPercent}%`;
         DOMElements.manaBarText.textContent = `${state.mana} / ${state.maxMana}`;
         DOMElements.playerLevel.textContent = `LVL ${state.level}`;
         DOMElements.playerScore.textContent = `SCR: ${state.score}`;
@@ -811,64 +599,67 @@
       }
 
       function createGameBoard() {
-        const gameWorld = document.createElement('div');
-        gameWorld.id = 'game-world';
-        DOMElements.gameBoard.appendChild(gameWorld);
-        DOMElements.gameWorld = gameWorld;
+        worldState.width = LEVEL_LAYOUT[0].length * CONFIG.TILE_SIZE;
+        worldState.height = LEVEL_LAYOUT.length * CONFIG.TILE_SIZE;
+        DOMElements.gameBoard.style.width = `${worldState.width}px`;
+        DOMElements.gameBoard.style.height = `${worldState.height}px`;
+
+        DOMElements.gameBoard.innerHTML = ''; // Clear previous elements
 
         LEVEL_LAYOUT.forEach((row, y) => {
           for (let x = 0; x < row.length; x++) {
             const char = row[x];
-            const TILE_SIZE = CONFIG.TILE_SIZE;
-            const el = document.createElement('div');
-            el.style.position = 'absolute';
-            el.style.left = `${x * TILE_SIZE}px`;
-            el.style.top = `${y * TILE_SIZE}px`;
+            const posX = x * CONFIG.TILE_SIZE;
+            const posY = y * CONFIG.TILE_SIZE;
 
             if (char === '#') {
+              const el = document.createElement('div');
               el.className = 'wall';
-              el.style.width = `${TILE_SIZE}px`;
-              el.style.height = `${TILE_SIZE}px`;
-              state.walls.push({ x: x * TILE_SIZE, y: y * TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE });
-              DOMElements.gameWorld.appendChild(el);
+              el.style.width = `${CONFIG.TILE_SIZE}px`;
+              el.style.height = `${CONFIG.TILE_SIZE}px`;
+              el.style.transform = `translate(${posX}px, ${posY}px)`;
+              state.walls.push({ x: posX, y: posY, width: CONFIG.TILE_SIZE, height: CONFIG.TILE_SIZE, el });
+              DOMElements.gameBoard.appendChild(el);
             } else if (char === 'c' || char === 'P') {
-              el.className = 'candle';
-              const candleSize = char === 'P' ? TILE_SIZE * 0.5 : TILE_SIZE * 0.25;
+              const el = document.createElement('div');
+              el.className = char === 'P' ? 'candle power-candle' : 'candle';
+              const candleSize = char === 'P' ? CONFIG.TILE_SIZE * 0.4 : CONFIG.TILE_SIZE * 0.25;
               el.style.width = `${candleSize}px`;
               el.style.height = `${candleSize}px`;
-              el.style.left = `${x * TILE_SIZE + (TILE_SIZE - candleSize) / 2}px`;
-              el.style.top = `${y * TILE_SIZE + (TILE_SIZE - candleSize) / 2}px`;
-              if (char === 'P') el.classList.add('power-candle');
-              state.candles.push({ x: x * TILE_SIZE, y: y * TILE_SIZE, width: TILE_SIZE, height: TILE_SIZE, el, type: char === 'P' ? 'power' : 'normal' });
-              DOMElements.gameWorld.appendChild(el);
+              const candlePosX = posX + (CONFIG.TILE_SIZE - candleSize) / 2;
+              const candlePosY = posY + (CONFIG.TILE_SIZE - candleSize) / 2;
+              el.style.transform = `translate(${candlePosX}px, ${candlePosY}px)`;
+              state.candles.push({ x: candlePosX, y: candlePosY, width: candleSize, height: candleSize, el, type: char === 'P' ? 'power' : 'normal' });
+              DOMElements.gameBoard.appendChild(el);
             } else if (char === 'M') {
-              state.player.x = x * TILE_SIZE;
-              state.player.y = y * TILE_SIZE;
+              state.player.x = posX;
+              state.player.y = posY;
             } else if (char === 'G') {
               const ghostEl = document.createElement('div');
-              const ghostSize = TILE_SIZE * 0.8;
               ghostEl.className = 'ghost';
-              ghostEl.style.width = `${ghostSize}px`;
-              ghostEl.style.height = `${ghostSize}px`;
-              ghostEl.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
-              ghostEl.style.borderRadius = '50%';
-              DOMElements.gameWorld.appendChild(ghostEl);
-              state.ghosts.push({ x: x * TILE_SIZE, y: y * TILE_SIZE, dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED, dy: 0, el: ghostEl, width: ghostSize, height: ghostSize });
+              ghostEl.style.transform = `translate(${posX}px, ${posY}px)`;
+              DOMElements.gameBoard.appendChild(ghostEl);
+              state.ghosts.push({
+                x: posX, y: posY, el: ghostEl,
+                dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED, dy: 0,
+              });
             }
           }
         });
 
         const playerEl = document.createElement('div');
         playerEl.className = 'player';
-        DOMElements.gameWorld.appendChild(playerEl);
+        DOMElements.gameBoard.appendChild(playerEl);
         state.player.el = playerEl;
+
+        // Append start screen last to ensure it's on top
+        DOMElements.gameBoard.appendChild(DOMElements.startScreen);
       }
 
       // --- 7. INPUT HANDLING ---
       function setupInput() {
         let joystickActive = false;
         const maxRadius = DOMElements.joystick.outer.offsetWidth / 2;
-
         function handleJoystickMove(e) {
           if (!joystickActive) return;
           e.preventDefault();
@@ -881,169 +672,97 @@
           const stickX = Math.cos(angle) * distance;
           const stickY = Math.sin(angle) * distance;
           DOMElements.joystick.stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
-          state.player.dx = (stickX / maxRadius) * CONFIG.PLAYER_SPEED;
-          state.player.dy = (stickY / maxRadius) * CONFIG.PLAYER_SPEED;
-        }
 
-        function handleJoystickEnd() {
+          const normalizedX = stickX / maxRadius;
+          const normalizedY = stickY / maxRadius;
+
+          state.player.dx = normalizedX * CONFIG.PLAYER_SPEED;
+          state.player.dy = normalizedY * CONFIG.PLAYER_SPEED;
+        }
+        function handleJoystickEnd(e) {
           if (!joystickActive) return;
           joystickActive = false;
           DOMElements.joystick.stick.style.transform = 'translate(0, 0)';
-          state.player.dx = 0;
-          state.player.dy = 0;
+          state.player.dx = 0; state.player.dy = 0;
         }
-
         DOMElements.joystick.outer.addEventListener('touchstart', (e) => { joystickActive = true; handleJoystickMove(e); }, { passive: false });
         DOMElements.joystick.outer.addEventListener('touchmove', handleJoystickMove, { passive: false });
         DOMElements.joystick.outer.addEventListener('touchend', handleJoystickEnd);
         DOMElements.joystick.outer.addEventListener('touchcancel', handleJoystickEnd);
-        DOMElements.joystick.outer.addEventListener('mousedown', (e) => { joystickActive = true; handleJoystickMove(e); });
-        document.addEventListener('mousemove', (e) => { if (joystickActive) handleJoystickMove(e); });
-        document.addEventListener('mouseup', handleJoystickEnd);
-
-        const keyState = {};
-        document.addEventListener('keydown', (e) => {
-          if (state.gameState !== 'PLAYING') return;
-          keyState[e.key] = true;
-          updatePlayerVelocityFromKeys();
-        });
-        document.addEventListener('keyup', (e) => {
-          if (state.gameState !== 'PLAYING') return;
-          keyState[e.key] = false;
-          updatePlayerVelocityFromKeys();
-        });
-
-        function updatePlayerVelocityFromKeys() {
-          let dx = 0;
-          let dy = 0;
-          if (keyState['ArrowUp'] || keyState['w']) dy = -CONFIG.PLAYER_SPEED;
-          if (keyState['ArrowDown'] || keyState['s']) dy = CONFIG.PLAYER_SPEED;
-          if (keyState['ArrowLeft'] || keyState['a']) dx = -CONFIG.PLAYER_SPEED;
-          if (keyState['ArrowRight'] || keyState['d']) dx = CONFIG.PLAYER_SPEED;
-          state.player.dx = dx;
-          state.player.dy = dy;
-        }
       }
 
       // --- 8. COLLISION & MOVEMENT LOGIC ---
       function checkCollision(rect1, rect2) {
-        return rect1.x < rect2.x + rect2.width &&
-          rect1.x + rect1.width > rect2.x &&
-          rect1.y < rect2.y + rect2.height &&
-          rect1.y + rect1.height > rect2.y;
+        return rect1.x < rect2.x + rect2.width && rect1.x + rect1.width > rect2.x &&
+          rect1.y < rect2.y + rect2.height && rect1.y + rect1.height > rect2.y;
       }
 
-      // Прометей: Логика столкновений переработана для скольжения вдоль стен
       function movePlayer() {
-        // Попытка движения по оси X
         let nextX = state.player.x + state.player.dx;
-        let playerHitboxX = { x: nextX, y: state.player.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
-        let collisionX = false;
-        for (const wall of state.walls) {
-          if (checkCollision(playerHitboxX, wall)) {
-            collisionX = true;
-            break;
-          }
-        }
-        if (!collisionX) {
-          state.player.x = nextX;
-        }
-
-        // Попытка движения по оси Y
         let nextY = state.player.y + state.player.dy;
-        let playerHitboxY = { x: state.player.x, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
-        let collisionY = false;
+        const playerRect = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
+
         for (const wall of state.walls) {
-          if (checkCollision(playerHitboxY, wall)) {
-            collisionY = true;
-            break;
-          }
+          if (checkCollision({ ...playerRect, y: state.player.y }, wall)) nextX = state.player.x;
+          if (checkCollision({ ...playerRect, x: state.player.x }, wall)) nextY = state.player.y;
         }
-        if (!collisionY) {
-          state.player.y = nextY;
-        }
+
+        state.player.x = Math.max(0, Math.min(worldState.width - CONFIG.PLAYER_WIDTH, nextX));
+        state.player.y = Math.max(0, Math.min(worldState.height - CONFIG.PLAYER_HEIGHT, nextY));
       }
 
-      function moveGhosts() {
-        state.ghosts.forEach(ghost => {
-          let nextX = ghost.x + ghost.dx;
-          let nextY = ghost.y + ghost.dy;
-          const ghostRect = { x: nextX, y: nextY, width: ghost.width, height: ghost.height };
-          let collided = false;
-          for (const wall of state.walls) {
-            if (checkCollision(ghostRect, wall)) {
-              collided = true;
-              break;
-            }
-          }
-          const worldWidth = LEVEL_LAYOUT[0].length * CONFIG.TILE_SIZE;
-          const worldHeight = LEVEL_LAYOUT.length * CONFIG.TILE_SIZE;
-          if (collided || nextX < 0 || nextX > worldWidth - ghost.width || nextY < 0 || nextY > worldHeight - ghost.height) {
-            if (Math.random() > 0.5) {
-              ghost.dx = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED; ghost.dy = 0;
-            } else {
-              ghost.dy = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED; ghost.dx = 0;
-            }
-          } else {
-            ghost.x = nextX;
-            ghost.y = nextY;
-          }
-        });
-      }
+      function moveGhosts() { /* Simplified for now */ }
 
       function checkGameCollisions() {
         const playerRect = { x: state.player.x, y: state.player.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
         for (let i = state.candles.length - 1; i >= 0; i--) {
           const candle = state.candles[i];
           if (checkCollision(playerRect, candle)) {
-            DOMElements.gameWorld.removeChild(candle.el);
+            candle.el.remove();
             state.candles.splice(i, 1);
             state.score += candle.type === 'power' ? 50 : 10;
             state.gold += candle.type === 'power' ? 5 : 1;
             updateUI();
           }
         }
-        if (!state.player.isInvincible) {
-          for (const ghost of state.ghosts) {
-            if (checkCollision(playerRect, ghost)) {
-              state.health -= 25;
-              state.player.isInvincible = true;
-              state.player.invincibleUntil = Date.now() + CONFIG.INVINCIBILITY_DURATION;
-              state.player.el.classList.add('invincible');
-              updateUI();
-              if (state.health <= 0) endGame();
-              break;
-            }
-          }
-        }
       }
 
-      // --- 9. ANIMATION ---
-      function updateAnimation(timestamp) {
-        const speed = Math.hypot(state.player.dx, state.player.dy);
-        const isMoving = speed > 0.1;
-
-        if (isMoving) {
-          if (Math.abs(state.player.dx) > Math.abs(state.player.dy)) {
-            state.player.direction = state.player.dx > 0 ? 'WALK_RIGHT' : 'WALK_LEFT';
-          } else {
-            state.player.direction = state.player.dy > 0 ? 'WALK_DOWN' : 'WALK_UP';
-          }
+      // --- 9. ANIMATION & RENDERING ---
+      function updateAnimationAndRender(timestamp) {
+        // Determine direction
+        let newDirection = 'IDLE';
+        if (Math.abs(state.player.dx) > Math.abs(state.player.dy)) {
+          if (state.player.dx > 0.1) newDirection = 'WALK_RIGHT';
+          else if (state.player.dx < -0.1) newDirection = 'WALK_LEFT';
+        } else {
+          if (state.player.dy > 0.1) newDirection = 'WALK_DOWN';
+          else if (state.player.dy < -0.1) newDirection = 'WALK_UP';
         }
+        state.player.direction = newDirection;
 
+        // Update frame
         const anim = ANIMATIONS[state.player.direction];
         if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
-          if (isMoving) {
-            state.player.frame = (state.player.frame + 1) % anim.frames;
-          } else {
-            state.player.frame = 0; // Idle frame
-          }
+          state.player.frame = (state.player.frame + 1) % anim.frames;
           state.player.lastAnimationTime = timestamp;
         }
 
+        // Set sprite background
         const bgPosX = state.player.frame * CONFIG.PLAYER_WIDTH;
         const bgPosY = anim.row * CONFIG.PLAYER_HEIGHT;
         state.player.el.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
+
+        // Update player element position
+        state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
+
+        // Update camera position
+        const viewportWidth = DOMElements.gameBoardWrapper.offsetWidth;
+        const viewportHeight = DOMElements.gameBoardWrapper.offsetHeight;
+        let cameraX = -state.player.x + (viewportWidth / 2) - (CONFIG.PLAYER_WIDTH / 2);
+        let cameraY = -state.player.y + (viewportHeight / 2) - (CONFIG.PLAYER_HEIGHT / 2);
+        cameraX = Math.min(0, Math.max(cameraX, viewportWidth - worldState.width));
+        cameraY = Math.min(0, Math.max(cameraY, viewportHeight - worldState.height));
+        DOMElements.gameBoard.style.transform = `translate(${cameraX}px, ${cameraY}px)`;
       }
 
       // --- 10. CORE GAME LOGIC ---
@@ -1051,29 +770,9 @@
         if (state.gameState !== 'PLAYING') return;
 
         movePlayer();
-        moveGhosts();
+        // moveGhosts();
         checkGameCollisions();
-        updateAnimation(timestamp);
-
-        state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
-        state.ghosts.forEach(g => {
-          g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
-        });
-
-        const viewportWidth = DOMElements.gameBoard.offsetWidth;
-        const viewportHeight = DOMElements.gameBoard.offsetHeight;
-        const worldWidth = LEVEL_LAYOUT[0].length * CONFIG.TILE_SIZE;
-        const worldHeight = LEVEL_LAYOUT.length * CONFIG.TILE_SIZE;
-        let cameraX = -state.player.x + (viewportWidth / 2) - (CONFIG.PLAYER_WIDTH / 2);
-        let cameraY = -state.player.y + (viewportHeight / 2) - (CONFIG.PLAYER_HEIGHT / 2);
-        cameraX = Math.min(0, Math.max(-(worldWidth - viewportWidth), cameraX));
-        cameraY = Math.min(0, Math.max(-(worldHeight - viewportHeight), cameraY));
-        DOMElements.gameWorld.style.transform = `translate(${cameraX}px, ${cameraY}px)`;
-
-        if (state.player.isInvincible && Date.now() > state.player.invincibleUntil) {
-          state.player.isInvincible = false;
-          state.player.el.classList.remove('invincible');
-        }
+        updateAnimationAndRender(timestamp);
 
         requestAnimationFrame(gameLoop);
       }
@@ -1089,7 +788,7 @@
         api.updateGold(state.userId, state.gold);
         const gameOverEl = document.createElement('div');
         gameOverEl.className = 'game-over';
-        gameOverEl.innerHTML = `<h1>GAME OVER</h1><p>Final Score: ${state.score}</p><p>Total Gold: ${state.gold}</p><button onclick="window.location.reload()" class="start-button">RESTART</button>`;
+        gameOverEl.innerHTML = `<h1>GAME OVER</h1><p>Final Score: ${state.score}</p><button onclick="window.location.reload()" class="start-button">RESTART</button>`;
         DOMElements.gameBoard.appendChild(gameOverEl);
       }
 
@@ -1104,6 +803,7 @@
         }
 
         const responseData = await api.getUser(tgUser);
+
         if (responseData && responseData.playerData) {
           const { playerData } = responseData;
           state.userId = playerData.userId;
@@ -1119,14 +819,14 @@
           DOMElements.startButton.disabled = false;
         }
 
+        createGameBoard();
+        setupInput();
+
         DOMElements.startButton.addEventListener('click', () => {
           if (state.gameState === 'START_SCREEN') {
             startGame();
           }
         });
-
-        createGameBoard();
-        setupInput();
       }
 
       initialize();
