@@ -34,7 +34,7 @@
 
     .console-header {
       width: 100vw;
-      max-width: var(--max-board);
+      max-width: 420px;
       margin: 0 auto;
       margin-top: 12px;
       margin-bottom: 0;
@@ -296,9 +296,11 @@
       width: 32px;
       height: 32px;
       z-index: 10;
+      /* ПРОМЕТЕЙ: Исправленный путь к спрайту */
       background-image: url('./assets/sprites/player_sprites.png');
       background-repeat: no-repeat;
       image-rendering: pixelated;
+      transform-origin: center center;
       transition: opacity 0.2s;
     }
 
@@ -321,14 +323,14 @@
     }
 
     .ghost {
-      width: 32px;
-      height: 32px;
+      width: 15px;
+      height: 15px;
       z-index: 5;
     }
 
     .candle {
-      width: 8px;
-      height: 8px;
+      width: 4px;
+      height: 4px;
       z-index: 3;
       border-radius: 50%;
       background-color: #FFD700;
@@ -336,16 +338,16 @@
     }
 
     .candle.power-candle {
-      width: 16px;
-      height: 16px;
+      width: 10px;
+      height: 10px;
       background-color: #00FFFA;
       box-shadow: 0 0 12px #00FFFA, 0 0 4px #00FFFA;
       border: 2px solid #fff;
     }
 
     .candle.big-candle {
-      width: 16px !important;
-      height: 16px !important;
+      width: 10px !important;
+      height: 10px !important;
       background: #FFD700;
       border: 2px solid #FF4500;
       box-shadow: 0 0 14px #FFD700, 0 0 6px #FF4500;
@@ -455,8 +457,8 @@
     }
 
     .bullet {
-      width: 10px;
-      height: 10px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: #00FFFA;
       box-shadow: 0 0 8px #00FFFA;
@@ -892,14 +894,23 @@
 
     // --- Web Audio API ---
     let audioCtx;
+
     function playTone(freq, duration = 0.1, type = "sine", volume = 0.2) {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-      osc.type = type; osc.frequency.value = freq; gain.gain.value = volume;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = volume;
       osc.connect(gain).connect(audioCtx.destination);
-      osc.start(); osc.stop(audioCtx.currentTime + duration);
-      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+      osc.onended = () => {
+        osc.disconnect();
+        gain.disconnect();
+      };
     }
+
     function playCandleSound() { playTone(880, 0.07, "triangle", 0.15); }
     function playPowerCandleSound() { playTone(440, 0.18, "square", 0.18); }
     function playBigCandleSound() { playTone(523, 0.25, "sine", 0.2); playTone(659, 0.25, "sine", 0.2); }
@@ -927,35 +938,309 @@
     }
 
     // --- Translation System ---
-    const translations = { ru: {}, en: {}, es: {}, de: {}, fr: {}, it: {}, zh: {}, ua: {} };
+    const translations = {
+      ru: {
+        questPrompt: `Придумай короткое уникальное задание для аркадной игры в стиле Pac-Man. Используй только такие игровые объекты: свечи (зелёные, синие, красные, жёлтые, фиолетовые, золотые), коллекционные свечи, призраки. Не придумывай новые предметы, которых нет в этом списке. Формат задания: одна строка, без приветствий и пояснений.`,
+        poorLabel: "$POOR:",
+        livesLabel: "LIVES:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
+        levelLabel: "LEVEL",
+        collectionLabel: "Collection:",
+        gameDescription: `Играй, выполняй задания и получай бесплатный лотерейный билет!<br>Собирай зелёные свечи, избегай F.U.D.<br><span style="color:#14F195;">Сила-свеча:</span> стреляй с помощью Пробела, J или A.`,
+        startGameBtn: "START GAME",
+        gameOverTitle: "GAME OVER",
+        finalScoreLabel: "Final Score:",
+        levelReachedLabel: "Level Reached:",
+        tryAgainBtn: "TRY AGAIN",
+        completeLabel: "COMPLETE!",
+        currentScoreLabel: "Current Score:",
+        nextLevelMsg: "Get ready for the next level...",
+        questLabel: "Quest",
+        generatingQuest: "Generating quest...",
+        questFetchError: "Failed to load quest.",
+        fomoPopupCollect: "Collection Candle! ({name})<br>Collect it in 10 seconds!",
+        fomoPopupBigCandle: "Big candle! Collect it in 10 seconds for +100 $POOR!",
+        fomoPopupMissedCollection: "You missed the Collection Candle!",
+        fomoPopupMissedBig: "Big candle disappeared!",
+        fomoTimer: "Time left: {seconds} sec.",
+        collectedNew: "New Candle Collected! Complete the set for a secret reward!",
+        collectedAgain: "Collection Candle collected again!",
+        bigCandleBonus: "+100 $POOR for big candle!",
+        questDefaultFallback: "Collect all the candles!",
+      },
+      en: {
+        questPrompt: `Come up with a short unique quest for an arcade game in the style of Pac-Man. Use only these game objects: candles (green, blue, red, yellow, purple, gold), collectible candles, ghosts. Do not invent new items not in this list. The quest should be one line, no greetings or explanations.`,
+        poorLabel: "$POOR:",
+        livesLabel: "LIVES:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
+        levelLabel: "LEVEL",
+        collectionLabel: "Collection:",
+        gameDescription: `Play, complete quests, and get a free lottery ticket!<br>Collect green candles, avoid F.U.D.<br><span style="color:#14F195;">Power-candle:</span> shoot with Space, J or A.`,
+        startGameBtn: "START GAME",
+        gameOverTitle: "GAME OVER",
+        finalScoreLabel: "Final Score:",
+        levelReachedLabel: "Level Reached:",
+        tryAgainBtn: "TRY AGAIN",
+        completeLabel: "COMPLETE!",
+        currentScoreLabel: "Current Score:",
+        nextLevelMsg: "Get ready for the next level...",
+        questLabel: "Quest",
+        generatingQuest: "Generating quest...",
+        questFetchError: "Failed to load quest.",
+        fomoPopupCollect: "Collection Candle! ({name})<br>Collect it in 10 seconds!",
+        fomoPopupBigCandle: "Big candle! Collect it in 10 seconds for +100 $POOR bonus!",
+        fomoPopupMissedCollection: "You missed the Collection Candle!",
+        fomoPopupMissedBig: "Big candle disappeared!",
+        fomoTimer: "Time left: {seconds} sec.",
+        collectedNew: "New Candle Collected! Complete the set for a secret reward!",
+        collectedAgain: "Collection Candle collected again!",
+        bigCandleBonus: "+100 $POOR for big candle!",
+        questDefaultFallback: "Collect all the candles!",
+      },
+      es: {
+        questPrompt: `Crea una misión corta y única para un juego tipo Pac-Man. Usa solo estos objetos: velas (verde, azul, roja, amarilla, púrpura, dorada), velas coleccionables, fantasmas. No inventes objetos nuevos. La misión debe ser una línea, sin saludos.`,
+        poorLabel: "$POOR:",
+        livesLabel: "VIDAS:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
+        levelLabel: "NIVEL",
+        collectionLabel: "Colección:",
+        gameDescription: `¡Juega, completa misiones y consigue un ticket de lotería gratis!<br>Recoge velas verdes, evita a los F.U.D.<br><span style="color:#14F195;">Vela de poder:</span> dispara con Espacio, J o A.`,
+        startGameBtn: "EMPEZAR JUEGO",
+        gameOverTitle: "JUEGO TERMINADO",
+        finalScoreLabel: "Puntuación Final:",
+        levelReachedLabel: "Nivel Alcanzado:",
+        tryAgainBtn: "INTENTAR DE NUEVO",
+        completeLabel: "¡COMPLETADO!",
+        currentScoreLabel: "Puntuación Actual:",
+        nextLevelMsg: "Prepárate para el siguiente nivel...",
+        questLabel: "Misión",
+        generatingQuest: "Generando misión...",
+        questFetchError: "Fallo al cargar la misión.",
+        fomoPopupCollect: "¡Vela de Colección! ({name})<br>¡Recógela en 10 segundos!",
+        fomoPopupBigCandle: "¡Vela grande! ¡Recógela en 10s por +100 $POOR!",
+        fomoPopupMissedCollection: "¡Perdiste la vela de colección!",
+        fomoPopupMissedBig: "¡La vela grande desapareció!",
+        fomoTimer: "Tiempo: {seconds} seg.",
+        collectedNew: "¡Nueva vela en la colección! ¡Complétalas todas para un premio!",
+        collectedAgain: "¡Vela de colección recogida de nuevo!",
+        bigCandleBonus: "¡+100 $POOR por la vela grande!",
+        questDefaultFallback: "¡Recoge todas las velas!",
+      },
+      de: {
+        questPrompt: `Erfinde eine kurze, einzigartige Aufgabe für ein Arcade-Spiel im Pac-Man-Stil. Verwende nur diese Spielobjekte: Kerzen (grün, blau, rot, gelb, lila, gold), Sammelkerzen, Geister. Erfinde keine neuen Gegenstände. Die Aufgabe sollte eine Zeile sein.`,
+        poorLabel: "$POOR:",
+        livesLabel: "LEBEN:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
+        levelLabel: "LEVEL",
+        collectionLabel: "Sammlung:",
+        gameDescription: `Spiele, erfülle Quests und erhalte ein kostenloses Lotterielos!<br>Sammle grüne Kerzen, meide F.U.D.<br><span style="color:#14F195;">Power-Kerze:</span> Schieße mit Leertaste, J oder A.`,
+        startGameBtn: "SPIEL STARTEN",
+        gameOverTitle: "SPIEL VORBEI",
+        finalScoreLabel: "Endstand:",
+        levelReachedLabel: "Erreichtes Level:",
+        tryAgainBtn: "ERNEUT VERSUCHEN",
+        completeLabel: "ABGESCHLOSSEN!",
+        currentScoreLabel: "Aktueller Punktestand:",
+        nextLevelMsg: "Mach dich bereit für das nächste Level...",
+        questLabel: "Quest",
+        generatingQuest: "Quest wird generiert...",
+        questFetchError: "Quest konnte nicht geladen werden.",
+        fomoPopupCollect: "Sammelkerze! ({name})<br>Sammle sie in 10 Sekunden!",
+        fomoPopupBigCandle: "Große Kerze! Sammle sie in 10 Sekunden für +100 $POOR Bonus!",
+        fomoPopupMissedCollection: "Du hast die Sammelkerze verpasst!",
+        fomoPopupMissedBig: "Die große Kerze ist verschwunden!",
+        fomoTimer: "Verbleibende Zeit: {seconds} Sek.",
+        collectedNew: "Neue Kerze gesammelt! Vervollständige das Set für eine Belohnung!",
+        collectedAgain: "Sammelkerze erneut gesammelt!",
+        bigCandleBonus: "+100 $POOR für die große Kerze!",
+        questDefaultFallback: "Sammle alle Kerzen!",
+      },
+      fr: {
+        questPrompt: `Invente une quête courte et unique pour un jeu d'arcade de style Pac-Man. Utilise uniquement ces objets de jeu : bougies (vert, bleu, rouge, jaune, violet, or), bougies de collection, fantômes. N'invente pas de nouveaux objets. La quête doit être une seule ligne.`,
+        poorLabel: "$POOR:",
+        livesLabel: "VIES:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
+        levelLabel: "NIVEAU",
+        collectionLabel: "Collection:",
+        gameDescription: `Jouez, accomplissez des quêtes et obtenez un ticket de loterie gratuit !<br>Récupérez les bougies vertes, évitez les F.U.D.<br><span style="color:#14F195;">Super-bougie :</span> tirez avec Espace, J ou A.`,
+        startGameBtn: "COMMENCER À JOUER",
+        gameOverTitle: "PARTIE TERMINÉE",
+        finalScoreLabel: "Score final :",
+        levelReachedLabel: "Niveau atteint :",
+        tryAgainBtn: "RÉESSAYER",
+        completeLabel: "TERMINÉ !",
+        currentScoreLabel: "Score actuel :",
+        nextLevelMsg: "Préparez-vous pour le prochain niveau...",
+        questLabel: "Quête",
+        generatingQuest: "Génération de la quête...",
+        questFetchError: "Échec du chargement de la quête.",
+        fomoPopupCollect: "Bougie de collection ! ({name})<br>Récupérez-la en 10 secondes !",
+        fomoPopupBigCandle: "Grosse bougie ! Récupérez-la en 10 secondes pour un bonus de +100 $POOR !",
+        fomoPopupMissedCollection: "Vous avez manqué la bougie de collection !",
+        fomoPopupMissedBig: "La grosse bougie a disparu !",
+        fomoTimer: "Temps restant : {seconds} sec.",
+        collectedNew: "Nouvelle bougie collectée ! Complétez l'ensemble pour une récompense secrète !",
+        collectedAgain: "Bougie de collection récupérée à nouveau !",
+        bigCandleBonus: "+100 $POOR pour la grosse bougie !",
+        questDefaultFallback: "Collectez toutes les bougies !",
+      },
+      it: {
+        questPrompt: `Inventa una missione breve e unica per un gioco arcade in stile Pac-Man. Usa solo questi oggetti di gioco: candele (verdi, blu, rosse, gialle, viola, oro), candele da collezione, fantasmi. Non inventare nuovi oggetti. La missione deve essere una sola riga.`,
+        poorLabel: "$POOR:",
+        livesLabel: "VITE:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
+        levelLabel: "LIVELLO",
+        collectionLabel: "Collezione:",
+        gameDescription: `Gioca, completa le missioni e ottieni un biglietto della lotteria gratuito!<br>Raccogli le candele verdi, evita i F.U.D.<br><span style="color:#14F195;">Super-candela:</span> spara con Spazio, J o A.`,
+        startGameBtn: "INIZIA PARTITA",
+        gameOverTitle: "GIOCO FINITO",
+        finalScoreLabel: "Punteggio finale:",
+        levelReachedLabel: "Livello raggiunto:",
+        tryAgainBtn: "RIPROVA",
+        completeLabel: "COMPLETATO!",
+        currentScoreLabel: "Punteggio attuale:",
+        nextLevelMsg: "Preparati per il prossimo livello...",
+        questLabel: "Missione",
+        generatingQuest: "Generazione missione...",
+        questFetchError: "Impossibile caricare la missione.",
+        fomoPopupCollect: "Candela da collezione! ({name})<br>Raccoglila in 10 secondi!",
+        fomoPopupBigCandle: "Candela grande! Raccoglila in 10 secondi per +100 $POOR di bonus!",
+        fomoPopupMissedCollection: "Hai perso la candela da collezione!",
+        fomoPopupMissedBig: "La candela grande è scomparsa!",
+        fomoTimer: "Tempo rimasto: {seconds} sec.",
+        collectedNew: "Nuova candela raccolta! Completa il set per una ricompensa segreta!",
+        collectedAgain: "Candela da collezione raccolta di nuovo!",
+        bigCandleBonus: "+100 $POOR per la candela grande!",
+        questDefaultFallback: "Raccogli tutte le candele!",
+      },
+      zh: {
+        questPrompt: `为一款吃豆人风格的街机游戏设计一个简短而独特的任务。只使用这些游戏对象：蜡烛（绿色、蓝色、红色、黄色、紫色、金色）、收藏蜡烛、鬼魂。不要发明新物品。任务应该只有一行。`,
+        poorLabel: "$POOR:",
+        livesLabel: "生命:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
+        levelLabel: "等级",
+        collectionLabel: "收藏:",
+        gameDescription: `玩游戏，完成任务，获取免费彩票！<br>收集绿色蜡烛，躲避F.U.D。<br><span style="color:#14F195;">能量蜡烛:</span> 使用空格, J或A键射击。`,
+        startGameBtn: "开始游戏",
+        gameOverTitle: "游戏结束",
+        finalScoreLabel: "最终得分:",
+        levelReachedLabel: "达到等级:",
+        tryAgainBtn: "再试一次",
+        completeLabel: "完成！",
+        currentScoreLabel: "当前得分:",
+        nextLevelMsg: "准备好进入下一关...",
+        questLabel: "任务",
+        generatingQuest: "正在生成任务...",
+        questFetchError: "加载任务失败。",
+        fomoPopupCollect: "收藏蜡烛！({name})<br>在10秒内收集它！",
+        fomoPopupBigCandle: "大蜡烛！在10秒内收集它以获得+100 $POOR奖励！",
+        fomoPopupMissedCollection: "您错过了收藏蜡烛！",
+        fomoPopupMissedBig: "大蜡烛消失了！",
+        fomoTimer: "剩余时间: {seconds}秒",
+        collectedNew: "收集到新的蜡烛！集齐所有以获得神秘奖励！",
+        collectedAgain: "再次收集到收藏蜡烛！",
+        bigCandleBonus: "大蜡烛奖励+100 $POOR！",
+        questDefaultFallback: "收集所有蜡烛！",
+      },
+      ua: {
+        questPrompt: `Придумай коротке унікальне завдання для аркадної гри в стилі Pac-Man. Використовуй тільки такі ігрові об'єкти: свічки (зелені, сині, червоні, жовті, фіолетові, золоті), колекційні свічки, привиди. Не вигадуй нових предметів. Завдання має бути одним рядком.`,
+        poorLabel: "$POOR:",
+        livesLabel: "ЖИТТЯ:",
+        healthLabel: "HP:",
+        manaLabel: "MP:",
+        levelLabel: "РІВЕНЬ",
+        collectionLabel: "Колекція:",
+        gameDescription: `Грай, виконуй завдання та отримуй безкоштовний лотерейний квиток!<br>Збирай зелені свічки, уникай F.U.D.<br><span style="color:#14F195;">Силова-свічка:</span> стріляй за допомогою Пробілу, J або A.`,
+        startGameBtn: "ПОЧАТИ ГРУ",
+        gameOverTitle: "ГРУ ЗАВЕРШЕНО",
+        finalScoreLabel: "Підсумковий рахунок:",
+        levelReachedLabel: "Досягнутий рівень:",
+        tryAgainBtn: "СПРОБУВАТИ ЩЕ",
+        completeLabel: "ПРОЙДЕНО!",
+        currentScoreLabel: "Поточний рахунок:",
+        nextLevelMsg: "Приготуйтеся до наступного рівня...",
+        questLabel: "Завдання",
+        generatingQuest: "Генерація завдання...",
+        questFetchError: "Не вдалося завантажити завдання.",
+        fomoPopupCollect: "Колекційна свічка! ({name})<br>Збери її за 10 секунд!",
+        fomoPopupBigCandle: "Велика свічка! Збери її за 10 секунд і отримай +100 $POOR!",
+        fomoPopupMissedCollection: "Ти пропустив колекційну свічку!",
+        fomoPopupMissedBig: "Велика свічка зникла!",
+        fomoTimer: "Залишилось: {seconds} сек.",
+        collectedNew: "Нова свічка в колекції! Збери всі для секретної нагороди!",
+        collectedAgain: "Колекційну свічку зібрано знову!",
+        bigCandleBonus: "+100 $POOR за велику свічку!",
+        questDefaultFallback: "Збери всі свічки!",
+      },
+    };
     let currentLang = 'ru';
-    function translateUI() { }
-    function getTranslation(key, params = {}) { return key; }
 
-    // --- ПРОМЕТЕЙ: Новые константы Вселенной v14.0 ---
-    const CELL_SIZE = 32;
-    const GRID_WIDTH = 20;
-    const GRID_HEIGHT = 20;
-    const PLAYER_SIZE = 32;
-    const GHOST_SIZE = 32;
-    const CANDLE_SIZE = 8;
-    const POWER_CANDLE_SIZE = 16;
-    const BOARD_WIDTH = GRID_WIDTH * CELL_SIZE;   // 640
-    const BOARD_HEIGHT = GRID_HEIGHT * CELL_SIZE; // 640
-    // ------------------------------------------------
+    function translateUI() {
+      document.querySelectorAll('[data-translate-key]').forEach(el => {
+        const key = el.dataset.translateKey;
+        const translation = translations[currentLang]?.[key] || translations['en']?.[key] || key;
+        if (translation) {
+          el.innerHTML = translation;
+        }
+      });
+      updateCollectionProfile();
+      if (currentQuest) {
+        showQuest(currentQuest);
+      }
+    }
 
-    const wallStyles = [{ color: "#27ae60", shadow: "#145a32", radius: "8px" }];
+    function getTranslation(key, params = {}) {
+      let str = translations[currentLang]?.[key] || translations['en']?.[key] || key;
+      for (const [param, value] of Object.entries(params)) {
+        str = str.replace(`{${param}}`, value);
+      }
+      return str;
+    }
+
+    const wallStyles = [
+      { color: "#27ae60", shadow: "#145a32", radius: "8px", texture: "none" },
+      { color: "#39ff14", shadow: "#0f3d0f", radius: "12px", texture: "none" },
+      { color: "#4CAF50", shadow: "#1B5E20", radius: "20px", texture: "none" },
+    ];
     const mazeLayouts = [
       [
-        "####################", "#..................#", "#.##.###.##.###.##.#", "#.#..............#.#",
-        "#.##.##.####.##.##.#", "#....*...##...*....#", "#.##.#.#.##.#.#.##.#", "#....#...##...#....#",
-        "#.##.######.##.##.#", ".........P.........", "#.##.######.##.##.#", "#....#...##...#....#",
-        "#.##.#.#.##.#.#.##.#", "#....*...##...*....#", "#.##.##.####.##.##.#", "#.#..............#.#",
-        "#.##.###.##.###.##.#", "#..................#", "####################"
-      ]
+        "#.################.#",
+        "#..F.....##........#",
+        "#.##.###.##.###.##.#",
+        "#.#..............#.#",
+        "#.#.##.######.##.#.#",
+        "#....*...##...*....#",
+        "#.##.#.#.##.#.#.##.#",
+        "#.#..............#.#",
+        "#.#.##.######.##.#.#",
+        ".............P......",
+        "#.#.##.######.##.#.#",
+        "#.#..............#.#",
+        "#.##.#.#.##.#.#.##.#",
+        "#....*...##...*....#",
+        "#.#.##.######.##.#.#",
+        "#.#..R...........#.#",
+        "#.##.###.##.###.##.#",
+        "#........##........#",
+        "#.....########.....#",
+        "#.################.#"
+      ],
     ];
-    const COLLECTION_CANDLES = [];
-
+    const COLLECTION_CANDLES = [
+      { name: "Emerald", color: "#14F195", border: "#fff", effect: "pulse" },
+      { name: "Sapphire", color: "#00BFFF", border: "#fff", effect: "spin" },
+      { name: "Ruby", color: "#FF4500", border: "#fff", effect: "shake" },
+      { name: "Amethyst", color: "#9945FF", border: "#fff", effect: "blink" },
+      { name: "Topaz", color: "#FFD700", border: "#fff", effect: "glow" }
+    ];
+    let playerCollection = [];
     const gameBoard = document.getElementById('game-board');
     const scoreElement = document.getElementById('score');
     const livesElement = document.getElementById('lives');
@@ -970,14 +1255,39 @@
     const levelIndicator = document.getElementById('level-indicator');
     const restartBtn = document.getElementById('restart-btn');
     const abtnA = document.getElementById('abtn-a');
-
-    let player; let ghosts = []; let candles = []; let walls = []; let bullets = [];
-    let score = 0; let lives = 3; let level = 1; let gameRunning = false; let gameInterval;
-    let scaleX = 1; let scaleY = 1;
-    let powerMode = false; let powerModeTimeout = null;
-    let playerDirection = { x: 0, y: 0 }; let playerNextDirection = { x: 0, y: 0 };
-    let playerX = 0; let playerY = 0; let playerStart = null;
-    let animationFrame = 0; let frameCounter = 0;
+    let player;
+    let ghosts = [];
+    let candles = [];
+    let walls = [];
+    let bullets = [];
+    let score = 0;
+    let lives = 3;
+    let level = 1;
+    let gameRunning = false;
+    let gameInterval;
+    const CELL_SIZE = 15;
+    const GRID_WIDTH = 20;
+    const GRID_HEIGHT = 20;
+    const PLAYER_SIZE = 32;
+    const GHOST_SIZE = 15;
+    const CANDLE_SIZE = 4;
+    let BOARD_WIDTH = 300;
+    let BOARD_HEIGHT = 300;
+    let scaleX = 1;
+    let scaleY = 1;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    let powerMode = false;
+    let powerModeTimeout = null;
+    let playerDirection = { x: 0, y: 0 };
+    let playerNextDirection = { x: 0, y: 0 };
+    let playerX = 0;
+    let playerY = 0;
+    let playerStart = null;
+    let ghostStarts = [];
+    let powerCandleSpawned = false;
+    let currentMazeLayout = null;
+    let animationFrame = 0;
+    let frameCounter = 0;
 
     function applyWallStyle(level) {
       const style = wallStyles[(level - 1) % wallStyles.length];
@@ -987,81 +1297,303 @@
 
     function adjustGameBoardSize() {
       const windowWidth = window.innerWidth;
-      const maxBoardSize = Math.min(windowWidth - 20, 420);
+      const windowHeight = window.innerHeight;
+      let maxBoardSize;
+      if (window.matchMedia('(orientation: portrait)').matches) {
+        maxBoardSize = Math.min(windowWidth - 20, windowHeight * 0.5);
+      } else {
+        maxBoardSize = Math.min(windowWidth * 0.6, windowHeight - 180);
+      }
+      BOARD_WIDTH = maxBoardSize;
+      BOARD_HEIGHT = maxBoardSize;
       document.documentElement.style.setProperty('--board-size', `${maxBoardSize}px`);
-      scaleX = maxBoardSize / BOARD_WIDTH;
-      scaleY = maxBoardSize / BOARD_HEIGHT;
-      updateAllElementPositions();
+      scaleX = maxBoardSize / 300;
+      scaleY = maxBoardSize / 300;
+      if (player) updateAllElementPositions();
     }
 
     function updateAllElementPositions() {
-      if (player) {
-        player.style.left = (playerX * scaleX) + 'px';
-        player.style.top = (playerY * scaleY) + 'px';
-      }
-      ghosts.forEach(ghost => { ghost.element.style.left = (ghost.x * scaleX) + 'px'; ghost.element.style.top = (ghost.y * scaleY) + 'px'; });
-      candles.forEach(candle => { candle.element.style.left = (candle.x * scaleX) + 'px'; candle.element.style.top = (candle.y * scaleY) + 'px'; });
-      walls.forEach(wall => { wall.element.style.left = (wall.x * scaleX) + 'px'; wall.element.style.top = (wall.y * scaleY) + 'px'; wall.element.style.width = (CELL_SIZE * scaleX) + 'px'; wall.element.style.height = (CELL_SIZE * scaleY) + 'px'; });
-      bullets.forEach(b => { b.element.style.left = (b.x * scaleX) + 'px'; b.element.style.top = (b.y * scaleY) + 'px'; });
+      if (!player) return;
+      player.style.left = (playerX * scaleX) + 'px';
+      player.style.top = (playerY * scaleY) + 'px';
+      player.style.transform = `scale(${scaleX}, ${scaleY})`;
+      ghosts.forEach(ghost => {
+        ghost.element.style.left = (ghost.x * scaleX) + 'px';
+        ghost.element.style.top = (ghost.y * scaleY) + 'px';
+        ghost.element.style.transform = `scale(${scaleX}, ${scaleY})`;
+      });
+      candles.forEach(candle => {
+        candle.element.style.left = (candle.x * scaleX) + 'px';
+        candle.element.style.top = (candle.y * scaleY) + 'px';
+        candle.element.style.transform = `scale(${scaleX}, ${scaleY})`;
+      });
+      walls.forEach(wall => {
+        wall.element.style.left = (wall.x * scaleX) + 'px';
+        wall.element.style.top = (wall.y * scaleY) + 'px';
+        wall.element.style.width = (CELL_SIZE * scaleX) + 'px';
+        wall.element.style.height = (CELL_SIZE * scaleY) + 'px';
+      });
+      bullets.forEach(b => {
+        b.element.style.left = (b.x * scaleX) + 'px';
+        b.element.style.top = (b.y * scaleY) + 'px';
+      });
     }
 
     function createGhosts() {
-      ghosts.forEach(g => { if (gameBoard.contains(g.element)) gameBoard.removeChild(g.element); });
+      ghosts.forEach(g => { if (gameBoard.contains(g.element)) gameBoard.removeChild(g.element) });
       ghosts = [];
-      // Placeholder: Implement ghost spawning logic here
+      ghostStarts.forEach(ghostData => {
+        const ghost = document.createElement('div');
+        let type;
+        switch (ghostData.type) {
+          case 'F': type = 'fomo'; break;
+          case 'R': type = 'rug'; break;
+          case 'V': type = 'volatility'; break;
+          case 'A': type = 'paper'; break;
+        }
+        ghost.className = 'ghost ghost-' + type;
+        ghost.style.width = `${GHOST_SIZE}px`;
+        ghost.style.height = `${GHOST_SIZE}px`;
+        ghost.innerHTML = createGhostSvg(type);
+        gameBoard.appendChild(ghost);
+        ghosts.push({
+          element: ghost,
+          x: ghostData.x,
+          y: ghostData.y,
+          type: type,
+          speed: 1,
+          direction: { x: 0, y: 0 },
+          nextDirection: { x: 0, y: 0 }
+        });
+      });
     }
 
     function createPlayer() {
-      if (player && gameBoard.contains(player)) { gameBoard.removeChild(player); }
+      if (player && gameBoard.contains(player)) {
+        gameBoard.removeChild(player);
+      }
       player = document.createElement('div');
       player.className = 'player';
-      player.speed = 2.5;
+      player.speed = 1.5;
       player.invincible = false;
       player.lastShot = 0;
       gameBoard.appendChild(player);
     }
 
     function createMaze(levelIndex) {
-      playerStart = null; walls = []; candles = [];
-      const layout = mazeLayouts[levelIndex] || mazeLayouts[0];
+      playerStart = null;
+      ghostStarts = [];
+      currentMazeLayout = mazeLayouts[levelIndex] || mazeLayouts[0];
+      const layout = currentMazeLayout;
       for (let y = 0; y < layout.length; y++) {
         for (let x = 0; x < layout[y].length; x++) {
           const cell = layout[y][x];
-          const posX = x * CELL_SIZE;
-          const posY = y * CELL_SIZE;
           if (cell === '#') {
-            const wall = document.createElement('div'); wall.className = 'wall';
-            walls.push({ x: posX, y: posY, width: CELL_SIZE, height: CELL_SIZE, element: wall });
+            const wall = document.createElement('div');
+            wall.className = 'wall';
+            walls.push({
+              x: x * CELL_SIZE,
+              y: y * CELL_SIZE,
+              width: CELL_SIZE,
+              height: CELL_SIZE,
+              element: wall
+            });
             gameBoard.appendChild(wall);
           } else if (cell === '.') {
-            const cx = posX + (CELL_SIZE - CANDLE_SIZE) / 2;
-            const cy = posY + (CELL_SIZE - CANDLE_SIZE) / 2;
+            const cx = x * CELL_SIZE + (CELL_SIZE - CANDLE_SIZE) / 2;
+            const cy = y * CELL_SIZE + (CELL_SIZE - CANDLE_SIZE) / 2;
             createCandleAt(cx, cy);
           } else if (cell === '*') {
-            const cx = posX + (CELL_SIZE - POWER_CANDLE_SIZE) / 2;
-            const cy = posY + (CELL_SIZE - POWER_CANDLE_SIZE) / 2;
+            const cx = x * CELL_SIZE + (CELL_SIZE - 10) / 2;
+            const cy = y * CELL_SIZE + (CELL_SIZE - 10) / 2;
             createPowerCandleAt(cx, cy);
           } else if (cell === 'P') {
-            playerStart = { x: posX, y: posY };
+            playerStart = {
+              x: x * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2,
+              y: y * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2
+            };
+          } else if (cell === 'F' || cell === 'R' || cell === 'V' || cell === 'A') {
+            ghostStarts.push({
+              type: cell,
+              x: x * CELL_SIZE + (CELL_SIZE - GHOST_SIZE) / 2,
+              y: y * CELL_SIZE + (CELL_SIZE - GHOST_SIZE) / 2
+            });
           }
         }
       }
     }
 
-    function createCandleAt(x, y) {
-      const candle = document.createElement('div'); candle.className = 'candle';
-      candles.push({ element: candle, x: x, y: y, power: false });
+    function getRandomCorridorCell() {
+      const freeCells = [];
+      for (let y = 0; y < currentMazeLayout.length; y++) {
+        for (let x = 0; x < currentMazeLayout[y].length; x++) {
+          const cell = currentMazeLayout[y][x];
+          if (cell === '.' || cell === ' ' || cell === '*') {
+            freeCells.push({ x, y });
+          }
+        }
+      }
+      if (freeCells.length === 0) return { x: 10, y: 10 };
+      return freeCells[Math.floor(Math.random() * freeCells.length)];
+    }
+
+    function createCandleAt(x, y, color = null) {
+      for (const candle of candles) {
+        const dx = candle.x - x;
+        const dy = candle.y - y;
+        if (Math.hypot(dx, dy) < 10) return;
+      }
+      const candle = document.createElement('div');
+      candle.className = 'candle';
+      if (color) {
+        candle.style.background = color;
+      }
+      candles.push({
+        element: candle,
+        x: x,
+        y: y
+      });
       gameBoard.appendChild(candle);
     }
 
     function createPowerCandleAt(x, y) {
-      const candle = document.createElement('div'); candle.className = 'candle power-candle';
-      candles.push({ element: candle, x: x, y: y, power: true });
+      const candle = document.createElement('div');
+      candle.className = 'candle power-candle';
+      candles.push({
+        element: candle,
+        x: x,
+        y: y,
+        power: true
+      });
       gameBoard.appendChild(candle);
     }
 
+    function spawnPowerCandleOncePerLevel() {
+      if (powerCandleSpawned) return;
+      powerCandleSpawned = true;
+      let isCollection = Math.random() < 0.5;
+      let candleData = null;
+      if (isCollection) {
+        let notCollected = COLLECTION_CANDLES.filter(c => !playerCollection.includes(c.name));
+        if (notCollected.length === 0) notCollected = COLLECTION_CANDLES;
+        candleData = notCollected[Math.floor(Math.random() * notCollected.length)];
+      }
+      const cell = getRandomCorridorCell();
+      const x = cell.x * CELL_SIZE + (CELL_SIZE - 10) / 2;
+      const y = cell.y * CELL_SIZE + (CELL_SIZE - 10) / 2;
+      const candle = document.createElement('div');
+      candle.className = 'candle power-candle big-candle';
+      if (isCollection && candleData) {
+        candle.classList.add('candle-' + candleData.effect);
+        candle.style.background = candleData.color;
+        candle.style.border = `2px solid ${candleData.border}`;
+        candle.dataset.collection = candleData.name;
+      }
+      candles.push({
+        element: candle,
+        x: x,
+        y: y,
+        power: true,
+        big: true,
+        collection: isCollection ? candleData.name : null
+      });
+      gameBoard.appendChild(candle);
+      const popupText = isCollection && candleData ?
+        getTranslation('fomoPopupCollect', { name: candleData.name }) :
+        getTranslation('fomoPopupBigCandle');
+      showFomoPopup(popupText);
+
+      let timer = 10;
+      showFomoTimer(timer);
+      const timerInterval = setInterval(() => {
+        timer--;
+        updateFomoTimer(timer);
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          if (gameBoard.contains(candle)) {
+            gameBoard.removeChild(candle);
+            candles = candles.filter(c => c.element !== candle);
+            const missedText = isCollection && candleData ?
+              getTranslation('fomoPopupMissedCollection') :
+              getTranslation('fomoPopupMissedBig');
+            showFomoPopup(missedText);
+            hideFomoTimer();
+          }
+        }
+      }, 1000);
+    }
+
+    function showFomoPopup(text) {
+      let popup = document.getElementById('fomo-popup');
+      if (!popup) return;
+      popup.innerHTML = text;
+      popup.style.display = 'flex';
+      popup.style.animation = 'fomo-fadein 0.4s';
+      setTimeout(() => {
+        if (popup) popup.style.display = 'none';
+      }, 4000);
+    }
+
+    function showFomoTimer(seconds) {
+      let timerDiv = document.getElementById('fomo-timer');
+      timerDiv.textContent = getTranslation('fomoTimer', { seconds: seconds });
+      timerDiv.style.display = 'block';
+      timerDiv.classList.remove('fomo-blink');
+      if (seconds <= 3) timerDiv.classList.add('fomo-blink');
+    }
+
+    function updateFomoTimer(seconds) {
+      const timerDiv = document.getElementById('fomo-timer');
+      if (timerDiv) {
+        timerDiv.textContent = getTranslation('fomoTimer', { seconds: seconds });
+        if (seconds <= 3) timerDiv.classList.add('fomo-blink');
+        else timerDiv.classList.remove('fomo-blink');
+      }
+    }
+
+    function hideFomoTimer() {
+      const timerDiv = document.getElementById('fomo-timer');
+      if (timerDiv) {
+        timerDiv.style.display = 'none';
+        timerDiv.classList.remove('fomo-blink');
+      }
+    }
+
+    function createGhostSvg(type) {
+      let color, eyeColor, mouthPath;
+      switch (type) {
+        case 'fomo': color = '#FF0000'; eyeColor = '#FFF'; mouthPath = 'M5 10Q7.5 12 10 10'; break;
+        case 'rug': color = '#FF69B4'; eyeColor = '#FFF'; mouthPath = 'M5 11Q7.5 9 10 11'; break;
+        case 'volatility': color = '#00BFFF'; eyeColor = '#FFF'; mouthPath = 'M5 10L10 10'; break;
+        case 'paper': color = '#FFA500'; eyeColor = '#FFF'; mouthPath = 'M5 11Q7.5 10 10 11'; break;
+      }
+      return `
+        <svg width="15" height="15" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1.5 7.5 C1.5 4.5 3.5 1.5 7.5 1.5 C11.5 1.5 13.5 4.5 13.5 7.5 L13.5 12 C13.5 12 12 10.5 11 12 C10 13.5 9 12 8 12 C7 12 6 13.5 5 12 C4 10.5 3 12 3 12 L1.5 7.5Z" fill="${color}" />
+          <circle cx="5" cy="6" r="1" fill="${eyeColor}" /><circle cx="10" cy="6" r="1" fill="${eyeColor}" />
+          <circle cx="5" cy="6" r="0.5" fill="#000" /><circle cx="10" cy="6" r="0.5" fill="#000" />
+          <path d="${mouthPath}" stroke="#000" fill="none" stroke-width="0.4" />
+        </svg>`;
+    }
+
+    function updateCollectionProfile() {
+      const profile = document.getElementById('collection-profile');
+      if (!profile) return;
+      let html = `<span class="collection-label">${getTranslation('collectionLabel')}</span>`;
+      COLLECTION_CANDLES.forEach(c => {
+        const collected = playerCollection.includes(c.name);
+        html += `<span class="candle-icon${collected ? ' collected' : ''}" style="background:${c.color};${c.effect === 'glow' ? 'box-shadow:0 0 12px #FFD700;' : ''}" title="${c.name}"></span>`;
+      });
+      if (playerCollection.length === COLLECTION_CANDLES.length) {
+        html += `<span style="margin-left:8px;color:#14F195;font-weight:bold;">✔</span>`;
+      }
+      profile.innerHTML = html;
+    }
+
     function initGame() {
-      level = 1; lives = 3; score = playerState ? parseInt(playerState.goldBalance, 10) || 0 : 0;
+      level = 1;
+      lives = 3;
+      score = playerState ? parseInt(playerState.goldBalance, 10) || 0 : 0;
       playerCollection = [];
       resetLevelLayout();
     }
@@ -1070,19 +1602,23 @@
       applyWallStyle(level);
       const elementsToClean = Array.from(gameBoard.children).filter(child =>
         !child.classList.contains('start-screen') && !child.classList.contains('game-over') &&
-        !child.classList.contains('level-complete') && !child.classList.contains('level-indicator')
+        !child.classList.contains('level-complete') && !child.classList.contains('level-indicator') &&
+        !child.classList.contains('fomo-timer')
       );
-      elementsToClean.forEach(el => el.remove());
-      scoreElement.textContent = score; livesElement.textContent = lives;
+      elementsToClean.forEach(el => gameBoard.removeChild(el));
+      scoreElement.textContent = score;
+      livesElement.textContent = lives;
       levelIndicator.innerHTML = `<span data-translate-key="levelLabel">${getTranslation('levelLabel')}</span> ${level}`;
-      ghosts = []; bullets = []; player = null; powerMode = false;
+      ghosts = []; candles = []; walls = []; bullets = []; player = null;
+      powerMode = false; showAButton(false);
       if (powerModeTimeout) clearTimeout(powerModeTimeout);
+      powerCandleSpawned = false;
       updateCollectionProfile();
       createMaze((level - 1) % mazeLayouts.length);
-      playerX = playerStart ? playerStart.x : (BOARD_WIDTH - PLAYER_SIZE) / 2;
-      playerY = playerStart ? playerStart.y : (BOARD_HEIGHT - PLAYER_SIZE) / 2;
+      playerX = playerStart ? playerStart.x : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
+      playerY = playerStart ? playerStart.y : 10 * CELL_SIZE + (CELL_SIZE - PLAYER_SIZE) / 2;
       playerDirection = { x: 0, y: 0 }; playerNextDirection = { x: 0, y: 0 };
-      createPlayer(); createGhosts();
+      createPlayer(); createGhosts(); createCandles();
     }
 
     function respawnAfterDeath() {
@@ -1090,62 +1626,193 @@
       playerDirection = { x: 0, y: 0 }; playerNextDirection = { x: 0, y: 0 };
       if (player) player.style.opacity = '1';
       createGhosts();
-      player.invincible = true; player.classList.add('invincible');
-      setTimeout(() => { player.invincible = false; if (player) player.classList.remove('invincible'); }, 2000);
-      gameRunning = true; gameInterval = setInterval(gameLoop, 16);
+      player.invincible = true;
+      player.classList.add('invincible');
+      setTimeout(() => {
+        player.invincible = false;
+        if (player) player.classList.remove('invincible');
+      }, 2000);
+      gameRunning = true;
+      gameInterval = setInterval(gameLoop, 30);
     }
 
     function startGame() {
       if (gameRunning) return; gameRunning = true;
       startScreen.style.display = 'none'; gameOverScreen.style.display = 'none';
       levelCompleteScreen.style.display = 'none';
-      gameInterval = setInterval(gameLoop, 16);
+      gameInterval = setInterval(gameLoop, 30);
+      setTimeout(spawnPowerCandleOncePerLevel, 3000);
     }
 
     function gameLoop() {
       if (!gameRunning) return;
-      if (playerNextDirection.x !== 0 || playerNextDirection.y !== 0) {
-        if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) { playerDirection = { ...playerNextDirection }; }
-      }
-      if (playerDirection.x !== 0 || playerDirection.y !== 0) {
-        playerX += playerDirection.x * player.speed; playerY += playerDirection.y * player.speed;
-        handleTunnels();
-      }
 
-      const FRAME_WIDTH = 32, FRAME_HEIGHT = 32, ANIMATION_SPEED = 4, FRAME_COUNT = 12;
+      // --- ПРОМЕТЕЙ: Анимационный Движок v2.0 ---
+      const FRAME_WIDTH = 32;
+      const FRAME_HEIGHT = 32;
+      const ANIMATION_SPEED = 4;
+      const FRAME_COUNT = 12;
       frameCounter++;
-      if (frameCounter > ANIMATION_SPEED) { frameCounter = 0; animationFrame = (animationFrame + 1) % FRAME_COUNT; }
-      let frameX = animationFrame * FRAME_WIDTH; let frameY = 0;
+      if (frameCounter > ANIMATION_SPEED) {
+        frameCounter = 0;
+        animationFrame = (animationFrame + 1) % FRAME_COUNT;
+      }
+      let frameX = animationFrame * FRAME_WIDTH;
+      let frameY = 0;
       if (playerDirection.x === 1) { frameY = FRAME_HEIGHT * 1; }
       else if (playerDirection.x === -1) { frameY = FRAME_HEIGHT * 2; }
       else if (playerDirection.y === 1) { frameY = 0; }
       else if (playerDirection.y === -1) { frameY = FRAME_HEIGHT * 3; }
       else { frameX = 0; }
-      if (player) { player.style.backgroundPosition = `-${frameX}px -${frameY}px`; }
+      if (player) {
+        player.style.backgroundPosition = `-${frameX}px -${frameY}px`;
+      }
+      // --- Конец Движка ---
 
+      if (playerNextDirection.x !== 0 || playerNextDirection.y !== 0) {
+        if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) {
+          playerDirection = { ...playerNextDirection };
+        }
+      }
+      if (playerDirection.x !== 0 || playerDirection.y !== 0) {
+        const speed = player.speed || 1.5;
+        const nextX = playerX + playerDirection.x * speed;
+        const nextY = playerY + playerDirection.y * speed;
+        if (canMove(playerX, playerY, playerDirection, PLAYER_SIZE)) {
+          playerX = nextX; playerY = nextY; handleTunnels();
+        }
+      }
+      moveGhosts(); moveBullets(); checkCandleCollection(); checkGhostCollision();
       updateAllElementPositions();
     }
 
     function handleTunnels() {
-      if (playerX < -PLAYER_SIZE) playerX = BOARD_WIDTH; else if (playerX > BOARD_WIDTH) playerX = -PLAYER_SIZE;
-      if (playerY < -PLAYER_SIZE) playerY = BOARD_HEIGHT; else if (playerY > BOARD_HEIGHT) playerY = -PLAYER_SIZE;
+      if (playerX < -PLAYER_SIZE) playerX = 300; else if (playerX > 300) playerX = -PLAYER_SIZE;
+      if (playerY < -PLAYER_SIZE) playerY = 300; else if (playerY > 300) playerY = -PLAYER_SIZE;
+      ghosts.forEach(ghost => {
+        if (ghost.x < -GHOST_SIZE) ghost.x = 300; else if (ghost.x > 300) ghost.x = -GHOST_SIZE;
+        if (ghost.y < -GHOST_SIZE) ghost.y = 300; else if (ghost.y > 300) ghost.y = -GHOST_SIZE;
+      });
     }
 
     function canMove(x, y, dir, size) {
-      const nextX = x + dir.x; const nextY = y + dir.y;
+      const nextX = x + dir.x * 1; const nextY = y + dir.y * 1;
+      if (nextX < 0 || nextX + size > 300 || nextY < 0 || nextY + size > 300) return true;
       for (const wall of walls) {
-        if (nextX < wall.x + wall.width && nextX + size > wall.x &&
-          nextY < wall.y + wall.height && nextY + size > wall.y) {
+        if (nextX < wall.x + wall.width && nextX + size > wall.x && nextY < wall.y + wall.height && nextY + size > wall.y) {
           return false;
         }
       }
       return true;
     }
 
-    function gameOver() {
-      clearInterval(gameInterval); gameRunning = false; updatePlayerScore(score);
-      finalScoreElement.textContent = score; finalLevelElement.textContent = level;
-      gameOverScreen.style.display = 'flex';
+    function moveGhosts() {
+      ghosts.forEach(ghost => {
+        if (Math.random() < 0.05) {
+          let dx = playerX - ghost.x; let dy = playerY - ghost.y;
+          if (Math.abs(dx) > 150) dx = -Math.sign(dx) * (300 - Math.abs(dx));
+          if (Math.abs(dy) > 150) dy = -Math.sign(dy) * (300 - Math.abs(dy));
+          ghost.nextDirection = Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) };
+        }
+        if (ghost.nextDirection.x !== 0 || ghost.nextDirection.y !== 0) {
+          if (canMove(ghost.x, ghost.y, ghost.nextDirection, GHOST_SIZE)) {
+            ghost.direction = { ...ghost.nextDirection };
+            ghost.nextDirection = { x: 0, y: 0 };
+          }
+        }
+        if (!canMove(ghost.x, ghost.y, ghost.direction, GHOST_SIZE)) {
+          const directions = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+          for (let i = directions.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[directions[i], directions[j]] = [directions[j], directions[i]]; }
+          for (const dir of directions) { if (canMove(ghost.x, ghost.y, dir, GHOST_SIZE)) { ghost.direction = dir; break; } }
+        }
+        ghost.x += ghost.direction.x * ghost.speed; ghost.y += ghost.direction.y * ghost.speed;
+      });
+    }
+
+    function shootBullet() {
+      if (!powerMode) return;
+      if (player.lastShot && Date.now() - player.lastShot < 300) return;
+      player.lastShot = Date.now();
+      const bullet = document.createElement('div'); bullet.className = 'bullet';
+      bullets.push({
+        element: bullet, x: playerX + PLAYER_SIZE / 2 - 3, y: playerY + PLAYER_SIZE / 2 - 3,
+        dir: (playerDirection.x === 0 && playerDirection.y === 0) ? { x: 1, y: 0 } : { ...playerDirection }, speed: 5
+      });
+      gameBoard.appendChild(bullet); playTone(1000, 0.05, "square", 0.12);
+    }
+
+    function moveBullets() {
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        b.x += b.dir.x * b.speed; b.y += b.dir.y * b.speed;
+        if (b.x < 0 || b.x > 300 || b.y < 0 || b.y > 300) { if (gameBoard.contains(b.element)) gameBoard.removeChild(b.element); bullets.splice(i, 1); continue; }
+        for (let j = ghosts.length - 1; j >= 0; j--) {
+          const g = ghosts[j];
+          const dx = b.x + 3 - (g.x + GHOST_SIZE / 2); const dy = b.y + 3 - (g.y + GHOST_SIZE / 2);
+          if (Math.hypot(dx, dy) < 10) {
+            if (gameBoard.contains(g.element)) gameBoard.removeChild(g.element); ghosts.splice(j, 1);
+            if (gameBoard.contains(b.element)) gameBoard.removeChild(b.element); bullets.splice(i, 1);
+            lives++; livesElement.textContent = lives; playTone(1200, 0.1, "square", 0.2); break;
+          }
+        }
+      }
+    }
+
+    function checkCandleCollection() {
+      for (let i = candles.length - 1; i >= 0; i--) {
+        const candle = candles[i];
+        const size = candle.power ? (candle.big ? 10 : 10) : 4;
+        const dx = playerX + PLAYER_SIZE / 2 - candle.x - size / 2;
+        const dy = playerY + PLAYER_SIZE / 2 - candle.y - size / 2;
+        if (Math.hypot(dx, dy) < PLAYER_SIZE / 2 + size / 2) {
+          if (gameBoard.contains(candle.element)) gameBoard.removeChild(candle.element); candles.splice(i, 1);
+          if (candle.big) {
+            if (candle.collection) {
+              if (!playerCollection.includes(candle.collection)) {
+                playerCollection.push(candle.collection); showFomoPopup(getTranslation('collectedNew')); updateCollectionProfile();
+              } else { showFomoPopup(getTranslation('collectedAgain')); }
+              playBigCandleSound(); hideFomoTimer();
+            } else { score += 100; scoreElement.textContent = score; playBigCandleSound(); showFomoPopup(getTranslation('bigCandleBonus')); hideFomoTimer(); }
+          } else if (candle.power) { playPowerCandleSound(); activatePowerMode(); } else { playCandleSound(); score += 10; scoreElement.textContent = score; }
+          if (candles.filter(c => !c.big && !c.power).length === 0) { levelComplete(); }
+        }
+      }
+    }
+
+    function createCandles() {
+      let count = 0;
+      for (let i = 0; i < candles.length; i++) { if (!candles[i].power && !candles[i].big) count++; }
+      let minCandles = 10 + 5 * level;
+      let candleColor = questParams.color || null;
+      for (let i = count; i < minCandles; i++) {
+        const validPos = findValidPosition(CANDLE_SIZE, CANDLE_SIZE); createCandleAt(validPos.x, validPos.y, candleColor);
+      }
+    }
+
+    function activatePowerMode() {
+      if (powerModeTimeout) clearTimeout(powerModeTimeout);
+      powerMode = true; player.style.filter = 'drop-shadow(0 0 10px #00FFFA) brightness(1.5)';
+      player.invincible = true; ghosts.forEach(g => g.element.style.filter = 'grayscale(1) brightness(1.5)');
+      showAButton(true);
+      powerModeTimeout = setTimeout(() => {
+        powerMode = false; player.style.filter = ''; player.invincible = false;
+        ghosts.forEach(g => g.element.style.filter = ''); showAButton(false);
+      }, 5000);
+    }
+
+    function checkGhostCollision() {
+      if (player.invincible) return;
+      for (const ghost of ghosts) {
+        const dx = playerX + PLAYER_SIZE / 2 - (ghost.x + GHOST_SIZE / 2);
+        const dy = playerY + PLAYER_SIZE / 2 - (ghost.y + GHOST_SIZE / 2);
+        if (Math.hypot(dx, dy) < (PLAYER_SIZE / 2 + GHOST_SIZE / 2) - 5) {
+          if (powerMode) {
+            if (gameBoard.contains(ghost.element)) gameBoard.removeChild(ghost.element);
+            ghosts = ghosts.filter(g => g.element !== ghost.element);
+            score += 100; scoreElement.textContent = score;
+          } else { playerDies(); }
+        }
+      }
     }
 
     function playerDies() {
@@ -1157,23 +1824,102 @@
       }, 800);
     }
 
-    function checkGhostCollision() { /* To be implemented */ }
-    function checkCandleCollection() { /* To be implemented */ }
-    function moveBullets() { /* To be implemented */ }
-    function shootBullet() { /* To be implemented */ }
-    function updatePlayerScore(finalScore) { /* To be implemented */ }
-    function levelComplete() { /* To be implemented */ }
-    function updateCollectionProfile() { /* To be implemented */ }
-    function populateHotbar() { /* To be implemented */ }
-    function selectHotbarSlot(slotNumber) { /* To be implemented */ }
-    function useItemInSlot(slotNumber) { /* To be implemented */ }
+    function levelComplete() {
+      clearInterval(gameInterval); gameRunning = false; updatePlayerScore(score);
+      player.classList.add('win-anim'); playLevelSound();
+      completedLevelElement.textContent = level; levelScoreElement.textContent = score;
+      levelCompleteScreen.style.display = 'flex'; level++;
+      setTimeout(() => {
+        levelCompleteScreen.style.display = 'none'; resetLevelLayout(); startGame();
+      }, 2000);
+    }
+
+    function gameOver() {
+      clearInterval(gameInterval); gameRunning = false; updatePlayerScore(score);
+      finalScoreElement.textContent = score; finalLevelElement.textContent = level;
+      gameOverScreen.style.display = 'flex';
+    }
+
+    function updatePlayerScore(finalScore) {
+      if (!playerState) { console.error('Прометей: Невозможно сохранить счет. Состояние игрока отсутствует.'); return; }
+      console.log(`Прометей: Отправка финального счета ${finalScore} для пользователя ${playerState.userId}...`);
+      fetch('/api/update-score', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: playerState.userId, newScore: finalScore }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Прометей: Ответ от сервера сохранения:', data.message);
+          if (data.playerData) { playerState.goldBalance = data.playerData.newGoldBalance; }
+        })
+        .catch(error => console.error('Прометей: Ошибка сохранения счета!', error));
+    }
+
+    function showAButton(active) { if (active) abtnA.classList.add('active'); else abtnA.classList.remove('active'); }
+
+    const langSelect = document.getElementById('lang-select');
+    const langIcon = document.getElementById('lang-icon');
+    langSelect.addEventListener('change', function () {
+      currentLang = this.value; langSelect.style.display = 'none'; langIcon.style.display = 'inline-block';
+      translateUI();
+    });
+    langIcon.addEventListener('click', function () { langSelect.style.display = 'inline-block'; langIcon.style.display = 'none'; langSelect.focus(); });
+
+    async function fetchQuestFromGemini() {
+      const prompt = getTranslation('questPrompt');
+      try {
+        const response = await fetch("/api/gemini", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: prompt })
+        });
+        const data = await response.json();
+        let quest = data.candidates?.[0]?.content?.parts?.[0]?.text || getTranslation('questDefaultFallback');
+        quest = quest.replace(/^[\s\n\r]+|[\s\n\r]+$/g, '').replace(/^["']|["']$/g, '');
+        return quest;
+      } catch (e) { console.error("Ошибка при получении квеста:", e); return getTranslation('questFetchError'); }
+    }
+
+    let currentQuest = ""; let questParams = {};
+    function showQuest(quest) {
+      currentQuest = quest; const questLabel = getTranslation('questLabel');
+      document.getElementById('console-quest').textContent = questLabel + ": " + quest;
+    }
+
+    let activeTouches = {};
+    const joystickOuter = document.getElementById('joystick-outer');
+    const joystickStick = document.getElementById('joystick-stick');
+    let joystickTouchId = null;
+
+    function handleJoystickMove(x, y) {
+      const rect = joystickOuter.getBoundingClientRect();
+      const dx = x - (rect.left + joystickOuter.offsetWidth / 2);
+      const dy = y - (rect.top + joystickOuter.offsetHeight / 2);
+      const maxDist = joystickOuter.offsetWidth / 2 - joystickStick.offsetWidth / 2;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      let stickX = dx; let stickY = dy;
+      if (dist > maxDist) { stickX = dx * maxDist / dist; stickY = dy * maxDist / dist; }
+      joystickStick.style.left = (joystickOuter.offsetWidth / 2 - joystickStick.offsetWidth / 2 + stickX) + 'px';
+      joystickStick.style.top = (joystickOuter.offsetHeight / 2 - joystickStick.offsetHeight / 2 + stickY) + 'px';
+      if (dist > 10) {
+        if (Math.abs(dx) > Math.abs(dy)) { playerNextDirection = { x: Math.sign(dx), y: 0 }; }
+        else { playerNextDirection = { x: 0, y: Math.sign(dy) }; }
+      } else { playerNextDirection = { x: 0, y: 0 }; }
+    }
+
+    function resetJoystick() {
+      joystickStick.style.left = (joystickOuter.offsetWidth / 2 - joystickStick.offsetWidth / 2) + 'px';
+      joystickStick.style.top = (joystickOuter.offsetHeight / 2 - joystickStick.offsetHeight / 2) + 'px';
+      playerNextDirection = { x: 0, y: 0 }; joystickTouchId = null;
+    }
 
     async function handleStartGame() {
       if (startBtn.disabled) return; startBtn.disabled = true;
       const userData = window.Telegram?.WebApp?.initDataUnsafe?.user;
       let userPayload = userData ? { id: userData.id, first_name: userData.first_name } : { id: 2, first_name: 'BrowserGhost' };
       try {
-        const userResponse = await fetch('/api/user', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userPayload) });
+        const userResponse = await fetch('/api/user', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(userPayload),
+        });
         const userData = await userResponse.json();
         if (userData.playerData) {
           playerState = { ...playerState, ...userData.playerData };
@@ -1188,13 +1934,120 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      adjustGameBoardSize();
-      // Event listeners will be added in a future step
+      const browserLang = navigator.language.slice(0, 2);
+      if (Object.keys(translations).includes(browserLang)) {
+        currentLang = browserLang; langSelect.value = browserLang;
+      }
+      translateUI(); adjustGameBoardSize();
+
+      window.addEventListener('touchstart', (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const touch = e.changedTouches[i]; const target = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (joystickOuter.contains(target) && joystickTouchId === null) {
+            joystickTouchId = touch.identifier; activeTouches[touch.identifier] = 'joystick';
+            handleJoystickMove(touch.clientX, touch.clientY);
+          } else if (target && target.closest('.hotbar-slot')) {
+            const slot = target.closest('.hotbar-slot'); const slotNumber = parseInt(slot.dataset.slot, 10);
+            selectHotbarSlot(slotNumber);
+          } else if (target && target.closest('.abtn')) {
+            const button = target.closest('.abtn');
+            activeTouches[touch.identifier] = 'action_button'; useItemInSlot(playerState.activeHotbarSlot);
+            button.classList.add('active');
+          } else if (target && target.id === 'start-btn') { handleStartGame(); }
+          else if (target && target.id === 'restart-btn') { initGame(); startGame(); }
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchmove', (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const touch = e.changedTouches[i];
+          if (activeTouches[touch.identifier] === 'joystick') { handleJoystickMove(touch.clientX, touch.clientY); }
+        }
+      }, { passive: false });
+
+      window.addEventListener('touchend', (e) => {
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const touch = e.changedTouches[i];
+          if (activeTouches[touch.identifier] === 'joystick') { resetJoystick(); }
+          else if (activeTouches[touch.identifier] === 'action_button') { document.getElementById('abtn-a').classList.remove('active'); }
+          delete activeTouches[touch.identifier];
+        }
+      });
+
+      let isMouseDownOnJoystick = false;
+      joystickOuter.addEventListener('mousedown', (e) => { isMouseDownOnJoystick = true; handleJoystickMove(e.clientX, e.clientY); });
+      window.addEventListener('mousemove', (e) => { if (isMouseDownOnJoystick) { handleJoystickMove(e.clientX, e.clientY); } });
+      window.addEventListener('mouseup', (e) => { if (isMouseDownOnJoystick) { resetJoystick(); isMouseDownOnJoystick = false; } });
+
       startBtn.addEventListener('click', handleStartGame);
       restartBtn.addEventListener('click', () => { initGame(); startGame(); });
       window.addEventListener('resize', adjustGameBoardSize);
+      window.addEventListener('orientationchange', () => setTimeout(adjustGameBoardSize, 200));
+
+      document.addEventListener('keydown', e => {
+        if (e.key >= '1' && e.key <= '6') { const slotNumber = parseInt(e.key, 10); selectHotbarSlot(slotNumber); return; }
+        if (!gameRunning) return;
+        switch (e.key) {
+          case 'ArrowUp': case 'w': case 'W': playerNextDirection = { x: 0, y: -1 }; break;
+          case 'ArrowDown': case 's': case 'S': playerNextDirection = { x: 0, y: 1 }; break;
+          case 'ArrowLeft': case 'a': case 'A': playerNextDirection = { x: -1, y: 0 }; break;
+          case 'ArrowRight': case 'd': case 'D': playerNextDirection = { x: 1, y: 0 }; break;
+          case ' ': case 'j': case 'J': useItemInSlot(playerState.activeHotbarSlot); break;
+        }
+        if (playerDirection.x === 0 && playerDirection.y === 0) {
+          if (canMove(playerX, playerY, playerNextDirection, PLAYER_SIZE)) { playerDirection = { ...playerNextDirection }; }
+        }
+      });
+
+      document.querySelectorAll('.hotbar-slot').forEach(slot => {
+        slot.addEventListener('click', () => {
+          const slotNumber = parseInt(slot.dataset.slot, 10);
+          selectHotbarSlot(slotNumber);
+        });
+      });
+
+      abtnA.addEventListener('click', e => { e.preventDefault(); useItemInSlot(playerState.activeHotbarSlot); });
     });
 
+    function populateHotbar() {
+      const slots = document.querySelectorAll('.hotbar-slot');
+      slots.forEach((slot, index) => {
+        const item = playerState.inventory[index];
+        slot.innerHTML = `<span class="hotbar-keybind">${index + 1}</span>`;
+        if (item) {
+          slot.title = item.item_name;
+          const nameSpan = document.createElement('span');
+          nameSpan.textContent = item.item_name.substring(0, 3).toUpperCase();
+          nameSpan.style.fontSize = '8px'; nameSpan.style.color = '#ddd';
+          nameSpan.style.position = 'absolute'; nameSpan.style.top = '50%';
+          nameSpan.style.left = '50%'; nameSpan.style.transform = 'translate(-50%, -50%)';
+          slot.appendChild(nameSpan);
+        }
+      });
+      selectHotbarSlot(playerState.activeHotbarSlot);
+    }
+
+    function selectHotbarSlot(slotNumber) {
+      if (!slotNumber || slotNumber < 1 || slotNumber > 6) return;
+      document.querySelectorAll('.hotbar-slot').forEach(slot => {
+        slot.classList.remove('active');
+        if (parseInt(slot.dataset.slot, 10) === slotNumber) { slot.classList.add('active'); }
+      });
+      playerState.activeHotbarSlot = slotNumber;
+      console.log(`Прометей: Выбран слот ${slotNumber}`);
+    }
+
+    function useItemInSlot(slotNumber) {
+      if (!gameRunning) return;
+      const item = playerState.inventory[slotNumber - 1];
+      if (!item) { console.log(`Прометей: Слот ${slotNumber} пуст.`); return; }
+      console.log(`Прометей: Используется предмет "${item.item_name}" из слота ${slotNumber}`);
+      if (item.item_type === 'CONSUMABLE' && item.attributes.effect === 'heal') {
+        console.log(`Прометей: Восстановление ${item.attributes.value} здоровья.`); playPowerCandleSound();
+      } else if (item.item_type === 'WEAPON') {
+        console.log(`Прометей: Атака оружием ${item.item_name}.`); shootBullet();
+      }
+    }
   </script>
 </body>
 
