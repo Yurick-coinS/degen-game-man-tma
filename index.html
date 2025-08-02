@@ -605,13 +605,13 @@
 
       // --- 1. CONFIGURATION & CONSTANTS ---
       const CONFIG = {
-        PLAYER_SPEED: 4, // Increased speed
+        PLAYER_SPEED: 4,
         GHOST_SPEED: 1.5,
         TILE_SIZE: 32,
         PLAYER_VISUAL_WIDTH: 80,
         PLAYER_VISUAL_HEIGHT: 64,
-        PLAYER_HITBOX_WIDTH: 32,  // Logical hitbox for collisions
-        PLAYER_HITBOX_HEIGHT: 32, // Logical hitbox for collisions
+        PLAYER_HITBOX_WIDTH: 32,
+        PLAYER_HITBOX_HEIGHT: 32,
         ANIMATION_SPEED: 100,
         INVINCIBILITY_DURATION: 2000,
       };
@@ -627,7 +627,6 @@
         IDLE_UP: { row: 3, frames: 1 },
       };
 
-      // CORRECTED: New level layout with wide corridors
       const LEVEL_LAYOUT = [
         "##################################################",
         "#M...............................................#",
@@ -665,7 +664,7 @@
       const state = {
         gameState: 'START_SCREEN',
         player: {
-          x: 0, y: 0, prevX: 0, prevY: 0, // prev positions for animation
+          x: 0, y: 0, prevX: 0, prevY: 0,
           dx: 0, dy: 0, el: null,
           direction: 'WALK_DOWN', lastDirection: 'WALK_DOWN',
           frame: 0, lastAnimationTime: 0,
@@ -690,8 +689,6 @@
         manaBarText: document.getElementById('mana-bar-text'),
         playerLevel: document.getElementById('player-level'),
         playerScore: document.getElementById('player-score'),
-        statusLeft: document.querySelector('.status-left'),
-        statusRight: document.querySelector('.status-right'),
         joystick: {
           outer: document.getElementById('joystick-outer'),
           stick: document.getElementById('joystick-stick'),
@@ -699,13 +696,13 @@
         actionButtonA: document.getElementById('action-button-a'),
       };
 
-      // --- 4. TELEGRAM WEBAPP MOCK (UNCHANGED) ---
+      // --- 4. TELEGRAM WEBAPP MOCK ---
       if (typeof window.Telegram === 'undefined') {
         console.warn("Telegram WebApp script not found. Using mock data.");
         window.Telegram = { WebApp: { initDataUnsafe: { user: { id: 123456789, first_name: "Mock", username: "mock_user" } }, ready: () => { }, expand: () => { } } };
       }
 
-      // --- 5. BACKEND API INTERACTION (UNCHANGED) ---
+      // --- 5. BACKEND API INTERACTION ---
       const api = {
         getUser: async (tgUser) => {
           try {
@@ -732,7 +729,7 @@
         }
       };
 
-      // --- 6. UI UPDATE FUNCTIONS (UNCHANGED) ---
+      // --- 6. UI UPDATE FUNCTIONS ---
       function updateUI() {
         DOMElements.usernameDisplay.textContent = state.username;
         DOMElements.goldBalanceDisplay.textContent = `GOLD: ${state.gold}`;
@@ -774,7 +771,6 @@
             } else if (char === 'c' || char === 'P') {
               const el = document.createElement('div');
               el.className = char === 'P' ? 'candle power-candle' : 'candle';
-              // CORRECTED: Center the candle in the tile
               const candleSize = char === 'P' ? 24 : 16;
               el.style.left = `${elX + (state.gridSize - candleSize) / 2}px`;
               el.style.top = `${elY + (state.gridSize - candleSize) / 2}px`;
@@ -809,7 +805,7 @@
         state.player.el = playerEl;
       }
 
-      // --- 8. INPUT HANDLING (UNCHANGED) ---
+      // --- 8. INPUT HANDLING ---
       function setupInput() {
         let joystickActive = false;
         const maxRadius = DOMElements.joystick.outer.offsetWidth / 2;
@@ -864,7 +860,7 @@
         });
       }
 
-      // --- 9. CORE LOGIC (HEAVILY MODIFIED) ---
+      // --- 9. CORE LOGIC ---
       function checkCollision(rect1, rect2) {
         return rect1.x < rect2.x + rect2.width &&
           rect1.x + rect1.width > rect2.x &&
@@ -876,23 +872,17 @@
         const nextX = state.player.x + state.player.dx;
         const nextY = state.player.y + state.player.dy;
 
-        // CORRECTED: Use player's logical hitbox for collision detection
-        const playerHitbox = {
-          x: nextX,
-          y: nextY,
-          width: CONFIG.PLAYER_HITBOX_WIDTH,
-          height: CONFIG.PLAYER_HITBOX_HEIGHT
-        };
+        const playerHitbox = { width: CONFIG.PLAYER_HITBOX_WIDTH, height: CONFIG.PLAYER_HITBOX_HEIGHT };
 
         let collisionX = false;
         let collisionY = false;
 
         for (const wall of state.walls) {
           const wallRect = { x: wall.x, y: wall.y, width: wall.width, height: wall.height };
-          if (checkCollision({ ...playerHitbox, y: state.player.y }, wallRect)) {
+          if (checkCollision({ ...playerHitbox, x: nextX, y: state.player.y }, wallRect)) {
             collisionX = true;
           }
-          if (checkCollision({ ...playerHitbox, x: state.player.x }, wallRect)) {
+          if (checkCollision({ ...playerHitbox, x: state.player.x, y: nextY }, wallRect)) {
             collisionY = true;
           }
         }
@@ -937,16 +927,17 @@
       }
 
       function updateAnimation(timestamp) {
-        // CORRECTED: Use actual movement, not intended movement, for animation
         const hasMoved = state.player.x !== state.player.prevX || state.player.y !== state.player.prevY;
-
-        if (state.player.dx > 0) state.player.direction = 'WALK_RIGHT';
-        else if (state.player.dx < 0) state.player.direction = 'WALK_LEFT';
-        else if (state.player.dy > 0) state.player.direction = 'WALK_DOWN';
-        else if (state.player.dy < 0) state.player.direction = 'WALK_UP';
-
         let anim;
+
+        // CORRECTED: The direction is only determined from input IF there was actual movement.
+        // This makes actual movement the single source of truth for the animation state.
         if (hasMoved) {
+          if (state.player.dx > 0) state.player.direction = 'WALK_RIGHT';
+          else if (state.player.dx < 0) state.player.direction = 'WALK_LEFT';
+          else if (state.player.dy > 0) state.player.direction = 'WALK_DOWN';
+          else if (state.player.dy < 0) state.player.direction = 'WALK_UP';
+
           anim = ANIMATIONS[state.player.direction];
           state.player.lastDirection = state.player.direction;
         } else {
@@ -967,12 +958,10 @@
       function gameLoop(timestamp) {
         if (state.gameState !== 'PLAYING') return;
 
-        // --- UPDATE LOGIC ---
         state.player.prevX = state.player.x;
         state.player.prevY = state.player.y;
 
         movePlayer();
-        // moveGhosts(); // Ghosts logic can be added back here
         checkGameCollisions();
 
         if (state.player.isInvincible && Date.now() > state.player.invincibleUntil) {
@@ -982,13 +971,9 @@
 
         updateAnimation(timestamp);
 
-        // --- RENDER ---
-        // CORRECTED: The player's visual element is positioned by its logical hitbox coords.
-        // The visual offset is handled by CSS transform.
         state.player.el.style.left = `${state.player.x}px`;
         state.player.el.style.top = `${state.player.y}px`;
 
-        // --- CAMERA LOGIC ---
         const viewportWidth = DOMElements.gameBoard.offsetWidth;
         const viewportHeight = DOMElements.gameBoard.offsetHeight;
         const worldWidth = LEVEL_LAYOUT[0].length * state.gridSize;
@@ -1007,8 +992,8 @@
 
       function startGame() {
         state.gameState = 'PLAYING';
-        DOMElements.startScreen.style.display = 'none';
         requestAnimationFrame(gameLoop);
+        DOMElements.startScreen.style.display = 'none';
       }
 
       function endGame() {
@@ -1020,7 +1005,7 @@
         DOMElements.gameBoard.appendChild(gameOverEl);
       }
 
-      // --- 11. INITIALIZER (UNCHANGED) ---
+      // --- 11. INITIALIZER ---
       async function initialize() {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
