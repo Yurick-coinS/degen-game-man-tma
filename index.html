@@ -290,6 +290,16 @@
       margin: 0 auto;
       position: relative;
       overflow: hidden;
+      /* ПРОМЕТЕЙ: Критическое изменение. Viewport скрывает мир. */
+    }
+
+    /* ПРОМЕТЕЙ: Новый контейнер для всего игрового мира, который будет двигаться внутри .game-board */
+    .world-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition: transform 0.1s linear;
+      /* Плавное движение камеры */
     }
 
     .level-indicator {
@@ -341,14 +351,16 @@
     }
 
     .ghost {
-      width: 15px;
-      height: 15px;
+      width: 32px;
+      /* Увеличен для соответствия новому TILE_SIZE */
+      height: 32px;
       z-index: 5;
     }
 
     .candle {
-      width: 4px;
-      height: 4px;
+      width: 8px;
+      /* Увеличен */
+      height: 8px;
       z-index: 3;
       border-radius: 50%;
       background-color: #FFD700;
@@ -356,115 +368,12 @@
     }
 
     .candle.power-candle {
-      width: 10px;
-      height: 10px;
+      width: 16px;
+      /* Увеличен */
+      height: 16px;
       background-color: #00FFFA;
       box-shadow: 0 0 12px #00FFFA, 0 0 4px #00FFFA;
       border: 2px solid #fff;
-    }
-
-    .candle.big-candle {
-      width: 10px !important;
-      height: 10px !important;
-      background: #FFD700;
-      border: 2px solid #FF4500;
-      box-shadow: 0 0 14px #FFD700, 0 0 6px #FF4500;
-      z-index: 12;
-      animation: big-candle-blink 0.5s steps(1) infinite;
-    }
-
-    @keyframes big-candle-blink {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-    .candle.candle-pulse {
-      animation: candle-pulse 1s infinite;
-    }
-
-    @keyframes candle-pulse {
-      0% {
-        box-shadow: 0 0 6px #14F195;
-      }
-
-      50% {
-        box-shadow: 0 0 18px #14F195;
-      }
-
-      100% {
-        box-shadow: 0 0 6px #14F195;
-      }
-    }
-
-    .candle.candle-spin {
-      animation: candle-spin 1.2s linear infinite;
-    }
-
-    @keyframes candle-spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    .candle.candle-shake {
-      animation: candle-shake 0.4s infinite;
-    }
-
-    @keyframes candle-shake {
-      0% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-2px);
-      }
-
-      50% {
-        transform: translateX(2px);
-      }
-
-      75% {
-        transform: translateX(-2px);
-      }
-
-      100% {
-        transform: translateX(0);
-      }
-    }
-
-    .candle.candle-blink {
-      animation: candle-blink 0.7s steps(1) infinite;
-    }
-
-    @keyframes candle-blink {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-    .candle.candle-glow {
-      box-shadow: 0 0 18px #FFD700, 0 0 8px #fff;
     }
 
     .wall {
@@ -702,124 +611,6 @@
       font-family: 'Share Tech Mono', monospace;
     }
 
-    .fomo-timer {
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      z-index: 50;
-      color: #fff;
-      font-size: 1.18em;
-      font-family: 'Share Tech Mono', monospace;
-      font-weight: bold;
-      text-shadow:
-        0 0 2px #fff,
-        0 0 6px #fff,
-        0 0 0 #fff,
-        1px 1px 0 #ff9800,
-        -1px -1px 0 #ff4500,
-        2px 2px 2px #ff9800,
-        -2px -2px 2px #ff4500;
-      background: none !important;
-      border: none !important;
-      padding: 0;
-      margin: 0;
-      border-radius: 0;
-      box-shadow: none;
-      pointer-events: none;
-      transition: opacity 0.2s;
-      opacity: 1;
-    }
-
-    .fomo-timer.fomo-blink {
-      animation: fomo-blink 0.5s steps(1) infinite;
-    }
-
-    @keyframes fomo-blink {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-
-      100% {
-        opacity: 1;
-      }
-    }
-
-    @media (max-width: 500px) {
-      .abtns {
-        width: 100px;
-        height: 100px;
-        margin-right: 0.5cm;
-      }
-
-      .abtn {
-        width: 48px;
-        height: 48px;
-        font-size: 1.3rem;
-      }
-
-      .joystick-outer {
-        width: 80px;
-        height: 80px;
-      }
-
-      .joystick-base {
-        width: 80px;
-        height: 80px;
-      }
-
-      .joystick-stick {
-        width: 28px;
-        height: 28px;
-        left: 26px;
-        top: 26px;
-      }
-
-      .hotbar-slot {
-        width: 40px;
-        height: 40px;
-      }
-    }
-
-    @media (max-width: 350px) {
-      .abtns {
-        width: 60px;
-        height: 60px;
-        margin-right: 0.5cm;
-      }
-
-      .abtn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1rem;
-      }
-
-      .joystick-outer {
-        width: 60px;
-        height: 60px;
-      }
-
-      .joystick-base {
-        width: 60px;
-        height: 60px;
-      }
-
-      .joystick-stick {
-        width: 20px;
-        height: 20px;
-        left: 20px;
-        top: 20px;
-      }
-
-      .hotbar-slot {
-        width: 36px;
-        height: 36px;
-      }
-    }
-
     html,
     body {
       overscroll-behavior: none;
@@ -855,6 +646,8 @@
 
   <div class="game-board-wrapper">
     <div class="game-board" id="game-board">
+      <!-- ПРОМЕТЕЙ: Этот контейнер будет двигаться для симуляции камеры -->
+      <div class="world-container" id="world-container"></div>
       <div class="start-screen" id="start-screen">
         <h1>DEGEN-MAN</h1>
         <p class="game-description">Initializing system... Awaiting user data...</p>
@@ -882,13 +675,13 @@
 
       // --- 1. CONFIGURATION & CONSTANTS ---
       const CONFIG = {
-        PLAYER_SPEED: 2,
-        GHOST_SPEED: 1,
-        TILE_SIZE: 32,
+        PLAYER_SPEED: 3, // Увеличена скорость
+        GHOST_SPEED: 1.5,
+        TILE_SIZE: 32, // Фиксированный размер тайла
         PLAYER_WIDTH: 32,
         PLAYER_HEIGHT: 32,
-        ANIMATION_SPEED: 150, // ms per frame
-        INVINCIBILITY_DURATION: 2000, // ms
+        ANIMATION_SPEED: 150,
+        INVINCIBILITY_DURATION: 2000,
       };
 
       const ANIMATIONS = {
@@ -899,32 +692,55 @@
         IDLE: { row: 0, frames: 1 },
       };
 
+      // ПРОМЕТЕЙ: Новый, процедурно-сгенерированный уровень 41x41
       const LEVEL_LAYOUT = [
-        "#####################",
-        "#c.......#.......c#",
-        "#.#####.###.#####.#",
-        "#P#####.###.#####.P#",
-        "#c.......c.......c#",
-        "#.#####.#.#.#####.#",
-        "#.......#.#.......#",
-        "#####.### ###.#####",
-        "#####.#   G   #.#####",
-        "#####.# ##### #.#####",
-        "T     #G#G#G#     T",
-        "#####.# ##### #.#####",
-        "#####.#   M   #.#####",
-        "#####.### ###.#####",
-        "#.......#.#.......#",
-        "#.#####.#.#.#####.#",
-        "#c.......c.......c#",
-        "#P#####.###.#####.P#",
-        "#c.......#.......c#",
-        "#####################",
+        "#########################################",
+        "#M.c................#...c...............#",
+        "#.###.#############...#####.###########.#",
+        "#.###.#############...#####.###########.#",
+        "#.###.c....G........c...c...c.........#.#",
+        "#.###.#####.###########.###.#########.#.#",
+        "#...c...###.###########.###.#########.#.#",
+        "#####.#.###.c.......c...###.c.......#.#.#",
+        "#####.#.###.#######.#####.###########.#.#",
+        "#####.#.###.#######.#####.###########.#.#",
+        "#####.#...c...c...#...#...#...c...c...#.#",
+        "#####.#########.###.#.#.###.#########.#.#",
+        "#####.#########.###.#.#.###.#########.#.#",
+        "#c..c.....c...#.###...#...###.#...c...c#.#",
+        "#.###########.#.#########.###.#.#####.###",
+        "#.###########.#.#########.###.#.#####.###",
+        "#.c.c.....c.#.#.c...c...#.c.#.#.c.c.#...#",
+        "#.#########.#.#.#####.###.###.#.###.###.#",
+        "#.#########.#.#.#####.###.###.#.###.###.#",
+        "#.....G...#...#...G...#...#.#...#.#...G.#",
+        "###########.#########.###.#.###.#.#######",
+        "###########.#########.###.#.###.#.#######",
+        "#...c...#...c.#.c.....#.#.#...#.#...c...#",
+        "#.###.#.###.###.#.#####.#.#.###.#####.###",
+        "#.###.#.###.###.#.#####.#.#.###.#####.###",
+        "#.###.#.#.......#...#...#.#...c.....#...#",
+        "#.###.#.#########.###.###.#########.#.###",
+        "#.###.#.#########.###.###.#########.#.###",
+        "#.c...#.......c...#...#...c...#...c.#...#",
+        "#.###.###########.###.#####.###.#.#####.#",
+        "#.###.###########.###.#####.###.#.#####.#",
+        "#...#...#...c.....#...#...c.#...#...#...#",
+        "###.#.###.#######.###.###.###.###.###.###",
+        "###.#.###.#######.###.###.###.###.###.###",
+        "###.#...#...#.....#...#...#...#...#...#.#",
+        "###.###.###.#.#####.#####.###.###.###.#.#",
+        "###.###.###.#.#####.#####.###.###.###.#.#",
+        "#P..#...#...#...c...#...c...#...#...#.P#",
+        "#.###.###.###.#######.#######.###.###.###",
+        "#.........c.........G.........c.........#",
+        "#########################################"
       ];
+
 
       // --- 2. GAME STATE ---
       const state = {
-        gameState: 'START_SCREEN', // START_SCREEN, PLAYING, GAME_OVER
+        gameState: 'START_SCREEN',
         player: {
           x: 0,
           y: 0,
@@ -936,6 +752,11 @@
           lastAnimationTime: 0,
           isInvincible: false,
           invincibleUntil: 0,
+        },
+        // ПРОМЕТЕЙ: Состояние камеры для отслеживания viewport
+        camera: {
+          x: 0,
+          y: 0,
         },
         ghosts: [],
         walls: [],
@@ -949,12 +770,12 @@
         level: 1,
         userId: null,
         username: 'anonymous',
-        gridSize: 0,
       };
 
       // --- 3. DOM ELEMENT SELECTORS ---
       const DOMElements = {
         gameBoard: document.getElementById('game-board'),
+        worldContainer: document.getElementById('world-container'), // ПРОМЕТЕЙ: ссылка на мир
         startScreen: document.getElementById('start-screen'),
         startButton: document.getElementById('start-button'),
         usernameDisplay: document.getElementById('username-display'),
@@ -974,19 +795,12 @@
         actionButtonA: document.getElementById('action-button-a'),
       };
 
-      // --- 4. TELEGRAM WEBAPP MOCK (for local testing) ---
+      // --- 4. TELEGRAM WEBAPP MOCK ---
       if (typeof window.Telegram === 'undefined') {
         console.warn("Telegram WebApp script not found. Using mock data.");
         window.Telegram = {
           WebApp: {
-            initDataUnsafe: {
-              user: {
-                id: 123456789,
-                first_name: "Mock",
-                last_name: "User",
-                username: "mock_user",
-              },
-            },
+            initDataUnsafe: { user: { id: 123456789, first_name: "Mock", username: "mock_user" } },
             ready: () => { },
             expand: () => { },
           },
@@ -1018,9 +832,7 @@
               body: JSON.stringify({ userId: userId, gold: newGoldBalance }),
             });
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const result = await response.json();
-            console.log(result.message);
-            return result;
+            return await response.json();
           } catch (error) {
             console.error("Failed to update gold balance:", error);
             return null;
@@ -1049,73 +861,72 @@
       }
 
       function createGameBoard() {
-        const boardSize = DOMElements.gameBoard.offsetWidth;
-        state.gridSize = boardSize / LEVEL_LAYOUT[0].length;
+        const TILE_SIZE = CONFIG.TILE_SIZE;
+        const worldWidth = LEVEL_LAYOUT[0].length * TILE_SIZE;
+        const worldHeight = LEVEL_LAYOUT.length * TILE_SIZE;
+        DOMElements.worldContainer.style.width = `${worldWidth}px`;
+        DOMElements.worldContainer.style.height = `${worldHeight}px`;
 
         LEVEL_LAYOUT.forEach((row, y) => {
           for (let x = 0; x < row.length; x++) {
             const char = row[x];
-            const el = document.createElement('div');
-            el.style.position = 'absolute';
-            el.style.left = `${x * state.gridSize}px`;
-            el.style.top = `${y * state.gridSize}px`;
+            const elX = x * TILE_SIZE;
+            const elY = y * TILE_SIZE;
 
             if (char === '#') {
+              const el = document.createElement('div');
               el.className = 'wall';
-              el.style.width = `${state.gridSize}px`;
-              el.style.height = `${state.gridSize}px`;
-              state.walls.push({ x: x * state.gridSize, y: y * state.gridSize, width: state.gridSize, height: state.gridSize, el });
-              DOMElements.gameBoard.appendChild(el);
+              el.style.left = `${elX}px`;
+              el.style.top = `${elY}px`;
+              el.style.width = `${TILE_SIZE}px`;
+              el.style.height = `${TILE_SIZE}px`;
+              state.walls.push({ x: elX, y: elY, width: TILE_SIZE, height: TILE_SIZE, el });
+              DOMElements.worldContainer.appendChild(el);
             } else if (char === 'c' || char === 'P') {
+              const el = document.createElement('div');
               el.className = 'candle';
-              el.style.width = `${state.gridSize * 0.25}px`;
-              el.style.height = `${state.gridSize * 0.25}px`;
-              if (char === 'P') {
-                el.classList.add('power-candle');
-                el.style.width = `${state.gridSize * 0.5}px`;
-                el.style.height = `${state.gridSize * 0.5}px`;
-              }
-              const candle = { x: x * state.gridSize, y: y * state.gridSize, width: state.gridSize, height: state.gridSize, el, type: char === 'P' ? 'power' : 'normal' };
+              const candleSize = char === 'P' ? TILE_SIZE * 0.5 : TILE_SIZE * 0.25;
+              el.style.width = `${candleSize}px`;
+              el.style.height = `${candleSize}px`;
+              el.style.left = `${elX + (TILE_SIZE - candleSize) / 2}px`;
+              el.style.top = `${elY + (TILE_SIZE - candleSize) / 2}px`;
+              if (char === 'P') el.classList.add('power-candle');
+
+              const candle = { x: elX, y: elY, width: TILE_SIZE, height: TILE_SIZE, el, type: char === 'P' ? 'power' : 'normal' };
               state.candles.push(candle);
-              DOMElements.gameBoard.appendChild(el);
+              DOMElements.worldContainer.appendChild(el);
             } else if (char === 'M') {
-              state.player.x = x * state.gridSize;
-              state.player.y = y * state.gridSize;
+              state.player.x = elX;
+              state.player.y = elY;
             } else if (char === 'G') {
               const ghostEl = document.createElement('div');
               ghostEl.className = 'ghost';
-              ghostEl.style.width = `${state.gridSize * 0.8}px`;
-              ghostEl.style.height = `${state.gridSize * 0.8}px`;
-              ghostEl.style.left = `${x * state.gridSize}px`;
-              ghostEl.style.top = `${y * state.gridSize}px`;
+              ghostEl.style.width = `${CONFIG.PLAYER_WIDTH}px`;
+              ghostEl.style.height = `${CONFIG.PLAYER_HEIGHT}px`;
+              ghostEl.style.left = `${elX}px`;
+              ghostEl.style.top = `${elY}px`;
               ghostEl.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 75%)`;
-              ghostEl.style.borderRadius = '50% 50% 0 0';
-              DOMElements.gameBoard.appendChild(ghostEl);
+              ghostEl.style.borderRadius = '50%';
+              DOMElements.worldContainer.appendChild(ghostEl);
               state.ghosts.push({
-                x: x * state.gridSize,
-                y: y * state.gridSize,
-                dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED,
-                dy: 0,
-                el: ghostEl,
+                x: elX, y: elY,
+                dx: (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED, dy: 0, el: ghostEl,
               });
             }
           }
         });
 
-        // Create player element
         const playerEl = document.createElement('div');
         playerEl.className = 'player';
         playerEl.style.width = `${CONFIG.PLAYER_WIDTH}px`;
         playerEl.style.height = `${CONFIG.PLAYER_HEIGHT}px`;
-        DOMElements.gameBoard.appendChild(playerEl);
+        DOMElements.worldContainer.appendChild(playerEl);
         state.player.el = playerEl;
       }
 
       // --- 7. INPUT HANDLING ---
       function setupInput() {
         let joystickActive = false;
-        let joystickStartX = 0;
-        let joystickStartY = 0;
         const maxRadius = DOMElements.joystick.outer.offsetWidth / 2;
 
         function handleJoystickMove(e) {
@@ -1131,17 +942,11 @@
 
           const stickX = Math.cos(angle) * distance;
           const stickY = Math.sin(angle) * distance;
-
           DOMElements.joystick.stick.style.transform = `translate(${stickX}px, ${stickY}px)`;
 
           const threshold = 0.3;
-          if (Math.abs(stickX) > Math.abs(stickY)) {
-            state.player.dx = stickX / maxRadius > threshold ? CONFIG.PLAYER_SPEED : (stickX / maxRadius < -threshold ? -CONFIG.PLAYER_SPEED : 0);
-            state.player.dy = 0;
-          } else {
-            state.player.dy = stickY / maxRadius > threshold ? CONFIG.PLAYER_SPEED : (stickY / maxRadius < -threshold ? -CONFIG.PLAYER_SPEED : 0);
-            state.player.dx = 0;
-          }
+          state.player.dx = (Math.abs(currentX) / maxRadius > threshold) ? Math.cos(angle) * CONFIG.PLAYER_SPEED : 0;
+          state.player.dy = (Math.abs(currentY) / maxRadius > threshold) ? Math.sin(angle) * CONFIG.PLAYER_SPEED : 0;
         }
 
         function handleJoystickEnd(e) {
@@ -1151,26 +956,16 @@
           state.player.dx = 0;
           state.player.dy = 0;
         }
-
         DOMElements.joystick.outer.addEventListener('touchstart', (e) => { joystickActive = true; handleJoystickMove(e); }, { passive: false });
         DOMElements.joystick.outer.addEventListener('touchmove', handleJoystickMove, { passive: false });
         DOMElements.joystick.outer.addEventListener('touchend', handleJoystickEnd);
-        DOMElements.joystick.outer.addEventListener('touchcancel', handleJoystickEnd);
-
-        // Mouse support for joystick for debugging
-        DOMElements.joystick.outer.addEventListener('mousedown', (e) => { joystickActive = true; handleJoystickMove(e); });
-        document.addEventListener('mousemove', handleJoystickMove);
-        document.addEventListener('mouseup', (e) => { if (joystickActive) handleJoystickEnd(e); });
-
-
-        // Keyboard controls for debugging
         document.addEventListener('keydown', (e) => {
           if (state.gameState !== 'PLAYING') return;
           switch (e.key) {
-            case 'ArrowUp': case 'w': state.player.dy = -CONFIG.PLAYER_SPEED; state.player.dx = 0; break;
-            case 'ArrowDown': case 's': state.player.dy = CONFIG.PLAYER_SPEED; state.player.dx = 0; break;
-            case 'ArrowLeft': case 'a': state.player.dx = -CONFIG.PLAYER_SPEED; state.player.dy = 0; break;
-            case 'ArrowRight': case 'd': state.player.dx = CONFIG.PLAYER_SPEED; state.player.dy = 0; break;
+            case 'ArrowUp': case 'w': state.player.dy = -CONFIG.PLAYER_SPEED; break;
+            case 'ArrowDown': case 's': state.player.dy = CONFIG.PLAYER_SPEED; break;
+            case 'ArrowLeft': case 'a': state.player.dx = -CONFIG.PLAYER_SPEED; break;
+            case 'ArrowRight': case 'd': state.player.dx = CONFIG.PLAYER_SPEED; break;
           }
         });
         document.addEventListener('keyup', (e) => {
@@ -1195,138 +990,127 @@
       function movePlayer() {
         let nextX = state.player.x + state.player.dx;
         let nextY = state.player.y + state.player.dy;
-
         const playerRect = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
-
-        let collisionX = false;
-        let collisionY = false;
-
+        let collision = false;
         for (const wall of state.walls) {
-          if (checkCollision({ ...playerRect, y: state.player.y }, wall)) {
-            collisionX = true;
-          }
-          if (checkCollision({ ...playerRect, x: state.player.x }, wall)) {
-            collisionY = true;
+          if (checkCollision(playerRect, wall)) {
+            collision = true;
+            break;
           }
         }
-
-        if (!collisionX) state.player.x = nextX;
-        if (!collisionY) state.player.y = nextY;
-
-        // Board boundaries
-        const boardSize = DOMElements.gameBoard.offsetWidth;
-        state.player.x = Math.max(0, Math.min(boardSize - CONFIG.PLAYER_WIDTH, state.player.x));
-        state.player.y = Math.max(0, Math.min(boardSize - CONFIG.PLAYER_HEIGHT, state.player.y));
+        if (!collision) {
+          state.player.x = nextX;
+          state.player.y = nextY;
+        }
       }
 
       function moveGhosts() {
         state.ghosts.forEach(ghost => {
           let nextX = ghost.x + ghost.dx;
           let nextY = ghost.y + ghost.dy;
-
-          const ghostRect = { x: nextX, y: nextY, width: state.gridSize * 0.8, height: state.gridSize * 0.8 };
-
+          const ghostRect = { x: nextX, y: nextY, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
           let collided = false;
-          for (const wall of state.walls) {
-            if (checkCollision(ghostRect, wall)) {
-              collided = true;
-              break;
-            }
-          }
+          for (const wall of state.walls) { if (checkCollision(ghostRect, wall)) { collided = true; break; } }
 
-          const boardSize = DOMElements.gameBoard.offsetWidth;
-          if (collided || nextX < 0 || nextX > boardSize - ghostRect.width || nextY < 0 || nextY > boardSize - ghostRect.height) {
+          if (collided || Math.random() < 0.01) { // Change direction on collision or randomly
             if (Math.random() > 0.5) {
-              ghost.dx = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED;
-              ghost.dy = 0;
+              ghost.dx = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED; ghost.dy = 0;
             } else {
-              ghost.dy = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED;
-              ghost.dx = 0;
+              ghost.dy = (Math.random() > 0.5 ? 1 : -1) * CONFIG.GHOST_SPEED; ghost.dx = 0;
             }
-          } else {
-            ghost.x = nextX;
-            ghost.y = nextY;
-          }
+          } else { ghost.x = nextX; ghost.y = nextY; }
         });
       }
 
       function checkGameCollisions() {
         const playerRect = { x: state.player.x, y: state.player.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
-
-        // Player vs Candles
         for (let i = state.candles.length - 1; i >= 0; i--) {
           const candle = state.candles[i];
           if (checkCollision(playerRect, candle)) {
-            DOMElements.gameBoard.removeChild(candle.el);
+            DOMElements.worldContainer.removeChild(candle.el);
             state.candles.splice(i, 1);
             state.score += candle.type === 'power' ? 50 : 10;
             state.gold += candle.type === 'power' ? 5 : 1;
             updateUI();
           }
         }
-
-        // Player vs Ghosts
         if (!state.player.isInvincible) {
           for (const ghost of state.ghosts) {
-            const ghostRect = { x: ghost.x, y: ghost.y, width: state.gridSize * 0.8, height: state.gridSize * 0.8 };
+            const ghostRect = { x: ghost.x, y: ghost.y, width: CONFIG.PLAYER_WIDTH, height: CONFIG.PLAYER_HEIGHT };
             if (checkCollision(playerRect, ghostRect)) {
               state.health -= 10;
               state.player.isInvincible = true;
               state.player.invincibleUntil = Date.now() + CONFIG.INVINCIBILITY_DURATION;
               state.player.el.classList.add('invincible');
               updateUI();
-              if (state.health <= 0) {
-                endGame();
-              }
+              if (state.health <= 0) endGame();
               break;
             }
           }
         }
       }
 
-      // --- 9. ANIMATION ---
-      function updateAnimation(timestamp) {
-        if (state.player.dx > 0) state.player.direction = 'WALK_RIGHT';
-        else if (state.player.dx < 0) state.player.direction = 'WALK_LEFT';
-        else if (state.player.dy > 0) state.player.direction = 'WALK_DOWN';
-        else if (state.player.dy < 0) state.player.direction = 'WALK_UP';
+      // --- 9. ANIMATION & RENDERING ---
+      function updateAnimationAndRender(timestamp) {
+        // Determine direction
+        if (state.player.dx !== 0 || state.player.dy !== 0) {
+          const angle = Math.atan2(state.player.dy, state.player.dx) * 180 / Math.PI;
+          if (angle > -135 && angle <= -45) state.player.direction = 'WALK_UP';
+          else if (angle > 45 && angle <= 135) state.player.direction = 'WALK_DOWN';
+          else if (angle > 135 || angle <= -135) state.player.direction = 'WALK_LEFT';
+          else state.player.direction = 'WALK_RIGHT';
+        }
 
         const isMoving = state.player.dx !== 0 || state.player.dy !== 0;
         const anim = isMoving ? ANIMATIONS[state.player.direction] : ANIMATIONS.IDLE;
-
         if (timestamp - state.player.lastAnimationTime > CONFIG.ANIMATION_SPEED) {
           state.player.frame = (state.player.frame + 1) % anim.frames;
           state.player.lastAnimationTime = timestamp;
         }
-
         const bgPosX = state.player.frame * CONFIG.PLAYER_WIDTH;
         const bgPosY = anim.row * CONFIG.PLAYER_HEIGHT;
-
         state.player.el.style.backgroundPosition = `-${bgPosX}px -${bgPosY}px`;
+
+        // Render positions
+        state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
+        state.ghosts.forEach(g => {
+          g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
+        });
+      }
+
+      // ПРОМЕТЕЙ: Новая функция для управления камерой
+      function updateCamera() {
+        const viewportWidth = DOMElements.gameBoard.offsetWidth;
+        const viewportHeight = DOMElements.gameBoard.offsetHeight;
+        const worldWidth = DOMElements.worldContainer.offsetWidth;
+        const worldHeight = DOMElements.worldContainer.offsetHeight;
+
+        // Цель: центр игрока в центре viewport
+        let targetX = state.player.x + CONFIG.PLAYER_WIDTH / 2 - viewportWidth / 2;
+        let targetY = state.player.y + CONFIG.PLAYER_HEIGHT / 2 - viewportHeight / 2;
+
+        // Ограничиваем камеру границами мира
+        targetX = Math.max(0, Math.min(targetX, worldWidth - viewportWidth));
+        targetY = Math.max(0, Math.min(targetY, worldHeight - viewportHeight));
+
+        state.camera.x = targetX;
+        state.camera.y = targetY;
+
+        DOMElements.worldContainer.style.transform = `translate(${-state.camera.x}px, ${-state.camera.y}px)`;
       }
 
       // --- 10. CORE GAME LOGIC ---
       function gameLoop(timestamp) {
         if (state.gameState !== 'PLAYING') return;
-
         movePlayer();
         moveGhosts();
         checkGameCollisions();
-
-        // Render
-        state.player.el.style.transform = `translate(${state.player.x}px, ${state.player.y}px)`;
-        state.ghosts.forEach(g => {
-          g.el.style.transform = `translate(${g.x}px, ${g.y}px)`;
-        });
-
-        // Update Invincibility
+        updateAnimationAndRender(timestamp);
+        updateCamera();
         if (state.player.isInvincible && Date.now() > state.player.invincibleUntil) {
           state.player.isInvincible = false;
           state.player.el.classList.remove('invincible');
         }
-
-        updateAnimation(timestamp);
-
         requestAnimationFrame(gameLoop);
       }
 
@@ -1338,34 +1122,23 @@
 
       function endGame() {
         state.gameState = 'GAME_OVER';
-        api.updateGold(state.userId, state.gold); // Final gold update
-
+        api.updateGold(state.userId, state.gold);
         const gameOverEl = document.createElement('div');
         gameOverEl.className = 'game-over';
-        gameOverEl.innerHTML = `
-          <h1>GAME OVER</h1>
-          <p>Final Score: ${state.score}</p>
-          <p>Total Gold: ${state.gold}</p>
-          <button onclick="window.location.reload()" class="start-button">RESTART</button>
-        `;
+        gameOverEl.innerHTML = `<h1>GAME OVER</h1><p>Final Score: ${state.score}</p><p>Total Gold: ${state.gold}</p><button onclick="window.location.reload()" class="start-button">RESTART</button>`;
         DOMElements.gameBoard.appendChild(gameOverEl);
       }
-
 
       // --- 11. INITIALIZER ---
       async function initialize() {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-
         const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
         if (!tgUser || !tgUser.id) {
           DOMElements.startScreen.querySelector('p').textContent = "Could not identify user. Please open through Telegram.";
           return;
         }
-
         const responseData = await api.getUser(tgUser);
-
-        // Прометей: Коррекция. Ответ сервера содержит объект playerData.
         if (responseData && responseData.playerData) {
           const { playerData } = responseData;
           state.userId = playerData.userId;
@@ -1375,23 +1148,15 @@
           state.maxHealth = playerData.maxHealth || 100;
           state.mana = playerData.mana || 50;
           state.maxMana = playerData.maxMana || 50;
-
           updateUI();
           DOMElements.startScreen.querySelector('p').textContent = 'Collect candles. Avoid ghosts. Get rich or die tryin\'.';
           DOMElements.startButton.textContent = 'START';
           DOMElements.startButton.disabled = false;
         }
-
-        DOMElements.startButton.addEventListener('click', () => {
-          if (state.gameState === 'START_SCREEN') {
-            startGame();
-          }
-        });
-
+        DOMElements.startButton.addEventListener('click', () => { if (state.gameState === 'START_SCREEN') startGame(); });
         createGameBoard();
         setupInput();
       }
-
       initialize();
     });
   </script>
